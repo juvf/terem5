@@ -17,10 +17,15 @@ int commandError(uint8_t *buffer)
 	return 6;
 }
 
-int commandSetTime(uint8_t *buffer)
+//конфигурация пишется в
+int commandSetConfig(uint8_t *buffer)
 {
-	setRtcTime(buffer+6);
-	return 5;
+	return 10;
+}
+
+int commandGetConfig(uint8_t *buffer)
+{
+	return 10;
 }
 
 

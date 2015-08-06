@@ -10,6 +10,8 @@
 #include "Checksum.h"
 #include "commandsRfd.h"
 #include "clock.h"
+#include "Process.h"
+
 #define BUFFER_SIZE	256
 #define ADRRESS		0x01
 uint8_t rfd_buffer[BUFFER_SIZE];
@@ -107,6 +109,18 @@ void parser()
 		case UART_GetTime:
 			getRtcTime(rfd_buffer + 6);
 			rfd_sizeOfFrame = 12;
+			break;
+		case 0x07: //запись конфигурации
+			rfd_sizeOfFrame = commandSetConfig(rfd_buffer + 6);
+			break;
+		case 0x05: //чтение конфигурации
+			rfd_sizeOfFrame = commandGetConfig(rfd_buffer + 6);
+			break;
+		case 0x17: //Set_ProcConf
+			rfd_sizeOfFrame = commandSetConfig(rfd_buffer + 6);
+			break;
+		case 0x18: //Get_ProcConf
+			rfd_sizeOfFrame = commandGetConfig(rfd_buffer + 6);
 			break;
 		default:
 			rfd_sizeOfFrame = commandError(rfd_buffer);

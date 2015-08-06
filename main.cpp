@@ -3,12 +3,16 @@
 #include "stm32f4xx_conf.h"
 #include "tasks/taskUartRfd.h"
 #include "tasks/clock.h"
+#include "i2c.h"
+#include "tasks/configTerem.h"
 
 int main()
 {
 	pereferInit();
 
 	initOs();
+
+	initConfigTerem();
 
 	NVIC_SetVectorTable( NVIC_VectTab_FLASH, 0x0);
 	NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4);
@@ -36,6 +40,8 @@ void pereferInit()
 	initUartRfd();
 
 	initRtc();
+
+	init_I2C1();
 }
 
 void initUartForConsol()

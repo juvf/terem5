@@ -15,6 +15,7 @@
 
 int commandTestConnect(uint8_t *buffer);
 int commandError(uint8_t *buffer);
-int commandSetTime(uint8_t *buffer);
+int commandSetConfig(uint8_t *buffer);
+int commandGetConfig(uint8_t *buffer);
 
 #endif /* TASKS_COMMANDSRFD_H_ */
