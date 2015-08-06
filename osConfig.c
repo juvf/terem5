@@ -3,10 +3,13 @@
 #include "tasks/usbTask.h"
 #include "tasks/taskUartRfd.h"
 #include "stm32f4xx.h"
+#include "tasks/taskMeasurement.h"
 
 //дескрипторы задач
 xTaskHandle handleMain;
 xTaskHandle handleUsb;
+
+xTimerHandle timerMesuring;
 
 xQueueHandle cansolQueue;//очередь для сообщений дебага в кансоль
 xQueueHandle uartRfd232Queue;
@@ -20,6 +23,9 @@ void initOs(void)
 	NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 );
 	cansolQueue = xQueueCreate(20, sizeof(char*));
 	uartRfd232Queue = xQueueCreate(10, 1);
+
+	timerMesuring = xTimerCreate("mesuring", 1000, pdTRUE, 0, taskMeasurement);
+
 	createTasks();
 }
 

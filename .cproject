@@ -335,6 +335,7 @@
 								<option id="iar.arm.toolchain.compiler.option.interwork.v5.4.0.1108030416" name="Generate interwork code" superClass="iar.arm.toolchain.compiler.option.interwork.v5.4.0" value="false" valueType="boolean"/>
 								<option id="iar.arm.toolchain.compiler.option.incPaths.v5.4.0.1529261691" name="Additional include directories" superClass="iar.arm.toolchain.compiler.option.incPaths.v5.4.0" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/freertos&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.0\arm\inc\c&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;d:\Program Files (x86)\IAR Systems\Embedded Workbench 7.0\arm\CMSIS\Include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Libraries/Usb}&quot;"/>

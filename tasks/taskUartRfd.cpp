@@ -116,11 +116,11 @@ void parser()
 		case 0x05: //чтение конфигурации
 			rfd_sizeOfFrame = commandGetConfig(rfd_buffer + 6);
 			break;
-		case 0x17: //Set_ProcConf
-			rfd_sizeOfFrame = commandSetConfig(rfd_buffer + 6);
+		case 0x17: //Start_Proc
+			rfd_sizeOfFrame = commandStartProc(rfd_buffer + 6);
 			break;
 		case 0x18: //Get_ProcConf
-			rfd_sizeOfFrame = commandGetConfig(rfd_buffer + 6);
+			rfd_sizeOfFrame = commandGetProcConf(rfd_buffer + 6);
 			break;
 		default:
 			rfd_sizeOfFrame = commandError(rfd_buffer);

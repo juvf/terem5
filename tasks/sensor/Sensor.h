@@ -10,6 +10,10 @@
 
 #include <stdint.h>
 
+extern uint8_t typeOfSensor[9];
+
+float readSenser(uint8_t numChanel);
+
 class Sensor
 {
 public:
@@ -18,6 +22,7 @@ public:
 
 	virtual float read() = 0;
 	uint8_t getType() const;
+	void setType(uint8_t type_);
 	bool isEnabled() const;
 
 protected:

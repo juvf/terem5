@@ -20,6 +20,8 @@ extern xTaskHandle handleMain;
 extern xTaskHandle handleUsb;
 extern xTaskHandle handleRfd;
 
+extern xTimerHandle timerMesuring;
+
 extern xQueueHandle cansolQueue;
 extern xQueueHandle uartRfd232Queue;
 
