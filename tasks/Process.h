@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include "../structCommon.h"
 
-int commandSetProcConf(uint8_t *buffer);
+int commandStartProc(uint8_t *buffer);
 int commandGetProcConf(uint8_t *buffer);
 int commandStopProc(uint8_t *buffer);
 
