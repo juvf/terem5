@@ -186,6 +186,6 @@ typedef struct
 	RTC_DateTypeDef startDate;          //дата старта
 	uint16_t period;          //интервал в сек
 	TDataFlash config;          //конфигурация прибора во время процесса
-} Process;
+} HeaderProcess;
 
 #endif /* STRUCTCOMMON_H_ */

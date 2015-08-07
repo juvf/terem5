@@ -10,7 +10,7 @@
 #include "taskMeasurement.h"
 
 uint8_t stateProcess; //текущее состояние процесса 0-нет процесса, 1-едёт процесс, 2-закончился, 3-ждет старта
-Process currProcessHeader; //заголовок текущего процесса
+HeaderProcess currProcessHeader; //заголовок текущего процесса
 uint32_t currProcessCount; //кол-во записанных точек
 
 int commandStartProc(uint8_t *buffer)
