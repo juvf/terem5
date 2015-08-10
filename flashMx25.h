@@ -17,9 +17,11 @@
 
 void initSpi2();
 void initDmaSpi2();
-void startSpi(uint8_t number);
+void startSpi(uint16_t number);
 void spiWait();
 void setSpiOut(uint16_t adr, uint8_t data);
+void spiWREN();
+
 
 void saveHeader(HeaderProcess* header);
 void savePoint(float *aray, uint8_t size);

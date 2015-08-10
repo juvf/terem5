@@ -7,25 +7,49 @@
 
 #include "flashMx25.h"
 #include "stm32f4xx.h"
+#include <string.h>
 
-#define SIZE_BUF_FLASH	100
+#define SIZE_BUF_FLASH	(1 + 3 + 256)
 
 uint8_t flashBuffIn[SIZE_BUF_FLASH];
 uint8_t flashBuffOut[SIZE_BUF_FLASH];
 
 uint8_t spi2Work = 0;
 
-
-uint32_t currentAddress = 0;//текущий адрес, куда можно записать новый процесс
+uint32_t currentAddress = 0; //текущий адрес, куда можно записать новый процесс
 
 void flashMx25Write(uint8_t *source, uint32_t adrDestination, uint32_t size)
 {
+	spiWREN();
+	flashBuffOut[0] = 2; //Command Page Programm
+	flashBuffOut[1] = adrDestination >> 16;
+	flashBuffOut[2] = adrDestination >> 8;
+	flashBuffOut[3] = adrDestination;
+	//memcpy((void*)(flashBuffOut + 4), (void*)source, 256);
+	for(int i = 0; i < 256; i++)
+		flashBuffOut[3 + i] = i;
 
+	startSpi(SIZE_BUF_FLASH);
+	spiWait();
 }
 
 void flashMx25Read(uint8_t *destination, uint32_t adrSource, uint32_t size)
 {
+	spiWREN();
+	flashBuffOut[0] = 3; //Command Page Programm
+	flashBuffOut[1] = adrSource >> 16;
+	flashBuffOut[2] = adrSource >> 8;
+	flashBuffOut[3] = adrSource;
+	//memcpy((void*)(flashBuffOut + 4), (void*)source, 256);
+	startSpi(SIZE_BUF_FLASH);
+	spiWait();
+}
 
+void spiWREN()
+{
+	flashBuffOut[0] = 0x06;
+	startSpi(1);
+	spiWait();
 }
 
 void initSpi2()
@@ -43,7 +67,6 @@ void initSpi2()
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_SPI2);
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource14, GPIO_AF_SPI2);
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource15, GPIO_AF_SPI2);
-
 
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
 
@@ -75,7 +98,7 @@ void initSpi2()
 
 void initDmaSpi2()
 {
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1 , ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
 	//TX
 	DMA_InitTypeDef dmaInit;
 	dmaInit.DMA_BufferSize = 2;
@@ -119,12 +142,12 @@ void initDmaSpi2()
 
 	DMA_Init(DMA1_Stream3, &dmaInit);
 	NVIC_EnableIRQ(DMA1_Stream3_IRQn);
-	DMA_ITConfig(DMA1_Stream4, DMA_IT_TC, ENABLE);
+	DMA_ITConfig(DMA1_Stream3, DMA_IT_TC, ENABLE);
 
 	SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, ENABLE);
 }
 
-void startSpi(uint8_t number)
+void startSpi(uint16_t number)
 {
 	DMA_SetCurrDataCounter(DMA1_Stream3, number);
 	DMA_SetCurrDataCounter(DMA1_Stream4, number);
@@ -137,12 +160,13 @@ void startSpi(uint8_t number)
 
 void spiWait()
 {
-	while(spi2Work);
+	while(spi2Work)
+		;
 }
 
 void setSpiOut(uint16_t adr, uint8_t data)
 {
-	if( adr < SIZE_BUF_FLASH )
+	if(adr < SIZE_BUF_FLASH)
 		flashBuffOut[adr] = data;
 }
 
