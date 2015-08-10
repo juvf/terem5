@@ -15,6 +15,12 @@
 #define csOn()	GPIO_ResetBits(GPIOC, GPIO_Pin_5)
 #define csOff()	GPIO_SetBits(GPIOC, GPIO_Pin_5)
 
+void initSpi2();
+void initDmaSpi2();
+void startSpi(uint8_t number);
+void spiWait();
+void setSpiOut(uint16_t adr, uint8_t data);
+
 void saveHeader(HeaderProcess* header);
 void savePoint(float *aray, uint8_t size);
 void closeProcess(HeaderProcess* header);

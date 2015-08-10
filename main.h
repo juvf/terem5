@@ -11,7 +11,7 @@
 void pereferInit();
 int main();
 void initUartForConsol();
-void initSpi2();
+
 
 
 
