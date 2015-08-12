@@ -8,6 +8,7 @@
 #include "flashMx25.h"
 #include "stm32f4xx.h"
 #include <string.h>
+// etaoinsrhldcumfpgwybvkxjqz1234567890! @.?# brust
 
 #define SIZE_BUF_FLASH	(1 + 3 + 256)
 
@@ -18,10 +19,10 @@ uint8_t spi2Work = 0;
 
 uint32_t currentAddress = 0; //текущий адрес, куда можно записать новый процесс
 
-void flashMx25Write(uint8_t *source, uint32_t adrDestination, uint32_t size)
+void flashMx25Write(uint8_t *source, uint32_t adrDestination)
 {
 	spiWREN();
-	flashBuffOut[0] = 2; //Command Page Programm
+	flashBuffOut[0] = 1; //Command Page Programm
 	flashBuffOut[1] = adrDestination >> 16;
 	flashBuffOut[2] = adrDestination >> 8;
 	flashBuffOut[3] = adrDestination;
@@ -33,10 +34,9 @@ void flashMx25Write(uint8_t *source, uint32_t adrDestination, uint32_t size)
 	spiWait();
 }
 
-void flashMx25Read(uint8_t *destination, uint32_t adrSource, uint32_t size)
+void flashMx25Read(uint8_t *destination, uint32_t adrSource)
 {
-	spiWREN();
-	flashBuffOut[0] = 3; //Command Page Programm
+	flashBuffOut[0] = 3; //Command Read
 	flashBuffOut[1] = adrSource >> 16;
 	flashBuffOut[2] = adrSource >> 8;
 	flashBuffOut[3] = adrSource;

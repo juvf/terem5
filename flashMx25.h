@@ -26,8 +26,8 @@ void spiWREN();
 void saveHeader(HeaderProcess* header);
 void savePoint(float *aray, uint8_t size);
 void closeProcess(HeaderProcess* header);
-void flashMx25Write(uint8_t *source, uint32_t adrDestination, uint32_t size);
-void flashMx25Read(uint8_t *destination, uint32_t adrSource, uint32_t size);
+void flashMx25Write(uint8_t *source, uint32_t adrDestination );
+void flashMx25Read(uint8_t *destination, uint32_t adrSource );
 
 
 uint16_t readStatusRegister();

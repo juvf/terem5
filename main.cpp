@@ -48,12 +48,15 @@ void pereferInit()
 
 	initDmaSpi2();
 
-	setSpiOut(0, 0x9f);
-	setSpiOut(1, 0x00);
-	setSpiOut(2, 0x00);
-	setSpiOut(3, 0x00);
-	startSpi(4);
-	spiWait();
+//	setSpiOut(0, 0x9f);
+//	setSpiOut(1, 0x00);
+//	setSpiOut(2, 0x00);
+//	setSpiOut(3, 0x00);
+//	startSpi(4);
+//	spiWait();
+
+	flashMx25Write(0, 0);
+	flashMx25Read(0, 0);
 
 	asm("nop");
 
