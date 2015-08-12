@@ -21,6 +21,8 @@ void startSpi(uint16_t number);
 void spiWait();
 void setSpiOut(uint16_t adr, uint8_t data);
 void spiWREN();
+uint16_t spiRDSR();
+void spiSector4kErase(uint16_t numSector);
 
 
 void saveHeader(HeaderProcess* header);

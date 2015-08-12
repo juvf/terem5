@@ -22,7 +22,7 @@ uint32_t currentAddress = 0; //текущий адрес, куда можно записать новый процесс
 void flashMx25Write(uint8_t *source, uint32_t adrDestination)
 {
 	spiWREN();
-	flashBuffOut[0] = 1; //Command Page Programm
+	flashBuffOut[0] = 2; //Command Page Programm
 	flashBuffOut[1] = adrDestination >> 16;
 	flashBuffOut[2] = adrDestination >> 8;
 	flashBuffOut[3] = adrDestination;
@@ -42,6 +42,31 @@ void flashMx25Read(uint8_t *destination, uint32_t adrSource)
 	flashBuffOut[3] = adrSource;
 	//memcpy((void*)(flashBuffOut + 4), (void*)source, 256);
 	startSpi(SIZE_BUF_FLASH);
+	spiWait();
+}
+
+uint16_t spiRDSR()
+{
+//	flashBuffOut[0] = 0x05;
+	setSpiOut(0, 0x05);
+	setSpiOut(1, 0x00);
+	setSpiOut(2, 0x00);
+	startSpi(3);
+	spiWait();
+	uint16_t status = flashBuffIn[1];
+	status <<= 8;
+	status |= flashBuffIn[2];
+	return status;
+}
+
+void spiSector4kErase(uint16_t numSector)
+{
+	spiWREN();
+	flashBuffOut[0] = 0x20;
+	flashBuffOut[1] = numSector >> 16;
+	flashBuffOut[2] = numSector >> 8;
+	flashBuffOut[3] = numSector;
+	startSpi(4);
 	spiWait();
 }
 
@@ -81,7 +106,7 @@ void initSpi2()
 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
 	SPI_InitTypeDef spiInit;
-	spiInit.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_64;
+	spiInit.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_128;
 	spiInit.SPI_CPHA = SPI_CPHA_2Edge;
 	spiInit.SPI_CPOL = SPI_CPOL_High;
 	spiInit.SPI_CRCPolynomial = 7;
