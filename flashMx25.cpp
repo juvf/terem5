@@ -218,3 +218,33 @@ extern "C" void DMA1_Stream4_IRQHandler() //TX
 	}
 }
 
+void getFirstLastProcess(uint32_t *firstHeader, uint32_t *lastFreeHeader)
+{
+	firstHeader = 0;
+	curSector = 0;
+	bool isFind = false;
+	bool isFindFree = false;
+	while()
+	{
+		readHeader();
+		if(crc == 0)
+		{
+			curSector += size;
+			if(!isFind)
+				isFind = true;
+		}
+		else
+		{
+			if(isFind)
+			{
+				if(!isFindFree)
+				{
+					isFindFree = true;
+					lastFreeHeader = curSector;
+				}
+			}
+			curSector++;
+		}
+	}
+}
+

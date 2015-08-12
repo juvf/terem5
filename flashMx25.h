@@ -24,6 +24,9 @@ void spiWREN();
 uint16_t spiRDSR();
 void spiSector4kErase(uint16_t numSector);
 
+//менеджер памяти
+void getFirstLastProcess(uint32_t *firstHeader, uint32_t *lastFreeHeader);
+
 
 void saveHeader(HeaderProcess* header);
 void savePoint(float *aray, uint8_t size);
