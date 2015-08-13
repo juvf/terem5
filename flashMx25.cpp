@@ -7,10 +7,17 @@
 
 #include "flashMx25.h"
 #include "stm32f4xx.h"
+#include "tasks/Process.h"
 #include <string.h>
 // etaoinsrhldcumfpgwybvkxjqz1234567890! @.?# brust
 
 #define SIZE_BUF_FLASH	(1 + 3 + 256)
+
+//в headerList[] хранится адреса секторов во флешь с заголовками (с началом) записанных процессов
+//если 0xffff - то сектор пустой
+#define MAX_SECTORS	2000
+uint16_t headerList[MAX_SECTORS] = { 0xffff }; //
+uint16_t countProc = 0; //кол-во процессов в флешке
 
 uint8_t flashBuffIn[SIZE_BUF_FLASH];
 uint8_t flashBuffOut[SIZE_BUF_FLASH];
@@ -34,15 +41,17 @@ void flashMx25Write(uint8_t *source, uint32_t adrDestination)
 	spiWait();
 }
 
-void flashMx25Read(uint8_t *destination, uint32_t adrSource)
+void flashMx25Read(void *destination, uint32_t adrSource, uint16_t size)
 {
+	if(size > SIZE_BUF_FLASH)
+		return;
 	flashBuffOut[0] = 3; //Command Read
 	flashBuffOut[1] = adrSource >> 16;
 	flashBuffOut[2] = adrSource >> 8;
 	flashBuffOut[3] = adrSource;
-	//memcpy((void*)(flashBuffOut + 4), (void*)source, 256);
-	startSpi(SIZE_BUF_FLASH);
+	startSpi(size);
 	spiWait();
+	memcpy((void*)(flashBuffIn + 4), destination, size);
 }
 
 uint16_t spiRDSR()
@@ -220,31 +229,73 @@ extern "C" void DMA1_Stream4_IRQHandler() //TX
 
 void getFirstLastProcess(uint32_t *firstHeader, uint32_t *lastFreeHeader)
 {
-	firstHeader = 0;
-	curSector = 0;
-	bool isFind = false;
-	bool isFindFree = false;
-	while()
+//	firstHeader = 0;
+//	curSector = 0;
+//	bool isFind = false;
+//	bool isFindFree = false;
+//	while()
+//	{
+//		readHeader();
+//		if(crc == 0)
+//		{
+//			curSector += size;
+//			if(!isFind)
+//				isFind = true;
+//		}
+//		else
+//		{
+//			if(isFind)
+//			{
+//				if(!isFindFree)
+//				{
+//					isFindFree = true;
+//					lastFreeHeader = curSector;
+//				}
+//			}
+//			curSector++;
+//		}
+//	}
+}
+
+//сканирование флешки и заполненеи массива указателей заголовков процесса headerList[]
+void scanProc()
+{
+	countProc = 0;
+	HeaderProcess header;
+	for(int i = 0; i < MAX_SECTORS; i++)
 	{
-		readHeader();
-		if(crc == 0)
+		headerList[i] = 0xffff;
+		flashMx25Read((void*)&header, i * 4096, sizeof(HeaderProcess));
+		if(headerIsValid(header))
 		{
-			curSector += size;
-			if(!isFind)
-				isFind = true;
-		}
-		else
-		{
-			if(isFind)
-			{
-				if(!isFindFree)
-				{
-					isFindFree = true;
-					lastFreeHeader = curSector;
-				}
-			}
-			curSector++;
+			headerList[countProc++] = i;
 		}
 	}
+}
+
+void findBeginEndFreeMem(uint32_t *beginSector, uint32_t *endSector)
+{
+//	uint32_t curSector = 0;
+//	while()
+//	{
+//		readHeader();
+//		if(header == GOOD)
+//		{//нашли первый годный заголовок. находим след свободное место.
+//			curSector += size;
+//			if(fBegin)
+//			{//помечаем последний свободный сектор
+//				break;//выходим из вайла
+//			}
+//		}
+//		else
+//		{
+//			curSector++;
+//			if(!fBegin)
+//			{//помечаем первый свободный сектор
+//				fBegin = true;
+//			}
+//		}
+//
+//	}
 }
 

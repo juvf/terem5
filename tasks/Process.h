@@ -14,5 +14,6 @@ int commandStartProc(uint8_t *buffer);
 int commandGetProcConf(uint8_t *buffer);
 int commandStopProc(uint8_t *buffer);
 
+bool headerIsValid( const HeaderProcess &header);
 
 #endif /* TASKS_PROCESS_H_ */

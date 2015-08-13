@@ -23,16 +23,18 @@ void setSpiOut(uint16_t adr, uint8_t data);
 void spiWREN();
 uint16_t spiRDSR();
 void spiSector4kErase(uint16_t numSector);
+void scanProc();
 
 //менеджер памяти
 void getFirstLastProcess(uint32_t *firstHeader, uint32_t *lastFreeHeader);
+void findBeginEndFreeMem(uint32_t *beginSector, uint32_t *endSector);
 
 
 void saveHeader(HeaderProcess* header);
 void savePoint(float *aray, uint8_t size);
 void closeProcess(HeaderProcess* header);
 void flashMx25Write(uint8_t *source, uint32_t adrDestination );
-void flashMx25Read(uint8_t *destination, uint32_t adrSource );
+void flashMx25Read(void *destination, uint32_t adrSource, uint16_t size );
 
 
 uint16_t readStatusRegister();

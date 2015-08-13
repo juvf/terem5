@@ -8,6 +8,7 @@
 #include "stm32f4xx_rtc.h"
 #include "../osConfig.h"
 #include "taskMeasurement.h"
+#include "Checksum.h"
 
 uint8_t stateProcess; //текущее состо€ние процесса 0-нет процесса, 1-едЄт процесс, 2-закончилс€, 3-ждет старта
 HeaderProcess currProcessHeader; //заголовок текущего процесса
@@ -17,20 +18,28 @@ int commandStartProc(uint8_t *buffer)
 {
 	if((stateProcess == 0) || (stateProcess == 2))
 	{
-		uint32_t per = (buffer[9] << 24) | (buffer[8] << 16) | (buffer[7] << 8) | buffer[6];
+		uint32_t per = (buffer[9] << 24) | (buffer[8] << 16) | (buffer[7] << 8)
+				| buffer[6];
 		if((per > 0) && (per < 4294960))
 		{
 			currProcessHeader.period = per;
 			if(buffer[0] == 0xff)
 			{ //старотовать сейчас процесс
-				musuring();
-				if ( xTimerChangePeriod(timerMesuring, per * 1000, 100) == pdFAIL )
-					buffer[0] = 1;
-				else
+			  //заполнить заголовок процесса
+				if(allocMemForProc(currProcessHeader))
 				{
-					xTimerReset(timerMesuring, 100);
-					buffer[0] = 0;
+					musuring();
+					if( xTimerChangePeriod(timerMesuring, per * 1000,
+							100) == pdFAIL)
+						buffer[0] = 1;
+					else
+					{
+						xTimerReset(timerMesuring, 100);
+						buffer[0] = 0;
+					}
 				}
+				else
+					buffer[0] = 2;
 			}
 			else
 			{
@@ -69,4 +78,18 @@ int commandGetProcConf(uint8_t *buffer)
 int commandStopProc(uint8_t *buffer)
 {
 
+}
+
+bool headerIsValid(const HeaderProcess &header)
+{
+	return (Checksum::crc16((uint8_t*)&header, sizeof(HeaderProcess)) == 0);
+}
+
+bool allocMemForProc()
+{
+	//делаем заголовок
+	//находим цепочку секторов
+	//записываем заголовок и цепочку секторов
+	//метим сектора дл€ данных
+	//если нет места дл€ процесса, везвращ€ем false
 }
