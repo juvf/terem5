@@ -6,6 +6,8 @@
  */
 #include "commandsRfd.h"
 #include "clock.h"
+#include "Process.h"
+
 int commandTestConnect(uint8_t *buffer)
 {
 	return 10;
@@ -28,4 +30,13 @@ int commandGetConfig(uint8_t *buffer)
 	return 10;
 }
 
+int commandClearFlash(uint8_t *buffer)
+{
+	uint8_t state = getProcessStatus();
+	if((state == 1) || (state == 3))
+		*buffer = 0x0E;
+	else
+
+	return 6;
+}
 

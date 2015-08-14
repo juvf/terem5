@@ -15,5 +15,6 @@ int commandGetProcConf(uint8_t *buffer);
 int commandStopProc(uint8_t *buffer);
 
 bool headerIsValid( const HeaderProcess &header);
-
+bool allocMemForNewProc(const HeaderProcess &header);
+int getProcessStatus();
 #endif /* TASKS_PROCESS_H_ */

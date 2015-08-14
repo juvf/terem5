@@ -14,6 +14,12 @@ uint8_t stateProcess; //текущее состо€ние процесса 0-нет процесса, 1-едЄт процес
 HeaderProcess currProcessHeader; //заголовок текущего процесса
 uint32_t currProcessCount; //кол-во записанных точек
 
+
+int getProcessStatus()
+{
+	return stateProcess;
+}
+
 int commandStartProc(uint8_t *buffer)
 {
 	if((stateProcess == 0) || (stateProcess == 2))
@@ -26,7 +32,7 @@ int commandStartProc(uint8_t *buffer)
 			if(buffer[0] == 0xff)
 			{ //старотовать сейчас процесс
 			  //заполнить заголовок процесса
-				if(allocMemForProc(currProcessHeader))
+				if(allocMemForNewProc(currProcessHeader))
 				{
 					musuring();
 					if( xTimerChangePeriod(timerMesuring, per * 1000,
@@ -85,11 +91,24 @@ bool headerIsValid(const HeaderProcess &header)
 	return (Checksum::crc16((uint8_t*)&header, sizeof(HeaderProcess)) == 0);
 }
 
-bool allocMemForProc()
+bool allocMemForNewProc(const HeaderProcess &header)
 {
-	//делаем заголовок
 	//находим цепочку секторов
-	//записываем заголовок и цепочку секторов
-	//метим сектора дл€ данных
-	//если нет места дл€ процесса, везвращ€ем false
+	//рассчитаем кол-во необходимых секторов
+	uint8_t countSensor = 0;
+	for(int i = 0; i < 16; i++)
+	{
+		if(header.config.sensorType[i] < GT_Absent)
+			countSensor++;
+	}
+
+	uint32_t dataSize = countSensor * sizeof(float) * header.count;//размер данных процесса в байтах
+
+	for(int i = 0; i < 2048; i++)
+	{
+
+	}
+//записываем заголовок и цепочку секторов
+//метим сектора дл€ данных
+//если нет места дл€ процесса, везвращ€ем false
 }

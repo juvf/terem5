@@ -23,6 +23,7 @@ void setSpiOut(uint16_t adr, uint8_t data);
 void spiWREN();
 uint16_t spiRDSR();
 void spiSector4kErase(uint16_t numSector);
+void spiChipErase();
 void scanProc();
 
 //менеджер памяти

@@ -257,6 +257,11 @@ void getFirstLastProcess(uint32_t *firstHeader, uint32_t *lastFreeHeader)
 //	}
 }
 
+void spiChipErase()
+{
+
+}
+
 //сканирование флешки и заполненеи массива указателей заголовков процесса headerList[]
 void scanProc()
 {
