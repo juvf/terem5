@@ -15,9 +15,7 @@
 
 //в headerList[] хранится адреса секторов во флешь с заголовками (с началом) записанных процессов
 //если 0xffff - то сектор пустой
-#define MAX_SECTORS	2000
-uint16_t headerList[MAX_SECTORS] = { 0xffff }; //
-uint16_t countProc = 0; //кол-во процессов в флешке
+
 
 uint8_t flashBuffIn[SIZE_BUF_FLASH];
 uint8_t flashBuffOut[SIZE_BUF_FLASH];
@@ -218,7 +216,6 @@ void setSpiOut(uint16_t adr, uint8_t data)
 		flashBuffOut[adr] = data;
 }
 
-
 extern "C" void DMA1_Stream3_IRQHandler() //RX
 {
 	if(DMA_GetITStatus(DMA1_Stream3, DMA_IT_TCIF3) == SET)
@@ -278,22 +275,6 @@ void spiChipErase()
 void readFlash(uint32_t adrInFlash, uint8_t *distanation, uint16_t size)
 {
 
-}
-
-//сканирование флешки и заполненеи массива указателей заголовков процесса headerList[]
-void scanProc()
-{
-	countProc = 0;
-	HeaderProcess header;
-	for(int i = 0; i < MAX_SECTORS; i++)
-	{
-		headerList[i] = 0xffff;
-		flashMx25Read((void*)&header, i * 4096, sizeof(HeaderProcess));
-		if(headerIsValid(header))
-		{
-			headerList[countProc++] = i;
-		}
-	}
 }
 
 void findBeginEndFreeMem(uint32_t *beginSector, uint32_t *endSector)

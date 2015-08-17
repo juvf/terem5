@@ -24,7 +24,6 @@ void spiWREN();
 uint16_t spiRDSR();
 void spiSector4kErase(uint16_t numSector);
 void spiChipErase();
-void scanProc();
 
 //менеджер памяти
 void getFirstLastProcess(uint32_t *firstHeader, uint32_t *lastFreeHeader);

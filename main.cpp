@@ -6,6 +6,7 @@
 #include "i2c.h"
 #include "tasks/configTerem.h"
 #include "flashMx25.h"
+#include "tasks/Process.h"
 
 int main()
 {
@@ -14,6 +15,8 @@ int main()
 	initOs();
 
 	initConfigTerem();
+
+	initListProc();
 
 	NVIC_SetVectorTable( NVIC_VectTab_FLASH, 0x0);
 	NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4);
