@@ -14,7 +14,7 @@
 
 #define BUFFER_SIZE	256
 #define ADRRESS		0x01
-uint8_t rfd_buffer[BUFFER_SIZE];
+uint8_t rfd_buffer[4120];
 uint16_t rfd_count;	//счетчик принятых/отправленных байт
 uint8_t rfd_addresSlave; //адрес получателя пакета
 uint8_t rfd_addresMaster; //адрес отправителя пакета

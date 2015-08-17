@@ -45,6 +45,7 @@ void flashMx25Read(void *destination, uint32_t adrSource, uint16_t size)
 {
 	if(size > SIZE_BUF_FLASH)
 		return;
+	DMA_MemoryTargetConfig(DMA1_Stream3, (uint32_t)flashBuffIn, 0);
 	flashBuffOut[0] = 3; //Command Read
 	flashBuffOut[1] = adrSource >> 16;
 	flashBuffOut[2] = adrSource >> 8;
@@ -52,6 +53,19 @@ void flashMx25Read(void *destination, uint32_t adrSource, uint16_t size)
 	startSpi(size);
 	spiWait();
 	memcpy((void*)(flashBuffIn + 4), destination, size);
+}
+
+void flashMx25ReadData(uint8_t *destination, uint32_t adrSource, uint16_t size)
+{
+	if(size > 4096)
+		return;
+	DMA_MemoryTargetConfig(DMA1_Stream3, (uint32_t)destination, 0);
+	flashBuffOut[0] = 3; //Command Read
+	flashBuffOut[1] = adrSource >> 16;
+	flashBuffOut[2] = adrSource >> 8;
+	flashBuffOut[3] = adrSource;
+	startSpi(size);
+	spiWait();
 }
 
 uint16_t spiRDSR()
@@ -204,10 +218,6 @@ void setSpiOut(uint16_t adr, uint8_t data)
 		flashBuffOut[adr] = data;
 }
 
-//void getSpiIn(uint8_t adr)
-//{
-//
-//}
 
 extern "C" void DMA1_Stream3_IRQHandler() //RX
 {
@@ -263,6 +273,11 @@ void spiChipErase()
 	flashBuffOut[0] = 0x60;
 	startSpi(1);
 	spiWait();
+}
+
+void readFlash(uint32_t adrInFlash, uint8_t *distanation, uint16_t size)
+{
+
 }
 
 //сканирование флешки и заполненеи массива указателей заголовков процесса headerList[]
