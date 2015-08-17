@@ -16,7 +16,7 @@ void intiDefaultConfig()
 {
 	configTerem.DF_AdapterNum = 200; //дефолтный адресс прибора в протоколе обмена с планшетом
 	for(int i=0; i<16; i++)
-		configTerem.DF_GaugeType[i] = GT_Absent;
+		configTerem.sensorType[i] = GT_Absent;
 
 	for(int i = 0; i < 8; i++)
 	{
