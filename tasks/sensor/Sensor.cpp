@@ -36,7 +36,7 @@ void switchOn(uint8_t numChanel)
 	//E0 - PC12, E1 - PB7, A0 - PB5, A1 - PD7
 	GPIO_ResetBits(GPIOC, GPIO_Pin_12);
 	GPIO_ResetBits(GPIOB, GPIO_Pin_7);
-	switch(val)
+	switch(numChanel)
 	{
 		case 0:
 			GPIO_ResetBits(GPIOB, GPIO_Pin_5);

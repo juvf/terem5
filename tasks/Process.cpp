@@ -168,6 +168,7 @@ int commandDeleteProc(uint8_t *buffer)
 			break;
 	}
 	headerList[MAX_SECTORS-1] = 0xffff;
+	return 6;
 }
 
 int getProcessStatus()

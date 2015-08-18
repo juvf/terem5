@@ -11,6 +11,9 @@
 #include <string.h>
 // etaoinsrhldcumfpgwybvkxjqz1234567890! @.?# brust
 
+#define csOn()	GPIO_ResetBits(GPIOC, GPIO_Pin_5)
+#define csOff()	GPIO_SetBits(GPIOC, GPIO_Pin_5)
+
 #define SIZE_BUF_FLASH	(1 + 3 + 256)
 
 //в headerList[] хранится адреса секторов во флешь с заголовками (с началом) записанных процессов

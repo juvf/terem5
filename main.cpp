@@ -7,6 +7,7 @@
 #include "tasks/configTerem.h"
 #include "flashMx25.h"
 #include "tasks/Process.h"
+#include "adc.h"
 
 int main()
 {
@@ -90,6 +91,8 @@ void pereferInit()
 	init_I2C1();
 
 	initSpi2();
+
+	initSpi1();
 
 	initDmaSpi2();
 
