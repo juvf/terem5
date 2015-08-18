@@ -111,7 +111,7 @@ uint32_t calcCountSectors(uint32_t countPoints)
 	uint32_t sizeOfProcessData = 4 * countPoints;
 //рассчитаем кол-во секторов
 	uint32_t remainder = sizeOfProcessData % 4096;
-	uint32_t countSectords = 1 + sizeOfProcessData / 4096;
+	uint32_t countSectords = 1 + (sizeOfProcessData / 4096);
 	uint16_t sizeOfHeader = sizeof(Header) + 4 + (countSectords * 2); //зармер заголовка и цепочки адресов секторов
 	if((4096 - sizeOfHeader) < remainder)
 		countSectords++;

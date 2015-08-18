@@ -32,6 +32,7 @@ float readM(uint8_t numChanel)
 	powerDa17_16(P_1_67);
 	powerDa12_15(numChanel);
 	//скомутировать ключ
+
 	//включить ключ
 	//измерить
 	//выключить ключ
@@ -39,6 +40,7 @@ float readM(uint8_t numChanel)
 	powerDa17_16(P_OFF);
 	//выключить 500 м¬
 	gnd500mVOff();
+	return 1.0;
 }
 
 void powerDa17_16(uint8_t val)
@@ -65,7 +67,7 @@ void powerDa17_16(uint8_t val)
 void powerDa12_15(uint8_t val)
 {
 	GPIO_ResetBits(GPIOD, GPIO_Pin_1 | GPIO_Pin_0 | GPIO_Pin_6 | GPIO_Pin_5);
-	GPIO_ResetBits(GPIOC, GPIO_Pin_11 | GPIO_Pin_12);
+	GPIO_ResetBits(GPIOC, GPIO_Pin_11 | GPIO_Pin_10);
 	GPIO_ResetBits(GPIOE, GPIO_Pin_1);
 	GPIO_ResetBits(GPIOB, GPIO_Pin_6);
 	switch(val)
