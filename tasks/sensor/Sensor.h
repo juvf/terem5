@@ -13,6 +13,7 @@
 extern uint8_t typeOfSensor[9];
 
 float readSenser(uint8_t numChanel);
+void switchOn(uint8_t numChanel);
 
 class Sensor
 {

@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include "structCommon.h"
 
-extern TDataFlash configTerem;
+extern TeremConfig configTerem;
 
 void intiDefaultConfig();
 void initConfigTerem();

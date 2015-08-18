@@ -7,6 +7,8 @@
 
 #include "taskMeasurement.h"
 #include "stm32f4xx_conf.h"
+#include  "../../structCommon.h"
+#include  "configTerem.h"
 
 //void taskMeasurement(void *context)
 //{ //задача запускаемая по таймера для измерения точки процесса.
@@ -26,6 +28,19 @@ void taskMeasurement(xTimerHandle xTimer)
 void musuring()
 {
 	static int a = 0;
+
+	for(int i = 0; i<16; i++)
+	{//опрос всех каналы
+		switch( configTerem.sensorType[i])
+		{
+			//Датчики перемещения
+			case GT_MM10:
+
+				break;
+			default:
+				break;
+		}
+	}
 
 	if( a == 0)
 	{

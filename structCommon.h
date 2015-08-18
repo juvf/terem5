@@ -176,7 +176,7 @@ typedef struct
 	float a[8][2];       //Коэффициенты калибровки датчиков
 
 	uint16_t DF_CRC16;          //Контроль целостности
-} TDataFlash;
+} TeremConfig;
 
 //заголовок процесса
 typedef struct
@@ -185,7 +185,7 @@ typedef struct
 	RTC_TimeTypeDef startTime;          //время старта
 	RTC_DateTypeDef startDate;          //дата старта
 	uint16_t period;          //интервал в сек
-	TDataFlash config;          //конфигурация прибора во время процесса
+	TeremConfig config;          //конфигурация прибора во время процесса
 } HeaderProcess;
 
 #endif /* STRUCTCOMMON_H_ */

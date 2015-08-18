@@ -15,8 +15,6 @@
 
 int commandTestConnect(uint8_t *buffer);
 int commandError(uint8_t *buffer);
-int commandSetConfig(uint8_t *buffer);
-int commandGetConfig(uint8_t *buffer);
 int commandClearFlash(uint8_t *buffer);
 int commandReadFlash(uint32_t adrInFlash, uint8_t *distanation, uint16_t size);
 

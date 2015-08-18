@@ -29,6 +29,7 @@ void pereferInit()
 {
 	// Включаем прерывания
 	__enable_irq();
+
 	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOAEN, ENABLE);
 	GPIO_InitTypeDef port;
 	GPIO_StructInit(&port);
@@ -38,6 +39,46 @@ void pereferInit()
 	port.GPIO_PuPd = GPIO_PuPd_UP;
 	port.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOA, &port);
+
+	//инициализация GPIOB
+	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOCEN, ENABLE);
+	GPIO_StructInit(&port);
+	port.GPIO_Pin =  GPIO_Pin_6;
+	port.GPIO_Mode = GPIO_Mode_OUT;
+	port.GPIO_OType = GPIO_OType_PP;
+	port.GPIO_PuPd = GPIO_PuPd_UP;
+	port.GPIO_Speed = GPIO_Speed_2MHz;
+	GPIO_Init(GPIOB, &port);
+
+	//инициализация GPIOC
+	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOCEN, ENABLE);
+	GPIO_StructInit(&port);
+	port.GPIO_Pin = GPIO_Pin_9 | GPIO_Pin_11 | GPIO_Pin_12;
+	port.GPIO_Mode = GPIO_Mode_OUT;
+	port.GPIO_OType = GPIO_OType_PP;
+	port.GPIO_PuPd = GPIO_PuPd_UP;
+	port.GPIO_Speed = GPIO_Speed_2MHz;
+	GPIO_Init(GPIOC, &port);
+
+	//инициализация GPIOD
+	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIODEN, ENABLE);
+	GPIO_StructInit(&port);
+	port.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_1 | GPIO_Pin_0 | GPIO_Pin_6 | GPIO_Pin_5;
+	port.GPIO_Mode = GPIO_Mode_OUT;
+	port.GPIO_OType = GPIO_OType_PP;
+	port.GPIO_PuPd = GPIO_PuPd_UP;
+	port.GPIO_Speed = GPIO_Speed_2MHz;
+	GPIO_Init(GPIOD, &port);
+
+	//инициализация GPIOE
+	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOEEN, ENABLE);
+	GPIO_StructInit(&port);
+	port.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1;
+	port.GPIO_Mode = GPIO_Mode_OUT;
+	port.GPIO_OType = GPIO_OType_PP;
+	port.GPIO_PuPd = GPIO_PuPd_UP;
+	port.GPIO_Speed = GPIO_Speed_2MHz;
+	GPIO_Init(GPIOE, &port);
 
 	//initUartForConsol();
 
@@ -85,9 +126,6 @@ void pereferInit()
 //
 //	csOff();
 
-
-
-
 }
 
 void initUartForConsol()
@@ -129,5 +167,4 @@ void initUartForConsol()
 	//NVIC_EnableIRQ(USART1_IRQn);
 	USART_Cmd(USART2, ENABLE);
 }
-
 

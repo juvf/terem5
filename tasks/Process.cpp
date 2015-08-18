@@ -19,6 +19,12 @@ uint32_t currProcessCount; //кол-во записанных точек
 uint16_t headerList[MAX_SECTORS] = { 0xffff }; //
 uint16_t countProc = 0; //кол-во процессов в флешке
 
+struct Header
+{
+	uint16_t preNext[2];
+	HeaderProcess header;
+};
+
 //сканирование флешки и заполненеи массива указателей заголовков процесса headerList[]
 void initListProc()
 {
@@ -65,12 +71,7 @@ int commandGetHeaderProc(uint8_t *buffer)
 		buffer[6] = 0x04;
 		return 7;
 	}
-
-	struct Header
-	{
-		uint16_t preNext[2];
-		HeaderProcess header;
-	} header;
+	Header header;
 	flashMx25Read((void*)&header, addrInFlash, sizeof(Header));
 	if(!headerIsValid(header.header))
 	{
@@ -135,11 +136,7 @@ int commandDeleteProc(uint8_t *buffer)
 		return 7;
 	}
 
-	struct Header
-	{
-		uint16_t preNext[2];
-		HeaderProcess header;
-	} header;
+	Header header;
 
 	flashMx25Read((void*)&header, headerList[number], sizeof(Header));
 	if(!headerIsValid(header.header))

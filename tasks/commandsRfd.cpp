@@ -9,6 +9,8 @@
 #include "Process.h"
 #include "flashMx25.h"
 
+#include <string.h>
+
 int commandTestConnect(uint8_t *buffer)
 {
 	return 10;
@@ -18,17 +20,6 @@ int commandError(uint8_t *buffer)
 {
 	buffer[5] = 0x0E;
 	return 6;
-}
-
-//конфигурация пишется в
-int commandSetConfig(uint8_t *buffer)
-{
-	return 10;
-}
-
-int commandGetConfig(uint8_t *buffer)
-{
-	return 10;
 }
 
 int commandClearFlash(uint8_t *buffer)

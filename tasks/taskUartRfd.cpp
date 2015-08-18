@@ -11,6 +11,7 @@
 #include "commandsRfd.h"
 #include "clock.h"
 #include "Process.h"
+#include "configTerem.h"
 
 #define BUFFER_SIZE	256
 #define ADRRESS		0x01
@@ -111,10 +112,10 @@ void parser()
 			rfd_sizeOfFrame = 12;
 			break;
 		case 0x07: //запись конфигурации
-			rfd_sizeOfFrame = commandSetConfig(rfd_buffer + 6);
+			rfd_sizeOfFrame = setConfigTerem(rfd_buffer);
 			break;
-		case 0x05: //чтение конфигурации
-			rfd_sizeOfFrame = commandGetConfig(rfd_buffer + 6);
+		case 0x06: //чтение конфигурации
+			rfd_sizeOfFrame = getConfigTerem(rfd_buffer);
 			break;
 		case 0x17: //Start_Proc
 			rfd_sizeOfFrame = commandStartProc(rfd_buffer + 6);

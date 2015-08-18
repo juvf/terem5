@@ -9,6 +9,14 @@
 #define SENSORM10_H_
 
 #include "Sensor.h"
+#include "stm32f4xx.h"
+
+#define gnd500mVOn()	GPIO_SetBits(GPIOC, GPIO_Pin_9)
+#define gnd500mVOff()	GPIO_ResetBits(GPIOC, GPIO_Pin_9)
+
+enum { P_OFF = 0, P_1_67, P_ADC_REF, P_3_0, P_EP1};
+
+
 
 class SensorM10 : public Sensor
 {
@@ -18,5 +26,9 @@ public:
 
 	virtual float read();
 };
+
+
+void powerDa17_16(uint8_t val);
+void powerDa12_15(uint8_t val);
 
 #endif /* SENSORM10_H_ */
