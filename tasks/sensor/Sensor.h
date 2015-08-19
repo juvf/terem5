@@ -10,25 +10,15 @@
 
 #include <stdint.h>
 
-extern uint8_t typeOfSensor[9];
+#define gnd500mVOn()	GPIO_SetBits(GPIOC, GPIO_Pin_9)
+#define gnd500mVOff()	GPIO_ResetBits(GPIOC, GPIO_Pin_9)
+
+enum { P_OFF = 0, P_1_67, P_ADC_REF, P_3_0, P_EP1};
 
 float readSenser(uint8_t numChanel);
 void switchOn(uint8_t numChanel);
-
-class Sensor
-{
-public:
-	Sensor(uint8_t num);
-	virtual ~Sensor();
-
-	virtual float read() = 0;
-	uint8_t getType() const;
-	void setType(uint8_t type_);
-	bool isEnabled() const;
-
-protected:
-	uint8_t numChanel;
-	uint8_t type;
-};
+void powerDa17_16(uint8_t val);
+void powerDa12_15(uint8_t val);
+float readSensorM(uint8_t numChanel);
 
 #endif /* TASKS_SENSOR_H_ */

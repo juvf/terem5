@@ -144,5 +144,14 @@ uint8_t initAdc();
 uint8_t AD7792Rd(uint8_t reg);
 void AD7792WrW(uint8_t reg, uint16_t data);
 uint16_t AD7792RdW(unsigned char Register);
+void AD7792Wr(unsigned char Register, unsigned char Data);
+uint16_t AD7792Measure();
+//float getU_Ad7792(unsigned char *curRange, unsigned char type);
+float getU_Ad7792(unsigned char numChanel);
+void IO_420();
+void AD7792Calibr();
+void AD7792Calibr7();
+void IO_Off();
+float GainKoef(unsigned char Range);
 
 #endif /* ADC_H_ */

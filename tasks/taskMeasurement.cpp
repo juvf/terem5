@@ -10,6 +10,8 @@
 #include  "../../structCommon.h"
 #include  "configTerem.h"
 
+float valueSens[16];
+
 //void taskMeasurement(void *context)
 //{ //задача запускаемая по таймера для измерения точки процесса.
 ////нужно пройти по всем подключенным датчика процесса и опросить их.
@@ -28,14 +30,14 @@ void taskMeasurement(xTimerHandle xTimer)
 void musuring()
 {
 	static int a = 0;
-
+	int j = 0;
 	for(int i = 0; i<16; i++)
 	{//опрос всех каналы
 		switch( configTerem.sensorType[i])
 		{
 			//Датчики перемещения
 			case GT_MM10:
-
+				valueSens[j++] =
 				break;
 			default:
 				break;

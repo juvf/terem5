@@ -6,95 +6,62 @@
  */
 
 #include "SensorM10.h"
+#include "../adc.h"
 
-SensorM10::SensorM10(uint8_t num) :
-		Sensor(num)
+/*
+ Работа с датчиком перемещения (положения) MM-10
+
+ Используются калибровочные коэффициенты a1_x, a0_x
+ a1_x - индивидуальный коэффициент
+ a0_x - напряжение, записанное при выполнении команды "Установка нуля"
+ */
+
+/*
+ a1       a0
+ Датчик к адаптеру № 0001: L=5.034*U-7.395;  U=0.1986*L+1.469
+ Датчик к адаптеру № 0002: L=3.865*U-3.044;  U=0.2588*L+0.788
+ Датчик к адаптеру № 0003: L=3.835*U-4.131;  U=0.2607*L+1.077
+ Датчик к адаптеру № 0004: L=3.221*U-3.247;  U=0.3105*L+1.008
+ */
+
+//Преобразование напряжения в перемещение -------------------------------------
+float MM10_Length(float curU, float *a0)
 {
+	curU *= 2.0 / 1.17;
+	//Результат в мм
+	return (curU - *a0) * 5.5;
 }
 
-SensorM10::~SensorM10()
+//Преобразование напряжения в перемещение -------------------------------------
+float MM20_Length(float curU, float *a0)
 {
+	curU *= 2.0 / 1.17;
+	//Результат в мм
+	return (curU - *a0) * 10.0;
 }
 
-float SensorM10::read()
+//Преобразование напряжения в перемещение -------------------------------------
+float MM50_Length(float curU, float *a0)
 {
-	return 1.0;
+	curU *= 2.0 / 1.17;
+	//Результат в мм
+	return (curU - *a0) * 25.0;
 }
 
-//канал от 0 до 7
-float readM(uint8_t numChanel)
+//Преобразование напряжения в перемещение, универсальный датчик ---------------
+float Relocate_Length(float curU, float *a0)
 {
-	if(numChanel > 7)
-		return -1;
-	//подать +500 мВ на 1 ногу
-	gnd500mVOn();
-	//подать 1,67 В на 4 ногу
-	powerDa17_16(P_1_67);
-	powerDa12_15(numChanel);
-	//скомутировать ключ и включить ключ
-	switchOn(numChanel);
-	//измерить
-	//выключить ключ
-	//выключить 1,67 В
-	powerDa17_16(P_OFF);
-	//выключить 500 мВ
-	gnd500mVOff();
-	return 1.0;
+	float *a1 = a0 - 1;
+	curU *= 2.0 / 1.17;
+	//Результат в мм
+	return (curU - *a0) * *a1 / 2.0;
 }
 
-void powerDa17_16(uint8_t val)
+//Напряжение -> перемещение, индуктивный датчик -------------------------------
+float RelInd_Length(float curU, float *a0)
 {
-	GPIO_ResetBits(GPIOD, GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4);
-	GPIO_ResetBits(GPIOE, GPIO_Pin_0);
-	switch(val)
-	{
-		case P_1_67:
-			GPIO_SetBits(GPIOE, GPIO_Pin_0);
-			break;
-		case P_ADC_REF:
-			GPIO_SetBits(GPIOD, GPIO_Pin_2);
-			break;
-		case P_3_0:
-			GPIO_SetBits(GPIOD, GPIO_Pin_4);
-			break;
-		case P_EP1:
-			GPIO_SetBits(GPIOD, GPIO_Pin_3);
-			break;
-	}
-}
-
-void powerDa12_15(uint8_t val)
-{
-	GPIO_ResetBits(GPIOD, GPIO_Pin_1 | GPIO_Pin_0 | GPIO_Pin_6 | GPIO_Pin_5);
-	GPIO_ResetBits(GPIOC, GPIO_Pin_11 | GPIO_Pin_10);
-	GPIO_ResetBits(GPIOE, GPIO_Pin_1);
-	GPIO_ResetBits(GPIOB, GPIO_Pin_6);
-	switch(val)
-	{
-		case 0:
-			GPIO_SetBits(GPIOC, GPIO_Pin_11);
-			break;
-		case 1:
-			GPIO_SetBits(GPIOC, GPIO_Pin_10);
-			break;
-		case 2:
-			GPIO_SetBits(GPIOD, GPIO_Pin_1);
-			break;
-		case 3:
-			GPIO_SetBits(GPIOD, GPIO_Pin_0);
-			break;
-		case 4:
-			GPIO_SetBits(GPIOB, GPIO_Pin_6);
-			break;
-		case 5:
-			GPIO_SetBits(GPIOD, GPIO_Pin_6);
-			break;
-		case 6:
-			GPIO_SetBits(GPIOE, GPIO_Pin_1);
-			break;
-		case 7:
-			GPIO_SetBits(GPIOD, GPIO_Pin_5);
-			break;
-
-	}
+	float *a1 = a0 - 1;
+	curU *= 2.0 / 1.17;
+	//Результат в мм          2В шкала
+	return curU * *a1 + *a0;
 }
