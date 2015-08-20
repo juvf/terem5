@@ -8,6 +8,7 @@
 #include "Sensor.h"
 #include "../../structCommon.h"
 #include "../configTerem.h"
+#include "../../adc.h"
 
 float readSenser(uint8_t numChanel)
 {

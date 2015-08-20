@@ -20,5 +20,6 @@ void switchOn(uint8_t numChanel);
 void powerDa17_16(uint8_t val);
 void powerDa12_15(uint8_t val);
 float readSensorM(uint8_t numChanel);
+float readAnalogSensor(uint8_t numChanel);
 
 #endif /* TASKS_SENSOR_H_ */

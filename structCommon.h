@@ -175,6 +175,8 @@ typedef struct
 	uint16_t DF_AdapterNum;     //Номер адаптера
 	float a[8][2];       //Коэффициенты калибровки датчиков
 
+	uint8_t adcRange[8];
+
 	uint16_t DF_CRC16;          //Контроль целостности
 } TeremConfig;
 

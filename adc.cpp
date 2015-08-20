@@ -6,6 +6,7 @@
  */
 #include "adc.h"
 #include "structCommon.h"
+#include "tasks/configTerem.h"
 
 #define csOn()	GPIO_ResetBits(GPIOA, GPIO_Pin_4)
 #define csOff()	GPIO_SetBits(GPIOA, GPIO_Pin_4)
@@ -164,8 +165,9 @@ uint16_t AD7792RdW(unsigned char Register)
 
 //=============================================================================
 //Измерение напряжения с автоопределением диапазона ---------------------------
-float getU_AD7792(unsigned char numChanel)
+float getU_Ad7792(unsigned char numChanel)
 {
+	uint8_t *CurRange = &configTerem.adcRange[numChanel];
 	uint16_t CurCode;               //Текущее значение в кодах
 	float curU;                 //Текущее значение напряжения в вольтах
 
@@ -270,7 +272,7 @@ float getU_AD7792(unsigned char numChanel)
 						(*CurRange)--;
 					//gFlags.RangeChanged = 1;
 				}
-				else if((type >= GT_MM10) && (type <= GT_Rel_Ind))
+				else if((configTerem.sensorType[numChanel] >= GT_MM10) && (configTerem.sensorType[numChanel] <= GT_Rel_Ind))
 				{
 					//gFlags.BadResult = 0;
 					break;

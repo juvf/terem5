@@ -9,6 +9,7 @@
 #include "stm32f4xx_conf.h"
 #include  "../../structCommon.h"
 #include  "configTerem.h"
+#include "sensor/Sensor.h"
 
 float valueSens[16];
 
@@ -31,13 +32,16 @@ void musuring()
 {
 	static int a = 0;
 	int j = 0;
-	for(int i = 0; i<16; i++)
+	float val;
+	for(int i = 0; i<8; i++)
 	{//опрос всех каналы
 		switch( configTerem.sensorType[i])
 		{
 			//Датчики перемещения
 			case GT_MM10:
-				valueSens[j++] =
+				val = readAnalogSensor(i) * 2.0 / 1.17;
+				val = (val - configTerem.a[i][0]) * 5.5;//Результат в мм
+				valueSens[j++] = val;
 				break;
 			default:
 				break;
