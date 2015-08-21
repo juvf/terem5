@@ -56,12 +56,11 @@ float readAnalogSensor(uint8_t numChanel)
 
 void powerDa17_16(uint8_t val)
 {
-	GPIO_ResetBits(GPIOD, GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4);
-	GPIO_ResetBits(GPIOE, GPIO_Pin_0);
+	GPIO_ResetBits(GPIOD, GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5);
 	switch(val)
 	{
 		case P_1_67:
-			GPIO_SetBits(GPIOE, GPIO_Pin_0);
+			GPIO_SetBits(GPIOD, GPIO_Pin_5);
 			break;
 		case P_ADC_REF:
 			GPIO_SetBits(GPIOD, GPIO_Pin_2);
@@ -127,9 +126,9 @@ void switchOn(uint8_t numChanel)
 
 void powerDa12_15(uint8_t val)
 {
-	GPIO_ResetBits(GPIOD, GPIO_Pin_1 | GPIO_Pin_0 | GPIO_Pin_6 | GPIO_Pin_5);
+	GPIO_ResetBits(GPIOD, GPIO_Pin_1 | GPIO_Pin_0 | GPIO_Pin_6);
 	GPIO_ResetBits(GPIOC, GPIO_Pin_11 | GPIO_Pin_10);
-	GPIO_ResetBits(GPIOE, GPIO_Pin_1);
+	GPIO_ResetBits(GPIOE, GPIO_Pin_1 | GPIO_Pin_0);
 	GPIO_ResetBits(GPIOB, GPIO_Pin_6);
 	switch(val)
 	{
@@ -155,7 +154,7 @@ void powerDa12_15(uint8_t val)
 			GPIO_SetBits(GPIOE, GPIO_Pin_1);
 			break;
 		case 7:
-			GPIO_SetBits(GPIOD, GPIO_Pin_5);
+			GPIO_SetBits(GPIOE, GPIO_Pin_0);
 			break;
 
 	}

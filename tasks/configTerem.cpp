@@ -30,8 +30,11 @@ void intiDefaultConfig()
 void initConfigTerem()
 {
 	i2cRead(0xa0, 0, (uint8_t*)&configTerem, sizeof(TeremConfig));
-	if(Checksum::crc16((uint8_t*)&configTerem, sizeof(TeremConfig)) != 0)
+	//if(Checksum::crc16((uint8_t*)&configTerem, sizeof(TeremConfig)) != 0)
+	{
 		intiDefaultConfig();
+		//i2cWrite(0xa0, 0, (uint8_t*)&configTerem, sizeof(TeremConfig));
+	}
 	configTerem.sensorType[0] = GT_MM10;
 }
 

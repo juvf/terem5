@@ -10,8 +10,8 @@
 
 #include <stdint.h>
 
-#define gnd500mVOn()	GPIO_SetBits(GPIOC, GPIO_Pin_9)
-#define gnd500mVOff()	GPIO_ResetBits(GPIOC, GPIO_Pin_9)
+#define gnd500mVOn()	GPIO_ResetBits(GPIOC, GPIO_Pin_9)
+#define gnd500mVOff()	GPIO_SetBits(GPIOC, GPIO_Pin_9)
 
 enum { P_OFF = 0, P_1_67, P_ADC_REF, P_3_0, P_EP1};
 

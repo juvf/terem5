@@ -37,7 +37,7 @@ void initListProc()
 	for(int i = 0; i < MAX_SECTORS; i++)
 	{
 		headerList[i] = 0xffff;
-		flashMx25Read((void*)&header, i * 4096, sizeof(Header));
+		//flashMx25Read((void*)&header, i * 4096, sizeof(Header));
 		if(headerIsValid(header.header) && (header.preNext[0] != 0xffff))
 		{
 			headerList[countProc++] = i;

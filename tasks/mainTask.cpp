@@ -2,6 +2,7 @@
 #include "../osConfig.h"
 #include "stm32f4xx_conf.h"
 #include "../i2c.h"
+#include "taskMeasurement.h"
 
 void mainTask(void *context)
 {
@@ -9,6 +10,7 @@ void mainTask(void *context)
 	while(1)
 	{
           vTaskDelay(1000);
+          musuring();
 
 
       	//тестируем и2ц

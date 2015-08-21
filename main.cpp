@@ -54,12 +54,13 @@ void pereferInit()
 	//инициализация GPIOC
 	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOCEN, ENABLE);
 	GPIO_StructInit(&port);
-	port.GPIO_Pin = GPIO_Pin_9 | GPIO_Pin_11 | GPIO_Pin_10 | GPIO_Pin_12;
+	port.GPIO_Pin = GPIO_Pin_9 | GPIO_Pin_11 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_8;
 	port.GPIO_Mode = GPIO_Mode_OUT;
 	port.GPIO_OType = GPIO_OType_PP;
 	port.GPIO_PuPd = GPIO_PuPd_UP;
 	port.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOC, &port);
+	GPIO_SetBits(GPIOC, GPIO_Pin_9);//выключим 500 мВ
 
 	//инициализация GPIOD
 	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIODEN, ENABLE);
@@ -91,10 +92,11 @@ void pereferInit()
 	init_I2C1();
 
 	initSpi2();
+	initDmaSpi2();
 
 	initSpi1();
-
-	initDmaSpi2();
+	if(initAdc() != 0 )
+		while(1);
 
 //	setSpiOut(0, 0x9f);
 //	setSpiOut(1, 0x00);

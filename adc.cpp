@@ -7,6 +7,7 @@
 #include "adc.h"
 #include "structCommon.h"
 #include "tasks/configTerem.h"
+#include "osConfig.h"
 
 #define csOn()	GPIO_ResetBits(GPIOA, GPIO_Pin_4)
 #define csOff()	GPIO_SetBits(GPIOA, GPIO_Pin_4)
@@ -71,18 +72,18 @@ uint8_t initAdc()
 {
 	csOn();
 	//Сброс "после потери синхронизации" - 32 бита 1
-	SPI_I2S_SendData(SPI1, 0xff);
-	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
-		;
-	SPI_I2S_SendData(SPI1, 0xff);
-	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
-		;
-	SPI_I2S_SendData(SPI1, 0xff);
-	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
-		;
-	SPI_I2S_SendData(SPI1, 0xff);
-	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
-		;
+//	SPI_I2S_SendData(SPI1, 0xff);
+//	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
+//		;
+//	SPI_I2S_SendData(SPI1, 0xff);
+//	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
+//		;
+//	SPI_I2S_SendData(SPI1, 0xff);
+//	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
+//		;
+//	SPI_I2S_SendData(SPI1, 0xff);
+//	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
+//		;
 
 	//Чтение регистра идентификации (д.б. 0xXA)
 	uint8_t regId = AD7792Rd(ID);
@@ -140,7 +141,8 @@ uint16_t AD7792Measure()
 					(MR0_FS_4 * FS)         //Частота обновления фильтра
 					);
 	//Ждем готовности, читаем результат в кодах
-	//ReadyWait();
+	ReadyWait()
+		;
 //	while(PIN_SPI & Bit_SPI_MISO)
 //		;
 	return AD7792RdW(DATA);
@@ -231,7 +233,7 @@ float getU_Ad7792(unsigned char numChanel)
 		 */
 	}
 	else
-	{//Для остальных типов датчиков
+	{ //Для остальных типов датчиков
 		csOn();
 		IO_Off(); //Источники тока отключить
 		csOff();
@@ -259,10 +261,14 @@ float getU_Ad7792(unsigned char numChanel)
 					AD7792Calibr7();
 				csOff();
 			}
-			//Измерение
-			csOn();
-			CurCode = AD7792Measure();
-			csOff();
+			for(;;)
+			{
+				//Измерение
+				csOn();
+				CurCode = AD7792Measure();
+				csOff();
+				vTaskDelay(1000);
+			}
 			//Перегрузка (+), уменьшить коэффициент усиления PGA
 			if(CurCode == 0xFFFF)
 			{
@@ -272,7 +278,8 @@ float getU_Ad7792(unsigned char numChanel)
 						(*CurRange)--;
 					//gFlags.RangeChanged = 1;
 				}
-				else if((configTerem.sensorType[numChanel] >= GT_MM10) && (configTerem.sensorType[numChanel] <= GT_Rel_Ind))
+				else if((configTerem.sensorType[numChanel] >= GT_MM10)
+						&& (configTerem.sensorType[numChanel] <= GT_Rel_Ind))
 				{
 					//gFlags.BadResult = 0;
 					break;

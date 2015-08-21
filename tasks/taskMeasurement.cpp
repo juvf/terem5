@@ -11,6 +11,9 @@
 #include  "configTerem.h"
 #include "sensor/Sensor.h"
 
+#define ep1_On()	GPIO_SetBits(GPIOC, GPIO_Pin_8)
+#define ep1_Off()	GPIO_ResetBits(GPIOC, GPIO_Pin_8)
+
 float valueSens[16];
 
 //void taskMeasurement(void *context)
@@ -33,6 +36,7 @@ void musuring()
 	static int a = 0;
 	int j = 0;
 	float val;
+	ep1_On();
 	for(int i = 0; i<8; i++)
 	{//опрос всех каналы
 		switch( configTerem.sensorType[i])
@@ -47,6 +51,8 @@ void musuring()
 				break;
 		}
 	}
+
+	ep1_Off();
 
 	if( a == 0)
 	{
