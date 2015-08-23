@@ -18,7 +18,7 @@ uint32_t currProcessCount; //кол-во записанных точек
 uint8_t stateProcess; //текущее состо€ние процесса 0-нет процесса, 1-едЄт процесс, 2-закончилс€, 3-ждет старта
 
 uint16_t headerList[MAX_SECTORS] = { 0xffff }; //
-uint16_t countProc = 0; //кол-во процессов в флешке
+uint16_t countProc = 0; //кол-во процессов в флешке, включа€ текущий
 
 struct Header
 {
@@ -34,12 +34,10 @@ struct Header
 //сканирование флешки и заполненеи массива указателей заголовков процесса headerList[]
 void initListProc()
 {
+	memset((void*)flashMap, 0xff, sizeof(flashMap));
+	memset((void*)headerList, 0xff, sizeof(headerList));
 	countProc = 0;
-	struct Header
-	{
-		uint16_t preNext[2];
-		HeaderProcess header;
-	} header;
+	Header header;
 	for(int i = 0; i < MAX_SECTORS; i++)
 	{
 		headerList[i] = 0xffff;
@@ -288,8 +286,6 @@ bool allocMemForNewProc(const HeaderProcess &header)
 			countSensor++;
 	}
 
-	uint32_t dataSize = countSensor * sizeof(float) * header.count;	//размер данных процесса в байтах
-
 	uint16_t j = countSectors;
 	uint16_t prePrePage = 0xfffe;
 	uint16_t prePage = 0xfffe;
@@ -299,12 +295,16 @@ bool allocMemForNewProc(const HeaderProcess &header)
 		{
 			if(countSectors == 1)
 			{
+				headerList[countProc++] = i;
 				tempBuf[0] = 0xfffe;//признак того, что страница перва€
 				tempBuf[1] = 0xfffe;//признак того, что страница последн€€
 				flashMx25Write((uint8_t*)tempBuf, i);
+				break;
 			}
 			else
 			{
+				if(j == countSectors)
+					headerList[countProc++] = i;
 				tempBuf[0] = prePrePage;
 				tempBuf[1] = i;
 				//запись в предстраничку preNext
@@ -317,14 +317,11 @@ bool allocMemForNewProc(const HeaderProcess &header)
 					//пишем последнюю страницу
 					tempBuf[0] = prePage;//признак того, что страница перва€
 					tempBuf[1] = 0xfffe;//признак того, что страница последн€€
-					flashMx25Write((uint8_t*)tempBuf, i, 4);
+					flashMx25Write((uint8_t*)tempBuf, i);
 					break;
 				}
 			}
 		}
 	}
-//записываем заголовок и цепочку секторов
-//метим сектора дл€ данных
-//если нет места дл€ процесса, везвращ€ем false
-	return false;
+	return true;
 }

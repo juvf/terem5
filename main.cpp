@@ -12,8 +12,6 @@
 
 int main()
 {
-	uint8_t tempBuf[256] = {0xff};
-	memset((void*)tempBuf, 0xff, 256);
 	pereferInit();
 
 	initOs();
