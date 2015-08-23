@@ -154,14 +154,20 @@ uint16_t AD7792RdW(unsigned char Register)
 	SPI_I2S_SendData(SPI1, (CR6_RW * 1) | (Register * CR3_RS_3));
 	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
 		;
-	SPI_I2S_SendData(SPI1, (CR6_RW * 1) | (Register * CR3_RS_3));
+	data[0] = SPI_I2S_ReceiveData(SPI1);
+
+//	SPI_I2S_SendData(SPI1, (CR6_RW * 1) | (Register * CR3_RS_3));
+	SPI_I2S_SendData(SPI1, 0);
 	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
 		;
 	data[0] = SPI_I2S_ReceiveData(SPI1);
-	SPI_I2S_SendData(SPI1, (CR6_RW * 1) | (Register * CR3_RS_3));
+
+//	SPI_I2S_SendData(SPI1, (CR6_RW * 1) | (Register * CR3_RS_3));
+	SPI_I2S_SendData(SPI1, 0);
 	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
 		;
 	data[1] = SPI_I2S_ReceiveData(SPI1);
+
 	return (data[0] << 8) | data[1];
 }
 
@@ -261,13 +267,13 @@ float getU_Ad7792(unsigned char numChanel)
 					AD7792Calibr7();
 				csOff();
 			}
-			for(;;)
+//			for(;;)
 			{
 				//Измерение
 				csOn();
 				CurCode = AD7792Measure();
 				csOff();
-				vTaskDelay(1000);
+//				vTaskDelay(1000);
 			}
 			//Перегрузка (+), уменьшить коэффициент усиления PGA
 			if(CurCode == 0xFFFF)

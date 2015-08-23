@@ -22,6 +22,7 @@ void intiDefaultConfig()
 		configTerem.DF_CompChan[i] = 0;
 		configTerem.a[i][0] = 1.0;
 		configTerem.a[i][1] = 1.0;
+		configTerem.adcRange[i] = 0;
 	}
 	configTerem.DF_CRC16 = Checksum::crc16((uint8_t*)&configTerem, sizeof(TeremConfig) - 2);
 	i2cWrite(0xa0, 0, (uint8_t*)&configTerem, sizeof(TeremConfig));
