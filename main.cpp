@@ -8,9 +8,12 @@
 #include "flashMx25.h"
 #include "tasks/Process.h"
 #include "adc.h"
+#include <string.h>
 
 int main()
 {
+	uint8_t tempBuf[256] = {0xff};
+	memset((void*)tempBuf, 0xff, 256);
 	pereferInit();
 
 	initOs();
@@ -18,6 +21,7 @@ int main()
 	initConfigTerem();
 
 	initListProc();
+
 
 	NVIC_SetVectorTable( NVIC_VectTab_FLASH, 0x0);
 	NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4);

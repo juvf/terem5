@@ -16,9 +16,16 @@
 
 #define SIZE_BUF_FLASH	(1 + 3 + 256)
 
-//в headerList[] хранится адреса секторов во флешь с заголовками (с началом) записанных процессов
-//если 0xffff - то сектор пустой
-
+/***************************************************/
+// карта памяти флашь
+// в начале каждого сектора номер предыдущего сектора процесса,
+// и номер следующего сектора процесса
+// если сектор в процессе первый, то адрес предыдущего 0xFFFE
+// если сектор в процессе последний, то адрес следующего 0xFFFD
+// если сектор чистый, то адреса предыдущего и следующего 0xFFFF
+// flashMap[0] - предыдущий, flashMap[1] - следующий
+uint16_t flashMap[2048][2] = { 0xffff }; //карта памяти флэшь
+/***************************************************/
 
 uint8_t flashBuffIn[SIZE_BUF_FLASH];
 uint8_t flashBuffOut[SIZE_BUF_FLASH];
@@ -34,7 +41,7 @@ void flashMx25Write(uint8_t *source, uint32_t adrDestination)
 	flashBuffOut[1] = adrDestination >> 16;
 	flashBuffOut[2] = adrDestination >> 8;
 	flashBuffOut[3] = adrDestination;
-	//memcpy((void*)(flashBuffOut + 4), (void*)source, 256);
+	memcpy((void*)(flashBuffOut + 4), (void*)source, 256);
 	for(int i = 0; i < 256; i++)
 		flashBuffOut[3 + i] = i;
 
@@ -304,5 +311,15 @@ void findBeginEndFreeMem(uint32_t *beginSector, uint32_t *endSector)
 //		}
 //
 //	}
+}
+
+uint16_t countFreeSectors()
+{
+	uint16_t count = 0;
+	for(int i = 0; i < MAX_SECTORS; i++)
+	{
+		if((flashMap[i][0] == 0xffff) && (flashMap[i][1] == 0xffff))
+			count++;
+	}
 }
 

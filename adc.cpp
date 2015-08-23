@@ -109,13 +109,16 @@ void AD7792WrW(uint8_t reg, uint16_t data)
 	SPI_I2S_SendData(SPI1, reg * CR3_RS_3);  //Запись в коммуникационный регистр
 	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
 		;
+	SPI_I2S_ReceiveData(SPI1);
 	//Запись данных в нужный регистр
 	SPI_I2S_SendData(SPI1, (uint8_t)(data >> 8));
 	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
 		;
+	SPI_I2S_ReceiveData(SPI1);
 	SPI_I2S_SendData(SPI1, (uint8_t)data);
 	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
 		;
+	SPI_I2S_ReceiveData(SPI1);
 }
 
 uint8_t AD7792Rd(uint8_t reg)
@@ -127,6 +130,7 @@ uint8_t AD7792Rd(uint8_t reg)
 	SPI_I2S_SendData(SPI1, 0xff);
 	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
 		;
+	SPI_I2S_ReceiveData(SPI1);
 	return SPI_I2S_ReceiveData(SPI1);
 }
 
@@ -154,15 +158,13 @@ uint16_t AD7792RdW(unsigned char Register)
 	SPI_I2S_SendData(SPI1, (CR6_RW * 1) | (Register * CR3_RS_3));
 	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
 		;
-	data[0] = SPI_I2S_ReceiveData(SPI1);
+	SPI_I2S_ReceiveData(SPI1);
 
-//	SPI_I2S_SendData(SPI1, (CR6_RW * 1) | (Register * CR3_RS_3));
 	SPI_I2S_SendData(SPI1, 0);
 	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
 		;
 	data[0] = SPI_I2S_ReceiveData(SPI1);
 
-//	SPI_I2S_SendData(SPI1, (CR6_RW * 1) | (Register * CR3_RS_3));
 	SPI_I2S_SendData(SPI1, 0);
 	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
 		;

@@ -51,20 +51,25 @@ void musuring()
 				break;
 		}
 	}
-
 	ep1_Off();
+
+	//записываем результат
+	//uint32_t address = getAdrCurPoint();
+
+
 
 	if( a == 0)
 	{
 		GPIO_SetBits(GPIOA, GPIO_Pin_10);
-		GPIO_SetBits(GPIOA, GPIO_Pin_9);
+//		GPIO_SetBits(GPIOA, GPIO_Pin_9);
 		a = 1;
 	}
 	else
 	{
 		GPIO_ResetBits(GPIOA, GPIO_Pin_10);
-		GPIO_ResetBits(GPIOA, GPIO_Pin_9);
+//		GPIO_ResetBits(GPIOA, GPIO_Pin_9);
 		a = 0;
 	}
 }
+
 

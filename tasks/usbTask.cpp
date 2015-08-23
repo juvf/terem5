@@ -22,10 +22,6 @@ __ALIGN_BEGIN USB_OTG_CORE_HANDLE    USB_OTG_dev __ALIGN_END ;
 void usbTask(void *context)
 {
 
-	GPIO_SetBits(GPIOA, GPIO_Pin_10);
-	GPIO_SetBits(GPIOA, GPIO_Pin_9);
-
-
   USBD_Init(&USB_OTG_dev,
 #ifdef USE_USB_OTG_HS
             USB_OTG_HS_CORE_ID,
