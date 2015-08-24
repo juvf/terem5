@@ -10,6 +10,7 @@
 #include  "../../structCommon.h"
 #include  "configTerem.h"
 #include "sensor/Sensor.h"
+#include "Process.h"
 
 #define ep1_On()	GPIO_SetBits(GPIOC, GPIO_Pin_8)
 #define ep1_Off()	GPIO_ResetBits(GPIOC, GPIO_Pin_8)
@@ -54,9 +55,7 @@ void musuring()
 	ep1_Off();
 
 	//записываем результат
-	//uint32_t address = getAdrCurPoint();
-
-
+	//saveResult(valueSens, j);
 
 	if( a == 0)
 	{
