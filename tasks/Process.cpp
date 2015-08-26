@@ -282,7 +282,6 @@ bool allocMemForNewProc(const HeaderProcess &header)
 //находим цепочку секторов и записываем в начало каждого сектора предывцщий и следующий сектор
 	uint8_t sensors = countSensor(header);
 
-
 	uint16_t j = sensors;
 	uint16_t prePrePage = 0xfffe;
 	uint16_t prePage = 0xfffe;
@@ -332,27 +331,49 @@ bool allocMemForNewProc(const HeaderProcess &header)
 //записывает одну точку процесса во флэшку
 void saveResult(float *result, int countSensers)
 {
+	uint8_t *resultVoid = (uint8_t*)result;
 	uint32_t address = getAdrCurPoint();
 	uint8_t tempBuf[256];
 	memset((void*)tempBuf, 0xff, 256);
-	if((address % 4096) == 4 )
-	{//записать адрес предыдущего сектора и адрес следующего сектора в начало сектора
-		uint16_t cursector = address/4096;
+	if((address % 4096) == 4)
+	{ //записать адрес предыдущего сектора и адрес следующего сектора в начало сектора
+		uint16_t cursector = address / 4096;
 		tempBuf[0] = flashMap[cursector][0];
 		tempBuf[1] = flashMap[cursector][0] >> 8;
 		tempBuf[2] = flashMap[cursector][1];
 		tempBuf[3] = flashMap[cursector][1] >> 8;
 	}
 	uint32_t remainder = address % 256;
-	if( (remainder + countSensers * sizeof(float)) > 256 )
-	{
-
+	uint16_t pointSize = countSensers * sizeof(float);
+	if((remainder + pointSize) > 256)
+	{ //первую половину
+		uint16_t firstSize = 256 - remainder;
+		memcpy((void*)&tempBuf[remainder], (void*)resultVoid, firstSize);
+		flashMx25Write(tempBuf, address);
+		//пишем вторую половину
+		memset((void*)tempBuf, 0xff, 256);
+		address += firstSize;
+		if((address % 4096) == 0)
+		{ //записать адрес предыдущего сектора и адрес следующего сектора в начало сектора
+			uint16_t cursector = address / 4096;
+			tempBuf[0] = flashMap[cursector][0];
+			tempBuf[1] = flashMap[cursector][0] >> 8;
+			tempBuf[2] = flashMap[cursector][1];
+			tempBuf[3] = flashMap[cursector][1] >> 8;
+			address += 4;
+		}
+		remainder = address % 256;
+		uint16_t secondSize = pointSize - firstSize;
+		resultVoid += firstSize;
+		memcpy((void*)&tempBuf[remainder], (void*)resultVoid, secondSize);
+		flashMx25Write(tempBuf, address);
 	}
 	else
-	{//не выходим за размер блока в 256 байт
-		memcpy((void*)(tempBuf[remainder]), result
+	{ //не выходим за размер блока в 256 байт
+		memcpy((void*)(&tempBuf[remainder]), (void*)resultVoid, pointSize);
+		flashMx25Write(tempBuf, address);
 	}
-
+	currProcessCount++;
 }
 
 uint32_t getAdrCurPoint()
@@ -363,10 +384,11 @@ uint32_t getAdrCurPoint()
 	uint32_t countSectors = calcCountSectors(currProcessHeader);
 	uint32_t coinSectorSize = countSectors * 2;
 	//расчитать размер данных уже записанных
-	uint32_t dataSize = currProcessCount * countSensor(currProcessHeader) * sizeof(float);
+	uint32_t dataSize = currProcessCount * countSensor(currProcessHeader)
+			* sizeof(float);
 	//посчитать адрес куда нужно писать
 	uint32_t sizeData = headerSize + coinSectorSize + dataSize;
-	uint32_t numSector = sizeData / (4096 - 4);// = Целое и остаток
+	uint32_t numSector = sizeData / (4096 - 4); // = Целое и остаток
 	numSector++; // целое+1 = это номер сектора в цепочке
 
 	//находим номер сектора numSector
@@ -376,7 +398,7 @@ uint32_t getAdrCurPoint()
 		sector = flashMap[sector][1];
 	}
 	uint32_t remainder = sizeData % (4096 - 4);
-	uint32_t address = 	sector * 4096 + remainder + 4; //	свмещение в последнем секторе = остаток + 4
+	uint32_t address = sector * 4096 + remainder + 4; //	свмещение в последнем секторе = остаток + 4
 	return address;
 }
 

@@ -55,7 +55,7 @@ void musuring()
 	ep1_Off();
 
 	//записываем результат
-	//saveResult(valueSens, j);
+	saveResult(valueSens, j);
 
 	if( a == 0)
 	{
