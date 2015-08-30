@@ -382,7 +382,7 @@ uint32_t getAdrCurPoint()
 	uint32_t headerSize = sizeof(HeaderProcess);
 	//расчитать размер цепочки секторов
 	uint32_t countSectors = calcCountSectors(currProcessHeader);
-	uint32_t coinSectorSize = countSectors * 2;
+	uint32_t coinSectorSize = countSectors * 2; //размер цепочки адресов секторов
 	//расчитать размер данных уже записанных
 	uint32_t dataSize = currProcessCount * countSensor(currProcessHeader)
 			* sizeof(float);

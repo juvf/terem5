@@ -135,6 +135,7 @@ void parser()
 	}
 	if(rfd_sizeOfFrame > 0)
 	{
+		rfd_buffer[1] = rfd_sizeOfFrame + 2;
 		rfd_buffer[2] = rfd_buffer[3];
 		rfd_buffer[3] = ADRRESS;
 		uint16_t crc = Checksum::crc16(rfd_buffer, rfd_sizeOfFrame);

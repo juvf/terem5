@@ -10,7 +10,7 @@ void mainTask(void *context)
 	while(1)
 	{
           vTaskDelay(1000);
-          musuring();
+          //musuring();
 
 
       	//тестируем и2ц
