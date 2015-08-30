@@ -141,6 +141,7 @@ void parser()
 		uint16_t crc = Checksum::crc16(rfd_buffer, rfd_sizeOfFrame);
 		rfd_buffer[rfd_sizeOfFrame++] = (uint8_t)crc;
 		rfd_buffer[rfd_sizeOfFrame++] = (uint8_t)(crc >> 8);
+
 		rfd_count = 0;
 		USART_ITConfig(USART2, USART_IT_TC, ENABLE); // По окончанию отправки
 		USART_SendData(USART2, rfd_buffer[0]);
