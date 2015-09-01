@@ -30,7 +30,7 @@ void intiDefaultConfig()
 	configTerem.a[1][0] = 2.14;
 	configTerem.a[1][1] = 4.14;
 	configTerem.a[3][1] = 31.4;
-	configTerem.DF_CRC16 = Checksum::crc16((uint8_t*)&configTerem, sizeof(TeremConfig) - 2);
+	configTerem.DF_CRC16 = 0x1234;//Checksum::crc16((uint8_t*)&configTerem, sizeof(TeremConfig) - 2);
 	i2cWrite(0xa0, 0, (uint8_t*)&configTerem, sizeof(TeremConfig));
 }
 
@@ -57,7 +57,31 @@ int setConfigTerem(uint8_t *buffer)
 
 int getConfigTerem(uint8_t *buffer)
 {
-	memcpy((void*)(buffer+6), (void*)&configTerem,  sizeof(TeremConfig));
-	return  sizeof(TeremConfig) + 6;
+	buffer += 6;
+	for(int i = 0; i<16; i++) //16
+	{// uint8_t sensorType[16];     //0x1000, тип датчика в канале
+		*buffer++ = configTerem.sensorType[i];
+	}
+	for(int i = 0; i<8; i++) //8 (24)
+	{// unsigned char DF_CompChan[8]; //Номер канала компенсатора для датчика канала 0 (термопары, датчика влажности)
+		*buffer++ = configTerem.DF_CompChan[i];
+	}
+
+	memcpy((void*)(buffer), (void*)&configTerem.Vref,  sizeof(float));
+	buffer +=  sizeof(float); //4 (28)
+	*buffer++ = (uint8_t)configTerem.Flags;
+	*buffer++ = (uint8_t)(configTerem.Flags >> 8); //2 (30)
+	*buffer++ = (uint8_t)configTerem.DF_AdapterNum;
+	*buffer++ = (uint8_t)(configTerem.DF_AdapterNum >> 8); //2 (32)
+	memcpy((void*)(buffer), (void*)&configTerem.a,  sizeof(float) * 16);
+	buffer +=  sizeof(float) * 16; // 64 (96)
+
+	for(int i = 0; i<8; i++)
+	{// uint8_t adcRange[8]; //8 (104)
+		*buffer++ = configTerem.adcRange[i];
+	}
+	*buffer++ = (uint8_t)configTerem.DF_CRC16;
+	*buffer++ = (uint8_t)(configTerem.DF_CRC16 >> 8); //2 (106)
+	return  106 + 6;
 }
 

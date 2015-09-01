@@ -20,6 +20,9 @@ int main()
 
 	initListProc();
 
+	static int as = sizeof(TeremConfig);
+	as++;
+
 
 	NVIC_SetVectorTable( NVIC_VectTab_FLASH, 0x0);
 	NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4);
