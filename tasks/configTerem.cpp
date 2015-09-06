@@ -30,19 +30,18 @@ void intiDefaultConfig()
 	configTerem.a[1][0] = 2.14;
 	configTerem.a[1][1] = 4.14;
 	configTerem.a[3][1] = 31.4;
-	configTerem.DF_CRC16 = 0x1234; //Checksum::crc16((uint8_t*)&configTerem, sizeof(TeremConfig) - 2);
-	i2cWrite(0xa0, 0, (uint8_t*)&configTerem, sizeof(TeremConfig));
+	int sizeTeremConfig = sizeof(TeremConfig);
+	configTerem.DF_CRC16 = Checksum::crc16((uint8_t*)&configTerem, sizeof(TeremConfig) - 4);
 }
 
 void initConfigTerem()
 {
 	i2cRead(0xa0, 0, (uint8_t*)&configTerem, sizeof(TeremConfig));
-	//if(Checksum::crc16((uint8_t*)&configTerem, sizeof(TeremConfig)) != 0)
+	if(Checksum::crc16((uint8_t*)&configTerem, sizeof(TeremConfig)) != 0)
 	{
 		intiDefaultConfig();
-		//i2cWrite(0xa0, 0, (uint8_t*)&configTerem, sizeof(TeremConfig));
+		i2cWrite(0xa0, 0, (uint8_t*)&configTerem, sizeof(TeremConfig));
 	}
-	configTerem.sensorType[0] = GT_MM10;
 }
 
 int setConfigTerem(uint8_t *buffer)
@@ -78,6 +77,8 @@ int setConfigTerem(uint8_t *buffer)
 		configTerem.adcRange[i] = *buffer++;
 	}
 	configTerem.DF_CRC16 = Checksum::crc16( (uint8_t*)&configTerem, sizeof(configTerem) - 2 );
+
+	i2cWrite(0xa0, 0, (uint8_t*)&configTerem, sizeof(TeremConfig));
 
 	return 6;
 }
