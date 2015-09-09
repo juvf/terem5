@@ -60,7 +60,7 @@ void flashMx25Read(void *destination, uint32_t adrSource, uint16_t size)
 	flashBuffOut[3] = adrSource;
 	startSpi(size);
 	spiWait();
-	memcpy((void*)(flashBuffIn + 4), destination, size);
+	memcpy(destination, (void*)(flashBuffIn + 4), size);
 }
 
 void flashMx25ReadData(uint8_t *destination, uint32_t adrSource, uint16_t size)
@@ -321,5 +321,6 @@ uint16_t countFreeSectors()
 		if((flashMap[i][0] == 0xffff) && (flashMap[i][1] == 0xffff))
 			count++;
 	}
+	return count;
 }
 

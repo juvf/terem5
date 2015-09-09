@@ -186,7 +186,7 @@ typedef struct
 	uint32_t count;          //колво точек
 	RTC_TimeTypeDef startTime;          //время старта
 	RTC_DateTypeDef startDate;          //дата старта
-	uint16_t period;          //интервал в сек
+	uint32_t period;          //интервал в сек
 	TeremConfig config;          //конфигурация прибора во время процесса
 } HeaderProcess;
 

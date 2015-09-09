@@ -27,6 +27,8 @@ int commandClearFlash(uint8_t *buffer)
 	uint8_t state = getProcessStatus();
 	if((state == 1) || (state == 3))
 		*buffer = 0x0E;
+	else
+		spiChipErase();
 	return 6;
 }
 

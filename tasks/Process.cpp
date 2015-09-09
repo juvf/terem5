@@ -197,11 +197,28 @@ int commandStartProc(uint8_t *buffer)
 		if((per > 0) && (per < 4294960))
 		{
 			currProcessHeader.period = per;
+			currProcessHeader.count = buffer[10] | (buffer[11] << 8)
+					| (buffer[12] << 16) | (buffer[13] << 24);
 			if(buffer[0] == 0xff)
 			{ //старотовать сейчас процесс
-			  //заполнить заголовок процесса
+
+				RTC_TimeTypeDef time;
+				RTC_GetTime(RTC_Format_BIN, &time);
+				RTC_DateTypeDef date;
+				RTC_GetDate(RTC_Format_BIN, &date);
+
+				currProcessHeader.startTime.RTC_Seconds = time.RTC_Seconds;
+				currProcessHeader.startTime.RTC_Minutes = time.RTC_Minutes;
+				currProcessHeader.startTime.RTC_Hours = time.RTC_Hours;
+				currProcessHeader.startDate.RTC_Date = date.RTC_Date;
+				currProcessHeader.startDate.RTC_Month = date.RTC_Month;
+				currProcessHeader.startDate.RTC_Year = date.RTC_Year;
+
+
+				//заполнить заголовок процесса
 				if(allocMemForNewProc(currProcessHeader))
 				{
+					currProcessCount = 1;
 					musuring();
 					if( xTimerChangePeriod(timerMesuring, per * 1000,
 							100) == pdFAIL)
@@ -213,7 +230,7 @@ int commandStartProc(uint8_t *buffer)
 					}
 				}
 				else
-					buffer[0] = 2;
+					buffer[0] = 3;
 			}
 			else
 			{
@@ -223,7 +240,7 @@ int commandStartProc(uint8_t *buffer)
 				currProcessHeader.startDate.RTC_Date = buffer[3];
 				currProcessHeader.startDate.RTC_Month = buffer[4];
 				currProcessHeader.startDate.RTC_Year = buffer[5];
-				buffer[0] = 0;
+				buffer[0] = 2;
 			}
 		}
 		else
@@ -246,7 +263,19 @@ int commandGetProcConf(uint8_t *buffer)
 	buffer[5] = currProcessHeader.startDate.RTC_Year;
 	buffer[6] = currProcessHeader.period & 0xff;
 	buffer[7] = currProcessHeader.period >> 8;
-	return 14;
+	buffer[8] = currProcessHeader.period >> 16;
+	buffer[9] = currProcessHeader.period >> 24;
+	buffer[10] = currProcessHeader.count & 0xff;
+	buffer[11] = currProcessHeader.count >> 8;
+	buffer[12] = currProcessHeader.count >> 16;
+	buffer[13] = currProcessHeader.count >> 24;
+	buffer[14] = currProcessCount & 0xff;
+	buffer[15] = currProcessCount >> 8;
+	buffer[16] = currProcessCount >> 16;
+	buffer[17] = currProcessCount >> 24;
+	buffer[18] = stateProcess;
+
+	return 19 + 6;
 }
 
 int commandStopProc(uint8_t *buffer)
