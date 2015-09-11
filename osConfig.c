@@ -8,6 +8,7 @@
 //дескрипторы задач
 xTaskHandle handleMain;
 xTaskHandle handleUsb;
+xTaskHandle handleRF;
 
 xTimerHandle timerMesuring;
 
@@ -16,7 +17,7 @@ xQueueHandle uartRfd232Queue;
 
 #define SIZE_STACK_MAIN (configMINIMAL_STACK_SIZE)
 #define SIZE_STACK_USB (configMINIMAL_STACK_SIZE)
-#define SIZE_STACK_RFD (configMINIMAL_STACK_SIZE)
+#define SIZE_STACK_RFD (configMINIMAL_STACK_SIZE * 2)
 
 void initOs(void)
 {
@@ -34,10 +35,10 @@ void createTasks()
 	BaseType_t pTask;
 	pTask = xTaskCreate(mainTask, "mainTask", SIZE_STACK_MAIN, 0,
 			TASK_PRIORITY_MAIN, &handleMain);
-	pTask &= xTaskCreate(usbTask, "usbTask", SIZE_STACK_USB, 0,
-			TASK_PRIORITY_USB, &handleUsb);
+//	pTask &= xTaskCreate(usbTask, "usbTask", SIZE_STACK_USB, 0,
+//			TASK_PRIORITY_USB, &handleUsb);
 	pTask &= xTaskCreate(taskUartRfd, "taskUartRfd", SIZE_STACK_RFD, 0,
-			TASK_PRIORITY_RFD, &handleUsb);
+			TASK_PRIORITY_RFD, &handleRF);
 
 
 

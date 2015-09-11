@@ -123,7 +123,7 @@ void parser()
 		case 0x18: //Get_ProcConf
 			rfd_sizeOfFrame = commandGetProcConf(rfd_buffer + 6);
 			break;
-		case 0x21: //Get_ProcConf
+		case 0x21: //
 			rfd_sizeOfFrame = commandClearFlash(rfd_buffer);
 			break;
 		case 0x23: //UART_GetCountProcess

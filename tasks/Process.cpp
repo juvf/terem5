@@ -227,6 +227,7 @@ int commandStartProc(uint8_t *buffer)
 					{
 						xTimerReset(timerMesuring, 100);
 						buffer[0] = 0;
+						stateProcess = 1;
 					}
 				}
 				else
@@ -403,6 +404,11 @@ void saveResult(float *result, int countSensers)
 		flashMx25Write(tempBuf, address);
 	}
 	currProcessCount++;
+	if(currProcessCount == currProcessHeader.count)
+	{//кончим процесс
+		stateProcess = 2;
+		xTimerStop(timerMesuring, 100);
+	}
 }
 
 uint32_t getAdrCurPoint()
