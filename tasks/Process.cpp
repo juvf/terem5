@@ -222,7 +222,7 @@ int commandStartProc(uint8_t *buffer)
 					musuring();
 					if( xTimerChangePeriod(timerMesuring, per * 1000,
 							100) == pdFAIL)
-						buffer[0] = 1;
+						buffer[0] = 4;
 					else
 					{
 						xTimerReset(timerMesuring, 100);
