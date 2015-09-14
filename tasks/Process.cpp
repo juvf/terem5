@@ -10,6 +10,7 @@
 #include "taskMeasurement.h"
 #include "Checksum.h"
 #include "../flashMx25.h"
+#include "configTerem.h"
 #include  <string.h>
 
 uint16_t numProc = 0xffff; //номер текущего процесса в headerList[]
@@ -213,12 +214,12 @@ int commandStartProc(uint8_t *buffer)
 				currProcessHeader.startDate.RTC_Date = date.RTC_Date;
 				currProcessHeader.startDate.RTC_Month = date.RTC_Month;
 				currProcessHeader.startDate.RTC_Year = date.RTC_Year;
-
+				currProcessHeader.config = configTerem;
 
 				//заполнить заголовок процесса
 				if(allocMemForNewProc(currProcessHeader))
 				{
-					currProcessCount = 1;
+					currProcessCount = 0; //кол-во записанных точек в процессе
 					musuring();
 					if( xTimerChangePeriod(timerMesuring, per * 1000,
 							100) == pdFAIL)
@@ -310,51 +311,116 @@ bool allocMemForNewProc(const HeaderProcess &header)
 	}
 //	проверим, что процесс влезет в свободнуу память флэшь
 //находим цепочку секторов и записываем в начало каждого сектора предывцщий и следующий сектор
-	uint8_t sensors = countSensor(header);
+//	uint8_t sensors = countSensor(header);
 
-	uint16_t j = sensors;
-	uint16_t prePrePage = 0xfffe;
-	uint16_t prePage = 0xfffe;
-	for(int i = 0; i < MAX_SECTORS; i++)
+	if(countSectors == 1)
 	{
-		if((flashMap[i][0] == 0xffff) && (flashMap[i][1] == 0xffff))
+		for(int i = 0; i < MAX_SECTORS; i++)
 		{
-			if(countSectors == 1)
+			if((flashMap[i][0] == 0xffff) && (flashMap[i][1] == 0xffff))
 			{
 				headerList[countProc++] = i;
 				tempBuf[0] = 0xfe; //признак того, что страница первая
 				tempBuf[1] = 0xff;
 				tempBuf[2] = 0xfe; //признак того, что страница последняя
 				tempBuf[3] = 0xff;
+				memcpy((void*)&tempBuf[4], (void*)&header,
+						sizeof(HeaderProcess));
+				tempBuf[4 + sizeof(HeaderProcess)] = i;
+				tempBuf[4 + sizeof(HeaderProcess) + 1] = i >> 8;
 				flashMx25Write((uint8_t*)tempBuf, i);
-				break;
+				return true;
 			}
-			else
+		}
+	}
+	else
+	{
+		uint16_t j = countSectors;
+		uint16_t *coilSectors = new uint16_t[countSectors];
+		uint16_t numSec = 0;
+		for(int i = 0; i < MAX_SECTORS; i++)
+		{
+			if((flashMap[i][0] == 0xffff) && (flashMap[i][1] == 0xffff))
 			{
-				if(j == sensors)
-					headerList[countProc++] = i;
-				tempBuf[0] = prePrePage;
-				tempBuf[1] = prePrePage >> 8;
-				tempBuf[2] = i;
-				tempBuf[3] = i >> 8;
-				//запись в предстраничку preNext
-				flashMx25Write((uint8_t*)tempBuf, prePage);
-				prePrePage = prePage;
-				prePage = i;
-				j--;
-				if(j == 0)
+				coilSectors[numSec++] = i;
+				if(--j == 0)
 				{
-					//пишем последнюю страницу
-					tempBuf[0] = prePage; //признак того, что страница первая
-					tempBuf[1] = prePage >> 8;
-					tempBuf[2] = 0xfe; //признак того, что страница последняя
-					tempBuf[3] = 0xff;
-					flashMx25Write((uint8_t*)tempBuf, i);
-					break;
+					for(int n = 0; n < countSectors; n++)
+					{
+						if(n == 0)
+						{
+							tempBuf[0] = 0xfe; //признак того, что страница первая
+							tempBuf[1] = 0xff;
+						}
+						else
+						{
+							tempBuf[0] = coilSectors[n];
+							tempBuf[1] = coilSectors[n] >> 8;
+						}
+
+					}
 				}
 			}
 		}
 	}
+	return false;
+
+//	uint16_t prePrePage = 0xfffe;
+//	uint16_t prePage = 0xfffe;
+//
+//	for(int i = 0; i < MAX_SECTORS; i++)
+//	{
+//		if((flashMap[i][0] == 0xffff) && (flashMap[i][1] == 0xffff))
+//		{
+//			if(countSectors == 1)
+//			{
+//				headerList[countProc++] = i;
+//				tempBuf[0] = 0xfe; //признак того, что страница первая
+//				tempBuf[1] = 0xff;
+//				tempBuf[2] = 0xfe; //признак того, что страница последняя
+//				tempBuf[3] = 0xff;
+//				memcpy((void*)&tempBuf[4], (void*)&header,
+//						sizeof(HeaderProcess));
+//				tempBuf[4 + sizeof(HeaderProcess)] = i;
+//				tempBuf[4 + sizeof(HeaderProcess) + 1] = i >> 8;
+//				flashMx25Write((uint8_t*)tempBuf, i);
+//				break;
+//			}
+//			else
+//			{
+//				if(j == countSectors)
+//				{
+//					headerList[countProc++] = i;
+//					memcpy((void*)&tempBuf[4], (void*)&header,
+//							sizeof(HeaderProcess));
+//					for(int g = 0; g < countSectors; g++)
+//					{
+//						tempBuf[4 + sizeof(HeaderProcess) + 2 * g] = i;
+//						tempBuf[5 + sizeof(HeaderProcess) + 2 * g] = i >> 8;
+//					}
+//				}
+//				tempBuf[0] = prePrePage;
+//				tempBuf[1] = prePrePage >> 8;
+//				tempBuf[2] = i;
+//				tempBuf[3] = i >> 8;
+//				//запись в предстраничку preNext
+//				flashMx25Write((uint8_t*)tempBuf, prePage);
+//				prePrePage = prePage;
+//				prePage = i;
+//				j--;
+//				if(j == 0)
+//				{
+//					//пишем последнюю страницу
+//					tempBuf[0] = prePage; //признак того, что страница первая
+//					tempBuf[1] = prePage >> 8;
+//					tempBuf[2] = 0xfe; //признак того, что страница последняя
+//					tempBuf[3] = 0xff;
+//					flashMx25Write((uint8_t*)tempBuf, i);
+//					break;
+//				}
+//			}
+//		}
+//	}
 	return true;
 }
 
@@ -405,7 +471,7 @@ void saveResult(float *result, int countSensers)
 	}
 	currProcessCount++;
 	if(currProcessCount == currProcessHeader.count)
-	{//кончим процесс
+	{ //кончим процесс
 		stateProcess = 2;
 		xTimerStop(timerMesuring, 100);
 	}
@@ -413,20 +479,20 @@ void saveResult(float *result, int countSensers)
 
 uint32_t getAdrCurPoint()
 {
-	//расчитать размер заголовка
+//расчитать размер заголовка
 	uint32_t headerSize = sizeof(HeaderProcess);
-	//расчитать размер цепочки секторов
+//расчитать размер цепочки секторов
 	uint32_t countSectors = calcCountSectors(currProcessHeader);
 	uint32_t coinSectorSize = countSectors * 2; //размер цепочки адресов секторов
-	//расчитать размер данных уже записанных
+//расчитать размер данных уже записанных
 	uint32_t dataSize = currProcessCount * countSensor(currProcessHeader)
 			* sizeof(float);
-	//посчитать адрес куда нужно писать
+//посчитать адрес куда нужно писать
 	uint32_t sizeData = headerSize + coinSectorSize + dataSize;
 	uint32_t numSector = sizeData / (4096 - 4); // = Целое и остаток
 	numSector++; // целое+1 = это номер сектора в цепочке
 
-	//находим номер сектора numSector
+//находим номер сектора numSector
 	uint16_t sector = headerList[numProc];
 	while(--numSector)
 	{
