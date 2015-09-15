@@ -36,14 +36,18 @@ uint32_t currentAddress = 0; //текущий адрес, куда можно записать новый процесс
 
 void flashMx25Write(uint8_t *source, uint32_t adrDestination)
 {
+	uint16_t status;
+	do
+	{
+		status = spiRDSR();
+	} while(status & 1);
+
 	spiWREN();
 	flashBuffOut[0] = 2; //Command Page Programm
 	flashBuffOut[1] = adrDestination >> 16;
 	flashBuffOut[2] = adrDestination >> 8;
 	flashBuffOut[3] = adrDestination;
 	memcpy((void*)(flashBuffOut + 4), (void*)source, 256);
-	for(int i = 0; i < 256; i++)
-		flashBuffOut[3 + i] = i;
 
 	startSpi(SIZE_BUF_FLASH);
 	spiWait();
@@ -51,6 +55,12 @@ void flashMx25Write(uint8_t *source, uint32_t adrDestination)
 
 void flashMx25Read(void *destination, uint32_t adrSource, uint16_t size)
 {
+	uint16_t status;
+	do
+	{
+		status = spiRDSR();
+	} while(status & 1);
+
 	if(size > SIZE_BUF_FLASH)
 		return;
 	DMA_MemoryTargetConfig(DMA1_Stream3, (uint32_t)flashBuffIn, 0);
@@ -58,13 +68,19 @@ void flashMx25Read(void *destination, uint32_t adrSource, uint16_t size)
 	flashBuffOut[1] = adrSource >> 16;
 	flashBuffOut[2] = adrSource >> 8;
 	flashBuffOut[3] = adrSource;
-	startSpi(size);
+	startSpi(size + 4);
 	spiWait();
 	memcpy(destination, (void*)(flashBuffIn + 4), size);
 }
 
 void flashMx25ReadData(uint8_t *destination, uint32_t adrSource, uint16_t size)
 {
+	uint16_t status;
+	do
+	{
+		status = spiRDSR();
+	} while(status & 1);
+
 	if(size > 4096)
 		return;
 	DMA_MemoryTargetConfig(DMA1_Stream3, (uint32_t)destination, 0);
@@ -72,7 +88,7 @@ void flashMx25ReadData(uint8_t *destination, uint32_t adrSource, uint16_t size)
 	flashBuffOut[1] = adrSource >> 16;
 	flashBuffOut[2] = adrSource >> 8;
 	flashBuffOut[3] = adrSource;
-	startSpi(size);
+	startSpi(size + 4);
 	spiWait();
 }
 
@@ -92,6 +108,12 @@ uint16_t spiRDSR()
 
 void spiSector4kErase(uint16_t numSector)
 {
+	uint16_t status;
+	do
+	{
+		status = spiRDSR();
+	} while(status & 1);
+
 	spiWREN();
 	flashBuffOut[0] = 0x20;
 	flashBuffOut[1] = numSector >> 16;
@@ -276,6 +298,11 @@ void getFirstLastProcess(uint32_t *firstHeader, uint32_t *lastFreeHeader)
 
 void spiChipErase()
 {
+	uint16_t status;
+	do
+	{
+		status = spiRDSR();
+	} while(status & 1);
 	spiWREN();
 	flashBuffOut[0] = 0x60;
 	startSpi(1);

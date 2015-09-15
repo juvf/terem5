@@ -287,7 +287,7 @@ int commandStopProc(uint8_t *buffer)
 
 bool headerIsValid(const HeaderProcess &header)
 {
-	return (Checksum::crc16((uint8_t*)&header, sizeof(HeaderProcess)) == 0);
+	return (Checksum::crc16((uint8_t*)&header.config, sizeof(TeremConfig)) == 0);
 }
 
 bool allocMemForNewProc(const HeaderProcess &header)
@@ -329,8 +329,11 @@ bool allocMemForNewProc(const HeaderProcess &header)
 				tempBuf[4 + sizeof(HeaderProcess)] = i;
 				tempBuf[4 + sizeof(HeaderProcess) + 1] = i >> 8;
 				flashMx25Write((uint8_t*)tempBuf, i*4096);
+
 				flashMap[i][0] = 0xfffe;
 				flashMap[i][1] = 0xfffd;
+
+
 				return true;
 			}
 		}
@@ -437,7 +440,7 @@ if((remainder + pointSize) > 256)
 else
 { //не выходим за размер блока в 256 байт
 	memcpy((void*)(&tempBuf[remainder]), (void*)resultVoid, pointSize);
-	flashMx25Write(tempBuf, address);
+	flashMx25Write(tempBuf, 256 * (address/256));
 }
 currProcessCount++;
 if(currProcessCount == currProcessHeader.count)

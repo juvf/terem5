@@ -30,7 +30,6 @@ void intiDefaultConfig()
 	configTerem.a[1][0] = 2.14;
 	configTerem.a[1][1] = 4.14;
 	configTerem.a[3][1] = 31.4;
-	int sizeTeremConfig = sizeof(TeremConfig);
 	configTerem.DF_CRC16 = Checksum::crc16((uint8_t*)&configTerem, sizeof(TeremConfig) - 4);
 }
 
