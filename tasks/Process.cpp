@@ -295,7 +295,7 @@ bool allocMemForNewProc(const HeaderProcess &header)
 	uint8_t tempBuf[256];
 	memset((void*)tempBuf, 0xff, 256);
 	//найдем свободный сектор
-//рассчитаем кол-во необходимых секторов
+	//рассчитаем кол-во необходимых секторов
 	uint32_t countSectors = calcCountSectors(header);
 	//посчитаем кол-во свободных секторов
 	if(countSectors > countFreeSectors())
@@ -328,7 +328,7 @@ bool allocMemForNewProc(const HeaderProcess &header)
 						sizeof(HeaderProcess));
 				tempBuf[4 + sizeof(HeaderProcess)] = i;
 				tempBuf[4 + sizeof(HeaderProcess) + 1] = i >> 8;
-				flashMx25Write((uint8_t*)tempBuf, i);
+				flashMx25Write((uint8_t*)tempBuf, i*4096);
 				flashMap[i][0] = 0xfffe;
 				flashMap[i][1] = 0xfffd;
 				return true;
@@ -337,6 +337,8 @@ bool allocMemForNewProc(const HeaderProcess &header)
 	}
 	else
 	{
+		if((4 + sizeof(HeaderProcess) + countSectors * 2) > 256 )
+			return false;//если страниц много и они не влезут в один 256-ти байтный блок, то вертаемся
 		uint16_t j = countSectors;
 		uint16_t *coilSectors = new uint16_t[countSectors];
 		uint16_t numSec = 0;
@@ -384,8 +386,10 @@ bool allocMemForNewProc(const HeaderProcess &header)
 				}
 				flashMx25Write((uint8_t*)tempBuf, coilSectors[n] * 4096);
 			}
+			delete[] coilSectors;
 			return true;
 		}
+		delete[] coilSectors;
 	}
 	return false;
 }

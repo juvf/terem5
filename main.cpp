@@ -18,6 +18,22 @@ int main()
 
 	initConfigTerem();
 
+
+	static uint8_t asd[4096] = {1,2,3,4,5,6,7};
+
+	spiChipErase();
+
+	//flashMx25Write(asd, 0);//пишим 256 байт в адр
+	flashMx25ReadData(asd, 4096, 10);
+	//flashMx25Read((void*)asd, 4096, 10);
+
+
+
+
+
+
+
+
 	initListProc();
 
 	NVIC_SetVectorTable( NVIC_VectTab_FLASH, 0x0);
