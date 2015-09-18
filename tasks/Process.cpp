@@ -330,6 +330,8 @@ bool allocMemForNewProc(const HeaderProcess &header)
 				tempBuf[4 + sizeof(HeaderProcess) + 1] = i >> 8;
 				flashMx25Write((uint8_t*)tempBuf, i*4096);
 
+				flashMx25Read((void*)tempBuf, 0, 256);
+
 				flashMap[i][0] = 0xfffe;
 				flashMap[i][1] = 0xfffd;
 
