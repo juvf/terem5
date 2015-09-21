@@ -132,6 +132,9 @@ void parser()
 		case 0x24: //UART_GetHeaderProcess
 			rfd_sizeOfFrame = commandGetHeaderProc(rfd_buffer);
 			break;
+		case 0x22:
+			rfd_sizeOfFrame = commandReadFlash(rfd_buffer);
+			break;
 		default:
 			rfd_sizeOfFrame = commandError(rfd_buffer);
 			break;

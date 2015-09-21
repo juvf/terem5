@@ -16,6 +16,6 @@
 int commandTestConnect(uint8_t *buffer);
 int commandError(uint8_t *buffer);
 int commandClearFlash(uint8_t *buffer);
-int commandReadFlash(uint32_t adrInFlash, uint8_t *distanation, uint16_t size);
+int commandReadFlash(uint8_t *buffer);
 
 #endif /* TASKS_COMMANDSRFD_H_ */

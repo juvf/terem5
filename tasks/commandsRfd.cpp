@@ -40,8 +40,8 @@ int commandClearFlash(uint8_t *buffer)
 int commandReadFlash(uint8_t *buffer)
 {
 	uint32_t adrInFlash = buffer[6] | (buffer[7] << 8) | (buffer[8] << 16);
-	uint16_t size = buffer[9] | (buffer[10] << 8);
-	if((size >= 4096) || (adrInFlash > (8 * 1024 * 1024 - size)))
+	uint16_t size = buffer[9];
+	if((size > 248) || (adrInFlash > (8 * 1024 * 1024 - size)))
 	{
 		buffer[11] = 0x0E;
 		return 6;
