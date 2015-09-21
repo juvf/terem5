@@ -8,6 +8,7 @@
 #include "clock.h"
 #include "Process.h"
 #include "flashMx25.h"
+#include "Process.h"
 
 #include <string.h>
 
@@ -28,7 +29,11 @@ int commandClearFlash(uint8_t *buffer)
 	if((state == 1) || (state == 3))
 		*buffer = 0x0E;
 	else
+	{
+		memset((void*)flashMap, 0xff, sizeof(flashMap));
+		memset((void*)headerList, 0xff, sizeof(headerList));
 		spiChipErase();
+	}
 	return 6;
 }
 

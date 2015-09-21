@@ -62,7 +62,7 @@ int commandGetCountProc(uint8_t *buffer)
 int commandGetHeaderProc(uint8_t *buffer)
 {
 	uint16_t number = buffer[6];
-	number = buffer[7] >> 8;
+	number += buffer[7] >> 8;
 
 	if(number > MAX_SECTORS)
 	{
@@ -91,8 +91,8 @@ int commandGetHeaderProc(uint8_t *buffer)
 
 	//найдем цепочку секторов
 	buffer += (size_t)buffer + sizeof(HeaderProcess) + 6;
-	buffer[0] = header.preNext[0];
-	buffer[1] = header.preNext[0] >> 8;
+	buffer[0] = (uint8_t)-13;//header.preNext[0];
+	buffer[1] = (uint8_t)-14;//header.preNext[0] >> 8;
 	if(countSectords > 1)
 	{
 		buffer[2] = header.preNext[1];
@@ -328,13 +328,12 @@ bool allocMemForNewProc(const HeaderProcess &header)
 						sizeof(HeaderProcess));
 				tempBuf[4 + sizeof(HeaderProcess)] = i;
 				tempBuf[4 + sizeof(HeaderProcess) + 1] = i >> 8;
-				flashMx25Write((uint8_t*)tempBuf, i*4096);
+				flashMx25Write((uint8_t*)tempBuf, i * 4096);
 
-				flashMx25Read((void*)tempBuf, 0, 256);
+				//flashMx25Read((void*)tempBuf, i * 4096, 256);
 
 				flashMap[i][0] = 0xfffe;
 				flashMap[i][1] = 0xfffd;
-
 
 				return true;
 			}
@@ -342,8 +341,8 @@ bool allocMemForNewProc(const HeaderProcess &header)
 	}
 	else
 	{
-		if((4 + sizeof(HeaderProcess) + countSectors * 2) > 256 )
-			return false;//если страниц много и они не влезут в один 256-ти байтный блок, то вертаемся
+		if((4 + sizeof(HeaderProcess) + countSectors * 2) > 256)
+			return false; //если страниц много и они не влезут в один 256-ти байтный блок, то вертаемся
 		uint16_t j = countSectors;
 		uint16_t *coilSectors = new uint16_t[countSectors];
 		uint16_t numSec = 0;
@@ -365,8 +364,10 @@ bool allocMemForNewProc(const HeaderProcess &header)
 					tempBuf[0] = 0xfe; //признак того, что страница первая
 					tempBuf[1] = 0xff;
 					flashMap[coilSectors[n]][0] = 0xfffe;
-					memcpy((void*)&tempBuf[4], (void*)&header,	sizeof(HeaderProcess));
-					memcpy((void*)&tempBuf[4+sizeof(HeaderProcess)], (void*)coilSectors, countSectors*2);
+					memcpy((void*)&tempBuf[4], (void*)&header,
+							sizeof(HeaderProcess));
+					memcpy((void*)&tempBuf[4 + sizeof(HeaderProcess)],
+							(void*)coilSectors, countSectors * 2);
 					flashMx25Write((uint8_t*)tempBuf, coilSectors[n] * 4096);
 					memset((void*)tempBuf, 0xff, 256);
 				}
@@ -402,89 +403,89 @@ bool allocMemForNewProc(const HeaderProcess &header)
 //записывает одну точку процесса во флэшку
 void saveResult(float *result, int countSensers)
 {
-uint8_t *resultVoid = (uint8_t*)result;
-uint32_t address = getAdrCurPoint();
-uint8_t tempBuf[256];
-memset((void*)tempBuf, 0xff, 256);
-if((address % 4096) == 4)
-{ //записать адрес предыдущего сектора и адрес следующего сектора в начало сектора
-	uint16_t cursector = address / 4096;
-	tempBuf[0] = flashMap[cursector][0];
-	tempBuf[1] = flashMap[cursector][0] >> 8;
-	tempBuf[2] = flashMap[cursector][1];
-	tempBuf[3] = flashMap[cursector][1] >> 8;
-}
-uint32_t remainder = address % 256;
-uint16_t pointSize = countSensers * sizeof(float);
-if((remainder + pointSize) > 256)
-{ //первую половину
-	uint16_t firstSize = 256 - remainder;
-	memcpy((void*)&tempBuf[remainder], (void*)resultVoid, firstSize);
-	flashMx25Write(tempBuf, address);
-//пишем вторую половину
+	uint8_t *resultVoid = (uint8_t*)result;
+	uint32_t address = getAdrCurPoint();
+	uint8_t tempBuf[256];
 	memset((void*)tempBuf, 0xff, 256);
-	address += firstSize;
-	if((address % 4096) == 0)
+	if((address % 4096) == 4)
 	{ //записать адрес предыдущего сектора и адрес следующего сектора в начало сектора
 		uint16_t cursector = address / 4096;
 		tempBuf[0] = flashMap[cursector][0];
 		tempBuf[1] = flashMap[cursector][0] >> 8;
 		tempBuf[2] = flashMap[cursector][1];
 		tempBuf[3] = flashMap[cursector][1] >> 8;
-		address += 4;
 	}
-	remainder = address % 256;
-	uint16_t secondSize = pointSize - firstSize;
-	resultVoid += firstSize;
-	memcpy((void*)&tempBuf[remainder], (void*)resultVoid, secondSize);
-	flashMx25Write(tempBuf, address);
-}
-else
-{ //не выходим за размер блока в 256 байт
-	memcpy((void*)(&tempBuf[remainder]), (void*)resultVoid, pointSize);
-	flashMx25Write(tempBuf, 256 * (address/256));
-}
-currProcessCount++;
-if(currProcessCount == currProcessHeader.count)
-{ //кончим процесс
-	stateProcess = 2;
-	xTimerStop(timerMesuring, 100);
-}
+	uint32_t remainder = address % 256;
+	uint16_t pointSize = countSensers * sizeof(float);
+	if((remainder + pointSize) > 256)
+	{ //первую половину
+		uint16_t firstSize = 256 - remainder;
+		memcpy((void*)&tempBuf[remainder], (void*)resultVoid, firstSize);
+		flashMx25Write(tempBuf, address);
+//пишем вторую половину
+		memset((void*)tempBuf, 0xff, 256);
+		address += firstSize;
+		if((address % 4096) == 0)
+		{ //записать адрес предыдущего сектора и адрес следующего сектора в начало сектора
+			uint16_t cursector = address / 4096;
+			tempBuf[0] = flashMap[cursector][0];
+			tempBuf[1] = flashMap[cursector][0] >> 8;
+			tempBuf[2] = flashMap[cursector][1];
+			tempBuf[3] = flashMap[cursector][1] >> 8;
+			address += 4;
+		}
+		remainder = address % 256;
+		uint16_t secondSize = pointSize - firstSize;
+		resultVoid += firstSize;
+		memcpy((void*)&tempBuf[remainder], (void*)resultVoid, secondSize);
+		flashMx25Write(tempBuf, address);
+	}
+	else
+	{ //не выходим за размер блока в 256 байт
+		memcpy((void*)(&tempBuf[remainder]), (void*)resultVoid, pointSize);
+		flashMx25Write(tempBuf, 256 * (address / 256));
+	}
+	currProcessCount++;
+	if(currProcessCount == currProcessHeader.count)
+	{ //кончим процесс
+		stateProcess = 2;
+		xTimerStop(timerMesuring, 100);
+	}
 }
 
 uint32_t getAdrCurPoint()
 {
 //расчитать размер заголовка
-uint32_t headerSize = sizeof(HeaderProcess);
+	uint32_t headerSize = sizeof(HeaderProcess);
 //расчитать размер цепочки секторов
-uint32_t countSectors = calcCountSectors(currProcessHeader);
-uint32_t coinSectorSize = countSectors * 2; //размер цепочки адресов секторов
+	uint32_t countSectors = calcCountSectors(currProcessHeader);
+	uint32_t coinSectorSize = countSectors * 2; //размер цепочки адресов секторов
 //расчитать размер данных уже записанных
-uint32_t dataSize = currProcessCount * countSensor(currProcessHeader)
-		* sizeof(float);
+	uint32_t dataSize = currProcessCount * countSensor(currProcessHeader)
+			* sizeof(float);
 //посчитать адрес куда нужно писать
-uint32_t sizeData = headerSize + coinSectorSize + dataSize;
-uint32_t numSector = sizeData / (4096 - 4); // = Целое и остаток
-numSector++; // целое+1 = это номер сектора в цепочке
+	uint32_t sizeData = headerSize + coinSectorSize + dataSize;
+	uint32_t numSector = sizeData / (4096 - 4); // = Целое и остаток
+	numSector++; // целое+1 = это номер сектора в цепочке
 
 //находим номер сектора numSector
-uint16_t sector = headerList[numProc];
-while(--numSector)
-{
-	sector = flashMap[sector][1];
-}
-uint32_t remainder = sizeData % (4096 - 4);
-uint32_t address = sector * 4096 + remainder + 4; //	свмещение в последнем секторе = остаток + 4
-return address;
+	uint16_t sector = headerList[numProc];
+	while(--numSector)
+	{
+		sector = flashMap[sector][1];
+	}
+	uint32_t remainder = sizeData % (4096 - 4);
+	uint32_t address = sector * 4096 + remainder + 4; //	свмещение в последнем секторе = остаток + 4
+	return address;
 }
 
 uint8_t countSensor(const HeaderProcess& header)
 {
-uint8_t countSensor = 0;
-for(int i = 0; i < 8; i++)
-{
-	if(header.config.sensorType[i] < GT_Absent)
-		countSensor++;
-}
-return countSensor;
+	uint8_t countSensor = 0;
+	for(int i = 0; i < 8; i++)
+	{
+		if(header.config.sensorType[i] < GT_Absent)
+			countSensor++;
+	}
+	return countSensor;
 }

@@ -310,6 +310,7 @@
           <state>$PROJ_DIR$\Libraries\Usb</state>
           <state>$PROJ_DIR$\Libraries\CMSIS\Device\ST\STM32F4xx\Include</state>
           <state>$TOOLKIT_DIR$\CMSIS\Include\</state>
+          <state>D:\Work\ip\terem5\github\terem5\Libraries\STM32F4xx_StdPeriph_Driver\inc</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1960,6 +1961,9 @@
         <name>$PROJ_DIR$\Libraries\STM32F4xx_StdPeriph_Driver\inc\misc.h</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\Libraries\STM32F4xx_StdPeriph_Driver\src\stm32f4xx_dma.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\Libraries\STM32F4xx_StdPeriph_Driver\src\stm32f4xx_gpio.c</name>
       </file>
       <file>
@@ -1972,10 +1976,19 @@
         <name>$PROJ_DIR$\Libraries\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_i2c.h</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\Libraries\STM32F4xx_StdPeriph_Driver\src\stm32f4xx_pwr.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\Libraries\STM32F4xx_StdPeriph_Driver\src\stm32f4xx_rcc.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\Libraries\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_rcc.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\STM32F4xx_StdPeriph_Driver\src\stm32f4xx_rtc.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\STM32F4xx_StdPeriph_Driver\src\stm32f4xx_spi.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\Libraries\STM32F4xx_StdPeriph_Driver\src\stm32f4xx_usart.c</name>
@@ -1999,11 +2012,32 @@
   </group>
   <group>
     <name>tasks</name>
+    <group>
+      <name>sensors</name>
+      <file>
+        <name>$PROJ_DIR$\tasks\sensor\Sensor.cpp</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\tasks\sensor\Sensor.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\tasks\sensor\SensorM10.cpp</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\tasks\sensor\SensorM10.h</name>
+      </file>
+    </group>
     <file>
       <name>$PROJ_DIR$\tasks\Checksum.cpp</name>
     </file>
     <file>
       <name>$PROJ_DIR$\tasks\Checksum.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\tasks\clock.cpp</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\tasks\clock.h</name>
     </file>
     <file>
       <name>$PROJ_DIR$\tasks\commandsRfd.cpp</name>
@@ -2012,10 +2046,28 @@
       <name>$PROJ_DIR$\tasks\commandsRfd.h</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\tasks\configTerem.cpp</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\tasks\configTerem.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\tasks\mainTask.cpp</name>
     </file>
     <file>
       <name>$PROJ_DIR$\tasks\mainTask.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\tasks\Process.cpp</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\tasks\Process.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\tasks\taskMeasurement.cpp</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\tasks\taskMeasurement.h</name>
     </file>
     <file>
       <name>$PROJ_DIR$\tasks\taskUartRfd.cpp</name>
@@ -2115,6 +2167,24 @@
     </file>
   </group>
   <file>
+    <name>$PROJ_DIR$\adc.cpp</name>
+  </file>
+  <file>
+    <name>$PROJ_DIR$\adc.h</name>
+  </file>
+  <file>
+    <name>$PROJ_DIR$\flashMx25.cpp</name>
+  </file>
+  <file>
+    <name>$PROJ_DIR$\flashMx25.h</name>
+  </file>
+  <file>
+    <name>$PROJ_DIR$\i2c.cpp</name>
+  </file>
+  <file>
+    <name>$PROJ_DIR$\i2c.h</name>
+  </file>
+  <file>
     <name>$PROJ_DIR$\main.cpp</name>
   </file>
   <file>
@@ -2125,6 +2195,9 @@
   </file>
   <file>
     <name>$PROJ_DIR$\osConfig.h</name>
+  </file>
+  <file>
+    <name>$PROJ_DIR$\structCommon.h</name>
   </file>
 </project>
 
