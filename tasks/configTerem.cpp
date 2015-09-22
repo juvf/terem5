@@ -41,6 +41,11 @@ void initConfigTerem()
 		intiDefaultConfig();
 		i2cWrite(0xa0, 0, (uint8_t*)&configTerem, sizeof(TeremConfig));
 	}
+//	configTerem.adcRange[0] = 0x55;
+//	configTerem.adcRange[5] = 0xaa;
+//	configTerem.adcRange[6] = 0xdd;
+//	configTerem.adcRange[7] = 0xd1;
+//	configTerem.DF_CRC16 = Checksum::crc16((uint8_t*)&configTerem, sizeof(TeremConfig) - 4);
 }
 
 int setConfigTerem(uint8_t *buffer)

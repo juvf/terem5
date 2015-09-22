@@ -331,8 +331,8 @@ bool allocMemForNewProc(const HeaderProcess &header)
 				tempBuf[3] = 0xff;
 				memcpy((void*)&tempBuf[4], (void*)&header,
 						sizeof(HeaderProcess));
-				tempBuf[4 + sizeof(HeaderProcess)] = -75; //i;
-				tempBuf[4 + sizeof(HeaderProcess) + 1] = -76;//i >> 8;
+				tempBuf[4 + sizeof(HeaderProcess)] = i;
+				tempBuf[4 + sizeof(HeaderProcess) + 1] = i >> 8;
 				flashMx25Write((uint8_t*)tempBuf, i * 4096);
 
 				//flashMx25Read((void*)tempBuf, i * 4096, 256);
