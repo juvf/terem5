@@ -32,6 +32,7 @@ int commandClearFlash(uint8_t *buffer)
 	{
 		memset((void*)flashMap, 0xff, sizeof(flashMap));
 		memset((void*)headerList, 0xff, sizeof(headerList));
+		countProc = 0;
 		spiChipErase();
 	}
 	return 6;
@@ -47,6 +48,7 @@ int commandReadFlash(uint8_t *buffer)
 		return 6;
 	}
 	flashMx25ReadData(&buffer[6], adrInFlash, size);
+	memcpy((void*)&buffer[6], (void*)&buffer[10], size-4);
 	return 6 + size;
 }
 

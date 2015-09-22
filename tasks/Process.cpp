@@ -87,30 +87,35 @@ int commandGetHeaderProc(uint8_t *buffer)
 		return 7;
 	}
 	memcpy(buffer + 6, (void*)&header.header, sizeof(HeaderProcess));
-	uint32_t countSectords = calcCountSectors(header.header);
+	buffer += 6 + sizeof(HeaderProcess);
+	*buffer++ = addrInFlash;
+	*buffer++ = addrInFlash>>8;
+	*buffer++ = addrInFlash>>16;
+	*buffer++ = addrInFlash>>24;
 
-	//найдем цепочку секторов
-	buffer += (size_t)buffer + sizeof(HeaderProcess) + 6;
-	buffer[0] = (uint8_t)-13;//header.preNext[0];
-	buffer[1] = (uint8_t)-14;//header.preNext[0] >> 8;
-	if(countSectords > 1)
-	{
-		buffer[2] = header.preNext[1];
-		buffer[3] = header.preNext[1] >> 8;
-	}
-	if(countSectords > 2)
-	{
-		for(int i = 2; i < countSectords; i++)
-		{
-			flashMx25Read((void*)&header, header.preNext[1], 4);
-			if(header.preNext[1] == 0xffff)
-				break;
-			buffer[i * 2] = header.preNext[1];
-			buffer[i * 2 + 1] = header.preNext[1] >> 8;
-		}
-	}
+//	uint32_t countSectords = calcCountSectors(header.header);
+//
+//	//найдем цепочку секторов
+//	buffer[0] = header.preNext[0];
+//	buffer[1] = header.preNext[0] >> 8;
+//	if(countSectords > 1)
+//	{
+//		buffer[2] = header.preNext[1];
+//		buffer[3] = header.preNext[1] >> 8;
+//	}
+//	if(countSectords > 2)
+//	{
+//		for(int i = 2; i < countSectords; i++)
+//		{
+//			flashMx25Read((void*)&header, header.preNext[1], 4);
+//			if(header.preNext[1] == 0xffff)
+//				break;
+//			buffer[i * 2] = header.preNext[1];
+//			buffer[i * 2 + 1] = header.preNext[1] >> 8;
+//		}
+//	}
 
-	return 6 + countSectords * 2 + sizeof(HeaderProcess);
+	return 6 + /*countSectords * 2*/ + sizeof(HeaderProcess) + 4;
 }
 
 uint32_t calcCountSectors(const HeaderProcess &header)
@@ -326,8 +331,8 @@ bool allocMemForNewProc(const HeaderProcess &header)
 				tempBuf[3] = 0xff;
 				memcpy((void*)&tempBuf[4], (void*)&header,
 						sizeof(HeaderProcess));
-				tempBuf[4 + sizeof(HeaderProcess)] = i;
-				tempBuf[4 + sizeof(HeaderProcess) + 1] = i >> 8;
+				tempBuf[4 + sizeof(HeaderProcess)] = -75; //i;
+				tempBuf[4 + sizeof(HeaderProcess) + 1] = -76;//i >> 8;
 				flashMx25Write((uint8_t*)tempBuf, i * 4096);
 
 				//flashMx25Read((void*)tempBuf, i * 4096, 256);

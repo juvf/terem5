@@ -13,6 +13,7 @@
 #define MAX_SECTORS	2048
 
 extern uint16_t headerList[MAX_SECTORS]; //
+extern uint16_t countProc;
 
 int commandStartProc(uint8_t *buffer);
 int commandGetProcConf(uint8_t *buffer);

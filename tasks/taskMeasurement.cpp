@@ -46,7 +46,7 @@ void musuring()
 			case GT_MM10:
 				val = readAnalogSensor(i) * 2.0 / 1.17;
 				val = (val - configTerem.a[i][0]) * 5.5;//Результат в мм
-				valueSens[j++] = val;
+				valueSens[j++] = 34.14;//val;
 				break;
 			default:
 				break;
