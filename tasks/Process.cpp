@@ -213,12 +213,12 @@ int commandStartProc(uint8_t *buffer)
 				RTC_DateTypeDef date;
 				RTC_GetDate(RTC_Format_BIN, &date);
 
-				currProcessHeader.startTime.RTC_Seconds = time.RTC_Seconds;
-				currProcessHeader.startTime.RTC_Minutes = time.RTC_Minutes;
-				currProcessHeader.startTime.RTC_Hours = time.RTC_Hours;
-				currProcessHeader.startDate.RTC_Date = date.RTC_Date;
-				currProcessHeader.startDate.RTC_Month = date.RTC_Month;
-				currProcessHeader.startDate.RTC_Year = date.RTC_Year;
+				currProcessHeader.startTime.RTC_Seconds = 1;//time.RTC_Seconds;
+				currProcessHeader.startTime.RTC_Minutes = 2;//time.RTC_Minutes;
+				currProcessHeader.startTime.RTC_Hours = 3;//time.RTC_Hours;
+				currProcessHeader.startDate.RTC_Date = 4;//date.RTC_Date;
+				currProcessHeader.startDate.RTC_Month = 5;//date.RTC_Month;
+				currProcessHeader.startDate.RTC_Year = 6;//date.RTC_Year;
 				currProcessHeader.config = configTerem;
 
 				//заполнить заголовок процесса
