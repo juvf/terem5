@@ -177,7 +177,7 @@ typedef struct
 
 	uint8_t adcRange[8];
 
-	uint32_t DF_CRC16;          //Контроль целостности
+	uint16_t crc[2];          //Контроль целостности
 } TeremConfig;
 
 //заголовок процесса

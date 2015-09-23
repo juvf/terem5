@@ -70,7 +70,7 @@ int commandGetHeaderProc(uint8_t *buffer)
 		buffer[6] = 0x01;
 		return 7;
 	}
-	uint32_t addrInFlash = headerList[number];
+	uint32_t addrInFlash = headerList[number] * 4096;
 
 	if(addrInFlash == 0xffff)
 	{
