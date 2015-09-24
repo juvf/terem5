@@ -12,10 +12,12 @@ xTaskHandle handleRF;
 
 xTimerHandle timerMesuring;
 
+EventGroupHandle_t xCreatedEventGroup;
+
 xQueueHandle cansolQueue;//очередь для сообщений дебага в кансоль
 xQueueHandle uartRfd232Queue;
 
-#define SIZE_STACK_MAIN (configMINIMAL_STACK_SIZE)
+#define SIZE_STACK_MAIN (configMINIMAL_STACK_SIZE*2)
 #define SIZE_STACK_USB (configMINIMAL_STACK_SIZE)
 #define SIZE_STACK_RFD (configMINIMAL_STACK_SIZE * 2)
 
@@ -24,6 +26,8 @@ void initOs(void)
 	NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 );
 	cansolQueue = xQueueCreate(20, sizeof(char*));
 	uartRfd232Queue = xQueueCreate(10, 1);
+
+	xCreatedEventGroup = xEventGroupCreate();
 
 	timerMesuring = xTimerCreate("mesuring", 1000, pdTRUE, 0, taskMeasurement);
 

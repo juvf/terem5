@@ -10,7 +10,9 @@ void mainTask(void *context)
 	while(1)
 	{
           vTaskDelay(1000);
-          //musuring();
+          EventBits_t uxBits = xEventGroupWaitBits(xCreatedEventGroup, FLAG_MESUR, pdTRUE, pdTRUE, 100);
+          if( ( uxBits &  FLAG_MESUR ) == FLAG_MESUR)
+        	musuring();
 
 
       	//тестируем и2ц

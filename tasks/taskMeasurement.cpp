@@ -28,7 +28,8 @@ float valueSens[16];
 void taskMeasurement(xTimerHandle xTimer)
 {
 // Код функции таймера
-	musuring();
+	//musuring();
+	xEventGroupSetBits(xCreatedEventGroup, FLAG_MESUR);
 	return;
 }
 

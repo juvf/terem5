@@ -12,6 +12,8 @@ extern "C"
 #include "timers.h"
 #include "semphr.h"
 #include "event_groups.h"
+
+#define FLAG_MESUR	( 1 << 0 )
   
 #define TASK_PRIORITY_MAIN		0
 #define TASK_PRIORITY_RFD		1
@@ -25,6 +27,7 @@ extern xTimerHandle timerMesuring;
 
 extern xQueueHandle cansolQueue;
 extern xQueueHandle uartRfd232Queue;
+extern EventGroupHandle_t xCreatedEventGroup;
 
 
 
