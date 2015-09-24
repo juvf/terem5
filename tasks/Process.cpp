@@ -366,6 +366,7 @@ bool allocMemForNewProc(const HeaderProcess &header)
 			{
 				if(n == 0)
 				{
+                                        headerList[countProc++] = coilSectors[n];
 					tempBuf[0] = 0xfe; //признак того, что страница первая
 					tempBuf[1] = 0xff;
 					flashMap[coilSectors[n]][0] = 0xfffe;
@@ -426,7 +427,7 @@ void saveResult(float *result, int countSensers)
 	{ //первую половину
 		uint16_t firstSize = 256 - remainder;
 		memcpy((void*)&tempBuf[remainder], (void*)resultVoid, firstSize);
-		flashMx25Write(tempBuf, address);
+		flashMx25Write(tempBuf, 256 * (address/256));
 //пишем вторую половину
 		memset((void*)tempBuf, 0xff, 256);
 		address += firstSize;
@@ -477,6 +478,8 @@ uint32_t getAdrCurPoint()
 	uint16_t sector = headerList[numProc];
 	while(--numSector)
 	{
+          if(sector >= 4096)
+            asm("nop");
 		sector = flashMap[sector][1];
 	}
 	uint32_t remainder = sizeData % (4096 - 4);

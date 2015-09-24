@@ -19,13 +19,13 @@ int main()
 	initConfigTerem();
 
 
-	static uint8_t asd[256] = {1,2,3,4,5,6,7};
+	//static uint8_t asd[256] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 
 //	spiSector4kErase(0);
 //
-//	flashMx25Write(asd, 0);//пишим 256 байт в адр
+	//flashMx25Write(asd, 0);//пишим 256 байт в адр
 	//flashMx25ReadData(asd, 0, 10);
-	flashMx25Read((void*)asd, 0, 256);
+	//flashMx25Read((void*)asd, 0, 256);
 
 	initListProc();
 
