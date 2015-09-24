@@ -123,6 +123,9 @@ void parser()
 		case 0x18: //Get_ProcConf
 			rfd_sizeOfFrame = commandGetProcConf(rfd_buffer + 6);
 			break;
+		case 0x19: //Get_CurrentVal
+			rfd_sizeOfFrame = commandGetProcConf(rfd_buffer + 6);
+			break;
 		case 0x21: //
 			rfd_sizeOfFrame = commandClearFlash(rfd_buffer);
 			break;

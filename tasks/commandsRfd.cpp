@@ -38,6 +38,11 @@ int commandClearFlash(uint8_t *buffer)
 	return 6;
 }
 
+int commandGetCurAdc(uint8_t *buffer)
+{
+
+}
+
 int commandReadFlash(uint8_t *buffer)
 {
 	uint32_t adrInFlash = buffer[6] | (buffer[7] << 8) | (buffer[8] << 16);

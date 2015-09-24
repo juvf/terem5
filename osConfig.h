@@ -11,6 +11,7 @@ extern "C"
 #include "task.h"
 #include "timers.h"
 #include "semphr.h"
+#include "event_groups.h"
   
 #define TASK_PRIORITY_MAIN		0
 #define TASK_PRIORITY_RFD		1

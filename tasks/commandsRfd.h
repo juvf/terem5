@@ -17,5 +17,6 @@ int commandTestConnect(uint8_t *buffer);
 int commandError(uint8_t *buffer);
 int commandClearFlash(uint8_t *buffer);
 int commandReadFlash(uint8_t *buffer);
+int commandGetCurAdc(uint8_t *buffer);
 
 #endif /* TASKS_COMMANDSRFD_H_ */
