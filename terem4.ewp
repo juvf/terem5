@@ -1896,6 +1896,12 @@
   <group>
     <name>freertos</name>
     <file>
+      <name>$PROJ_DIR$\freertos\event_groups.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\freertos\event_groups.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\freertos\FreeRTOSConfig.h</name>
     </file>
     <file>

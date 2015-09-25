@@ -9,6 +9,7 @@
 #include "Process.h"
 #include "flashMx25.h"
 #include "Process.h"
+#include "../osConfig.h"
 
 #include <string.h>
 
@@ -40,7 +41,27 @@ int commandClearFlash(uint8_t *buffer)
 
 int commandGetCurAdc(uint8_t *buffer)
 {
-
+	//захватим симафор АЦП
+	xSemaphoreTake(semaphAdc, portMAX_DELAY);
+	ep1_On();
+//	for(int i = 0; i < 8; i++)
+//	{ //опрос всех каналы
+//		switch(configTerem.sensorType[i])
+//		{
+//			//Датчики перемещения
+//			case GT_MM10:
+//				val = readAnalogSensor(i) * 2.0 / 1.17;
+//				val = (val - configTerem.a[i][0]) * 5.5; //Результат в мм
+//				valueSens[j++] = val;
+//				//valueSens[j++] = 1.2 + 0.15 * j;
+//				break;
+//			default:
+//				break;
+//		}
+//	}
+	ep1_Off();
+	//освободим симафор АЦП
+	xSemaphoreGive(semaphAdc);
 }
 
 int commandReadFlash(uint8_t *buffer)
@@ -53,8 +74,8 @@ int commandReadFlash(uint8_t *buffer)
 		return 6;
 	}
 	flashMx25ReadData(&buffer[6], adrInFlash, size);
-	for(int i = 0; i<size; i++)
-		buffer[6+i] = buffer[6 + i + 4];
+	for(int i = 0; i < size; i++)
+		buffer[6 + i] = buffer[6 + i + 4];
 //	memcpy((void*)&buffer[6], (void*)&buffer[10], size-4);
 	return 6 + size;
 }

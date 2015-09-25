@@ -177,7 +177,7 @@ uint16_t AD7792RdW(unsigned char Register)
 //Измерение напряжения с автоопределением диапазона ---------------------------
 float getU_Ad7792(unsigned char numChanel)
 {
-	uint8_t *CurRange = &configTerem.adcRange[numChanel];
+	uint8_t *CurRange = &adcRange[numChanel];
 	uint16_t CurCode;               //Текущее значение в кодах
 	float curU;                 //Текущее значение напряжения в вольтах
 

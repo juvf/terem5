@@ -25,6 +25,8 @@ extern xTaskHandle handleRfd;
 
 extern xTimerHandle timerMesuring;
 
+extern SemaphoreHandle_t semaphAdc; //симафор для измерений
+
 extern xQueueHandle cansolQueue;
 extern xQueueHandle uartRfd232Queue;
 extern EventGroupHandle_t xCreatedEventGroup;

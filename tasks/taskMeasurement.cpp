@@ -12,9 +12,6 @@
 #include "sensor/Sensor.h"
 #include "Process.h"
 
-#define ep1_On()	GPIO_SetBits(GPIOC, GPIO_Pin_8)
-#define ep1_Off()	GPIO_ResetBits(GPIOC, GPIO_Pin_8)
-
 float valueSens[16];
 
 //void taskMeasurement(void *context)
@@ -38,6 +35,8 @@ void musuring()
 	static int a = 0;
 	int j = 0;
 	float val;
+	//захватим симафор АЦП
+	xSemaphoreTake( semaphAdc, portMAX_DELAY );
 	ep1_On();
 	for(int i = 0; i<8; i++)
 	{//опрос всех каналы
@@ -47,14 +46,16 @@ void musuring()
 			case GT_MM10:
 				val = readAnalogSensor(i) * 2.0 / 1.17;
 				val = (val - configTerem.a[i][0]) * 5.5;//Результат в мм
-				//valueSens[j++] = val;
-				valueSens[j++] = 1.2 + 0.15 * j;
+				valueSens[j++] = val;
+				//valueSens[j++] = 1.2 + 0.15 * j;
 				break;
 			default:
 				break;
 		}
 	}
 	ep1_Off();
+	//освободим симафор АЦП
+	xSemaphoreGive(semaphAdc);
 
 	//записываем результат
 	saveResult(valueSens, j);

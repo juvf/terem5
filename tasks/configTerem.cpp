@@ -11,6 +11,7 @@
 #include <string.h>
 
 TeremConfig configTerem;
+uint8_t adcRange[8];
 
 void intiDefaultConfig()
 {
@@ -22,7 +23,7 @@ void intiDefaultConfig()
 		configTerem.DF_CompChan[i] = 0;
 		configTerem.a[i][0] = 1.0;
 		configTerem.a[i][1] = 1.0;
-		configTerem.adcRange[i] = 0;
+		adcRange[i] = 0;
 	}
 
 	configTerem.a[0][0] = 3.14;
@@ -31,10 +32,6 @@ void intiDefaultConfig()
 	configTerem.a[1][1] = 4.14;
 	configTerem.a[3][1] = 31.4;
 
-		configTerem.adcRange[0] = 0x55;
-		configTerem.adcRange[5] = 0xaa;
-		configTerem.adcRange[6] = 0xdd;
-		configTerem.adcRange[7] = 0xd1;
 
 	configTerem.crc[1] = Checksum::crc16((uint8_t*)&configTerem, sizeof(TeremConfig) - 2);
 }
@@ -46,6 +43,10 @@ void initConfigTerem()
 	{
 		intiDefaultConfig();
 		i2cWrite(0xa0, 0, (uint8_t*)&configTerem, sizeof(TeremConfig));
+	}
+	for(int i = 0; i < 8; i++)
+	{
+		adcRange[i] = 0;
 	}
 }
 
@@ -77,10 +78,6 @@ int setConfigTerem(uint8_t *buffer)
 	memcpy((void*)&configTerem.a, (void*)(buffer), sizeof(float) * 16);
 	buffer += sizeof(float) * 16; // 64 (96)
 
-	for(int i = 0; i < 8; i++)
-	{ // uint8_t adcRange[8]; //8 (104)
-		configTerem.adcRange[i] = *buffer++;
-	}
 	configTerem.crc[1] = Checksum::crc16( (uint8_t*)&configTerem, sizeof(configTerem) - 2 );
 
 	i2cWrite(0xa0, 0, (uint8_t*)&configTerem, sizeof(TeremConfig));
@@ -109,14 +106,10 @@ int getConfigTerem(uint8_t *buffer)
 	memcpy((void*)(buffer), (void*)&configTerem.a, sizeof(float) * 16);
 	buffer += sizeof(float) * 16; // 64 (96)
 
-	for(int i = 0; i < 8; i++)
-	{ // uint8_t adcRange[8]; //8 (104)
-		*buffer++ = configTerem.adcRange[i];
-	}
 	*buffer++ = (uint8_t)configTerem.crc[0];
 	*buffer++ = (uint8_t)(configTerem.crc[0] >> 8); //2 (106)
 	*buffer++ = (uint8_t)configTerem.crc[1];
 	*buffer++ = (uint8_t)(configTerem.crc[1] >> 8); //2 (108)
-	return 108 + 6;
+	return 100 + 6;
 }
 

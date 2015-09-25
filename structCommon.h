@@ -10,6 +10,9 @@
 #include <stdint.h>
 #include "stm32f4xx_rtc.h"
 
+#define ep1_On()	GPIO_SetBits(GPIOC, GPIO_Pin_8)
+#define ep1_Off()	GPIO_ResetBits(GPIOC, GPIO_Pin_8)
+
 //Возможные типы датчиков (изменять одновременно в StructCommon.h для Терем-4.1, адаптера123 и в GaugeModel.h программы связи)
 enum
 {
@@ -175,10 +178,11 @@ typedef struct
 	uint16_t DF_AdapterNum;     //Номер адаптера
 	float a[8][2];       //Коэффициенты калибровки датчиков
 
-	uint8_t adcRange[8];
 
 	uint16_t crc[2];          //Контроль целостности
 } TeremConfig;
+
+extern uint8_t adcRange[8];
 
 //заголовок процесса
 typedef struct
