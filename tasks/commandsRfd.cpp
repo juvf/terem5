@@ -54,12 +54,11 @@ int commandGetCurAdc(uint8_t *buffer)
 		xSemaphoreTake(semaphAdc, portMAX_DELAY);
 		ep1_On();
 		float valP = 0;
-		float valU = 0;
+		float valU = readAnalogSensor(buffer[6]);
 		switch(configTerem.sensorType[buffer[6]])
 		{
 			//Датчики перемещения
 			case GT_MM10:
-				valU = readAnalogSensor(buffer[6]);
 				valP = valU * 2.0 / 1.17;
 				valP = (valP - configTerem.a[buffer[6]][0]) * 5.5; //Результат в мм
 				break;
