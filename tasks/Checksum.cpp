@@ -52,22 +52,13 @@ const unsigned short Crc16Table[256] = {
 
 }
 
-static unsigned char dadP[152];
-static unsigned short crcP[152];
-
 unsigned short Checksum::crc16(const unsigned char * pcBlock, unsigned short len)
 {
 	unsigned short crc = 0xFFFF;
 
     while (len--)
     {
-    	if(len < 150)
-    	{
-    		crcP[len] = crc;
-    		dadP[len] = *pcBlock;
-    	}
         crc = (crc >> 8) ^ Crc16Table[(crc & 0xFF) ^ *pcBlock++];
-
     }
  
     return crc;
