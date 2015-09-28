@@ -10,6 +10,7 @@
 #include  "../../structCommon.h"
 #include  "configTerem.h"
 #include "sensor/Sensor.h"
+#include "sensor/SensorM10.h"
 #include "Process.h"
 
 float valueSens[16];
@@ -44,8 +45,8 @@ void musuring()
 		{
 			//Датчики перемещения
 			case GT_MM10:
-				val = readAnalogSensor(i) * 2.0 / 1.17;
-				val = (val - configTerem.a[i][0]) * 5.5;//Результат в мм
+				val = readAnalogSensor(i);
+				val = MM10_Length(val, configTerem.a[i][0]);
 				valueSens[j++] = val;
 				break;
 			default:

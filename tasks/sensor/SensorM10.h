@@ -11,6 +11,8 @@
 #include "Sensor.h"
 #include "stm32f4xx.h"
 
+float MM10_Length(float curU, float a0);
+
 
 
 #endif /* SENSORM10_H_ */
