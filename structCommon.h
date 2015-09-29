@@ -12,6 +12,8 @@
 
 #define ep1_On()	GPIO_SetBits(GPIOC, GPIO_Pin_8)
 #define ep1_Off()	GPIO_ResetBits(GPIOC, GPIO_Pin_8)
+#define epa_On()	GPIO_SetBits(GPIOC, GPIO_Pin_2)
+#define epa_Off()	GPIO_ResetBits(GPIOC, GPIO_Pin_2)
 
 //Возможные типы датчиков (изменять одновременно в StructCommon.h для Терем-4.1, адаптера123 и в GaugeModel.h программы связи)
 enum

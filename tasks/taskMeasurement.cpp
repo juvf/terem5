@@ -39,6 +39,7 @@ void musuring()
 	//захватим симафор АЦП
 	xSemaphoreTake( semaphAdc, portMAX_DELAY );
 	ep1_On();
+	epa_On();
 	for(int i = 0; i<8; i++)
 	{//опрос всех каналы
 		switch( configTerem.sensorType[i])
@@ -53,6 +54,7 @@ void musuring()
 				break;
 		}
 	}
+	epa_Off();
 	ep1_Off();
 	//освободим симафор АЦП
 	xSemaphoreGive(semaphAdc);

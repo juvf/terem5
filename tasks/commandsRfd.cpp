@@ -53,6 +53,7 @@ int commandGetCurAdc(uint8_t *buffer)
 	{
 		xSemaphoreTake(semaphAdc, portMAX_DELAY);
 		ep1_On();
+		epa_On();
 		float valP = 0;
 		float valU = readAnalogSensor(buffer[6]);
 		switch(configTerem.sensorType[buffer[6]])
@@ -65,6 +66,7 @@ int commandGetCurAdc(uint8_t *buffer)
 			default:
 				break;
 		}
+		epa_Off();
 		ep1_Off();
 		//освободим симафор АЦП
 		xSemaphoreGive(semaphAdc);
