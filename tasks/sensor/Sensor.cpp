@@ -10,27 +10,6 @@
 #include "../configTerem.h"
 #include "../../adc.h"
 
-float readSenser(uint8_t numChanel)
-{
-	float value;
-	switch(configTerem.sensorType[numChanel])
-	{
-		case GT_MM10:
-			value = 10.1;
-			break;
-		case GT_MM20:
-			value = 20.2;
-			break;
-		case GT_MM50:
-			value = 50.2;
-			break;
-		default:
-			value = 0;
-			break;
-	}
-	return value;
-}
-
 //канал от 0 до 7
 float readAnalogSensor(uint8_t numChanel)
 {
