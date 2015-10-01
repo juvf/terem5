@@ -60,6 +60,10 @@ void musuring()
 				val = MM50_Length(val, configTerem.a[i][0]);
 				valueSens[j++] = val;
 				break;
+			case GT_HEL700:
+				val = getU_Ad7792(numChanel);
+				val = HEL700_Termo(val, );
+				break;
 			default:
 				break;
 		}

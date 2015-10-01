@@ -181,6 +181,9 @@ float getU_Ad7792(unsigned char numChanel)
 	uint16_t CurCode;               //Текущее значение в кодах
 	float curU;                 //Текущее значение напряжения в вольтах
 
+	//скомутировать ключ и включить ключ
+	switchOn(numChanel);
+
 	//Для HEL700
 	if(configTerem.sensorType[numChanel] == GT_HEL700)
 	{
@@ -334,6 +337,9 @@ float getU_Ad7792(unsigned char numChanel)
 		}
 		curU = GainKoef(*CurRange) * (int16_t)(CurCode - 0x8000);
 	}
+
+	//выключить ключ
+	switchOn(100);
 	return curU;
 }
 
