@@ -50,6 +50,16 @@ void musuring()
 				val = MM10_Length(val, configTerem.a[i][0]);
 				valueSens[j++] = val;
 				break;
+			case GT_MM20:
+				val = readAnalogSensor(i);
+				val = MM20_Length(val, configTerem.a[i][0]);
+				valueSens[j++] = val;
+				break;
+			case GT_MM50:
+				val = readAnalogSensor(i);
+				val = MM50_Length(val, configTerem.a[i][0]);
+				valueSens[j++] = val;
+				break;
 			default:
 				break;
 		}
