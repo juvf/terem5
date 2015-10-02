@@ -92,3 +92,19 @@ int commandReadFlash(uint8_t *buffer)
 	return 6 + size;
 }
 
+int commandT48(uint8_t *buffer)
+{
+	if((buffer[7] > 7) || (buffer[6] > 1))
+		return commandError(buffer);
+	if(buffer[6] == 0)
+	{ //чтение
+		buffer[6] = configTerem.sensorType[buffer[7]];
+		memcpy((void*)&buffer[8], &koefAB.a, 10*sizeof(float));
+		return 40 + 7;
+	}
+	else
+	{ //запись
+		return commandError(buffer);
+	}
+}
+

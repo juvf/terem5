@@ -138,6 +138,9 @@ void parser()
 		case 0x22:
 			rfd_sizeOfFrame = commandReadFlash(rfd_buffer);
 			break;
+		case 0x09:
+			rfd_sizeOfFrame = commandT48(rfd_buffer);
+			break;
 		default:
 			rfd_sizeOfFrame = commandError(rfd_buffer);
 			break;

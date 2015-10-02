@@ -8,6 +8,7 @@
 #include "structCommon.h"
 #include "tasks/configTerem.h"
 #include "osConfig.h"
+#include "tasks/sensor/Sensor.h"
 
 #define csOn()	GPIO_ResetBits(GPIOA, GPIO_Pin_4)
 #define csOff()	GPIO_SetBits(GPIOA, GPIO_Pin_4)
