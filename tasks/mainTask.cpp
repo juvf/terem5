@@ -2,20 +2,34 @@
 #include "../osConfig.h"
 #include "stm32f4xx_conf.h"
 #include "../i2c.h"
+#include "configTerem.h"
 #include "taskMeasurement.h"
+#include "Process.h"
 
 void mainTask(void *context)
 {
 	char *str;
+
+	static uint8_t asd[256];
+	for(int i = 0; i < 200; i++)
+		asd[i] = i;
+
+	int adres = 0;
+	i2cWrite(0xa0, adres, (uint8_t*)&asd, 150);
+
+	i2cRead(0xa0, adres, (uint8_t*)&asd, 150);
+
+	initConfigTerem();
+	initListProc();
 	while(1)
 	{
-          vTaskDelay(1000);
-          EventBits_t uxBits = xEventGroupWaitBits(xCreatedEventGroup, FLAG_MESUR, pdTRUE, pdTRUE, 100);
-          if( ( uxBits &  FLAG_MESUR ) == FLAG_MESUR)
-        	musuring();
+		vTaskDelay(1000);
+		EventBits_t uxBits = xEventGroupWaitBits(xCreatedEventGroup, FLAG_MESUR,
+				pdTRUE, pdTRUE, 100);
+		if((uxBits & FLAG_MESUR) == FLAG_MESUR)
+			musuring();
 
-
-      	//тестируем и2ц
+		//тестируем и2ц
 //          static uint8_t bbb[] = {1,2,3,4,5,6};
 //          i2cWrite(0xA0, 0, bbb+2, 3);
 //          vTaskDelay(100);
@@ -24,7 +38,6 @@ void mainTask(void *context)
 //        	  aaa[i] = 99;
 //          i2cRead(0xa0, 0, aaa, 3);
 //                  asm("nop");
-
 
 //          GPIO_SetBits(GPIOD, GPIO_Pin_13);
 //          vTaskDelay(1000);
@@ -44,8 +57,7 @@ void mainTask(void *context)
 ////			while(USART_GetITStatus(USART2, USART_IT_TC) == SET)
 ////				;				//ждём освобождения от предыдущей отправки
 //		}
-                //else
+		//else
 	}
 }
-
 

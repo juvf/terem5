@@ -16,10 +16,14 @@ int main()
 
 	initOs();
 
-	initConfigTerem();
+//	initConfigTerem();
+//	initListProc();
 
 
-	//static uint8_t asd[256] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+//	if(Checksum::crc16((uint8_t*)&koefAB, sizeof(KoefAB)) != 0)
+//	{
+//		intiDefaultKoefAB();
+//	}
 
 //	spiSector4kErase(0);
 //
@@ -27,7 +31,6 @@ int main()
 	//flashMx25ReadData(asd, 0, 10);
 	//flashMx25Read((void*)asd, 0, 256);
 
-	initListProc();
 
 	NVIC_SetVectorTable( NVIC_VectTab_FLASH, 0x0);
 	NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4);
@@ -54,7 +57,7 @@ void pereferInit()
 	//инициализаци€ GPIOB
 	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOCEN, ENABLE);
 	GPIO_StructInit(&port);
-	port.GPIO_Pin =  GPIO_Pin_6 | GPIO_Pin_5 | GPIO_Pin_7;
+	port.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_5 | GPIO_Pin_7;
 	port.GPIO_Mode = GPIO_Mode_OUT;
 	port.GPIO_OType = GPIO_OType_PP;
 	port.GPIO_PuPd = GPIO_PuPd_UP;
@@ -64,18 +67,20 @@ void pereferInit()
 	//инициализаци€ GPIOC
 	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOCEN, ENABLE);
 	GPIO_StructInit(&port);
-	port.GPIO_Pin = GPIO_Pin_9 | GPIO_Pin_11 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_8 | GPIO_Pin_2;
+	port.GPIO_Pin = GPIO_Pin_9 | GPIO_Pin_11 | GPIO_Pin_10 | GPIO_Pin_12
+			| GPIO_Pin_8 | GPIO_Pin_2;
 	port.GPIO_Mode = GPIO_Mode_OUT;
 	port.GPIO_OType = GPIO_OType_PP;
 	port.GPIO_PuPd = GPIO_PuPd_UP;
 	port.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOC, &port);
-	GPIO_SetBits(GPIOC, GPIO_Pin_9);//выключим 500 м¬
+	GPIO_SetBits(GPIOC, GPIO_Pin_9);	//выключим 500 м¬
 
 	//инициализаци€ GPIOD
 	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIODEN, ENABLE);
 	GPIO_StructInit(&port);
-	port.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_1 | GPIO_Pin_0 | GPIO_Pin_6 | GPIO_Pin_5 |
+	port.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_1
+			| GPIO_Pin_0 | GPIO_Pin_6 | GPIO_Pin_5 |
 			GPIO_Pin_7;
 	port.GPIO_Mode = GPIO_Mode_OUT;
 	port.GPIO_OType = GPIO_OType_PP;
@@ -105,8 +110,9 @@ void pereferInit()
 	initDmaSpi2();
 
 	initSpi1();
-	if(initAdc() != 0 )
-		while(1);
+	if(initAdc() != 0)
+		while(1)
+			;
 
 //	setSpiOut(0, 0x9f);
 //	setSpiOut(1, 0x00);

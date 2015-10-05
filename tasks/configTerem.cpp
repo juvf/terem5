@@ -38,10 +38,6 @@ void initConfigTerem()
 		intiDefaultConfig();
 		i2cWrite(0xa0, 0, (uint8_t*)&configTerem, sizeof(TeremConfig));
 	}
-	for(int i = 0; i < 8; i++)
-	{
-		adcRange[i] = 0;
-	}
 
 	i2cRead(0xa0, sizeof(TeremConfig), (uint8_t*)&koefAB, sizeof(KoefAB));
 	if(Checksum::crc16((uint8_t*)&koefAB, sizeof(koefAB)) != 0)
@@ -49,6 +45,7 @@ void initConfigTerem()
 		intiDefaultKoefAB();
 		i2cWrite(0xa0, sizeof(TeremConfig), (uint8_t*)&koefAB, sizeof(KoefAB));
 	}
+
 	for(int i = 0; i < 8; i++)
 	{
 		adcRange[i] = 0;

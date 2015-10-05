@@ -99,7 +99,7 @@ int commandT48(uint8_t *buffer)
 	if(buffer[6] == 0)
 	{ //чтение
 		buffer[6] = configTerem.sensorType[buffer[7]];
-		memcpy((void*)&buffer[8], &koefAB.a, 10*sizeof(float));
+		memcpy((void*)&buffer[7], (void*)&koefAB, 10*sizeof(float));
 		return 40 + 7;
 	}
 	else

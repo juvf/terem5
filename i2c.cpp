@@ -6,6 +6,7 @@
  */
 #include "i2c.h"
 #include "stm32f4xx_conf.h"
+#include "osConfig.h"
 
 void init_I2C1()
 {
@@ -42,6 +43,30 @@ void init_I2C1()
 
 void i2cWrite(int slaveAdr, int address, uint8_t *buffer, int size)
 {
+	while(size > 0)
+	{
+		int adrNextPage = 64 + (address & 0xffc0);
+		int pageSize = adrNextPage - address;
+		if(size > pageSize)
+		{
+			i2cWritePage(slaveAdr, address, buffer, pageSize);
+			vTaskDelay(10);
+			size -= pageSize;
+			address += pageSize;
+			buffer += pageSize;
+		}
+		else
+		{
+			i2cWritePage(slaveAdr, address, buffer, size);
+			vTaskDelay(10);
+			size = 0;
+		}
+	}
+}
+
+//в этой функции запись должна идти до конца страницы, например до 64
+void i2cWritePage(int slaveAdr, int address, uint8_t *buffer, int size)
+{
 	// Ждем пока шина освободится
 	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY))
 		;
@@ -49,7 +74,7 @@ void i2cWrite(int slaveAdr, int address, uint8_t *buffer, int size)
 	I2C_GenerateSTART(I2C1, ENABLE);
 	while(!I2C_GetFlagStatus(I2C1, I2C_FLAG_SB))
 		;
-	// Посылаем адрес подчиненному устройству - микросхеме CS43L22
+	// Посылаем адрес подчиненному устройству
 	I2C_Send7bitAddress(I2C1, slaveAdr, I2C_Direction_Transmitter);
 	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
 		;
@@ -121,7 +146,6 @@ void i2cRead(int slaveAdr, int address, uint8_t *buffer, int size)
 			;
 		buffer[currentBytesValue++] = I2C_ReceiveData(I2C1);
 	} while(currentBytesValue < size);
-
 
 	I2C_GenerateSTOP(I2C1, ENABLE);
 }
