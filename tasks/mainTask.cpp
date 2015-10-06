@@ -10,15 +10,6 @@ void mainTask(void *context)
 {
 	char *str;
 
-	static uint8_t asd[256];
-	for(int i = 0; i < 200; i++)
-		asd[i] = i;
-
-	int adres = 0;
-	i2cWrite(0xa0, adres, (uint8_t*)&asd, 150);
-
-	i2cRead(0xa0, adres, (uint8_t*)&asd, 150);
-
 	initConfigTerem();
 	initListProc();
 	while(1)

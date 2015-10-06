@@ -98,13 +98,18 @@ int commandT48(uint8_t *buffer)
 		return commandError(buffer);
 	if(buffer[6] == 0)
 	{ //чтение
-		buffer[6] = configTerem.sensorType[buffer[7]];
-		memcpy((void*)&buffer[7], (void*)&koefAB, 10*sizeof(float));
+		int numChanel = buffer[7];
+		buffer[6] = configTerem.sensorType[numChanel];
+		memcpy((void*)&buffer[7], (void*)&koeffsAB.koef[numChanel], 10*sizeof(float));
 		return 40 + 7;
 	}
 	else
 	{ //запись
-		return commandError(buffer);
+		configTerem.sensorType[buffer[7]] = buffer[8];
+		saveConfig();
+		memcpy( (void*)&koeffsAB.koef[buffer[7]], (void*)&buffer[9], 10*sizeof(float));
+		saveKoeffAB();
+		return 6;
 	}
 }
 

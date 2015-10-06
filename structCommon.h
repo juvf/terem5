@@ -187,10 +187,15 @@ typedef struct
 {
 	float a[5];
 	float b[5];
-	uint16_t crc[2];          //Контроль целостности
 } KoefAB;
 
-extern KoefAB koefAB;
+typedef struct
+{
+	KoefAB koef[8];
+	uint16_t crc[2];          //Контроль целостности
+} KoeffsAB;
+
+extern KoeffsAB koeffsAB;
 
 extern uint8_t adcRange[8];
 

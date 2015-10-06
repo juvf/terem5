@@ -13,6 +13,8 @@ extern TeremConfig configTerem;
 void intiDefaultConfig();
 void initConfigTerem();
 void intiDefaultKoefAB();
+void saveConfig();
+void saveKoeffAB();
 
 int setConfigTerem(uint8_t *buffer);
 int getConfigTerem(uint8_t *buffer);
