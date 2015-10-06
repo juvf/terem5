@@ -11,7 +11,9 @@
 #include  "configTerem.h"
 #include "sensor/Sensor.h"
 #include "sensor/SensorM10.h"
+#include "sensor/GaugeHEL700.h"
 #include "Process.h"
+#include "../../adc.h"
 
 float valueSens[16];
 
@@ -61,8 +63,14 @@ void musuring()
 				valueSens[j++] = val;
 				break;
 			case GT_HEL700:
-//				val = getU_Ad7792(numChanel);
-//				val = HEL700_Termo(val, );
+				val = getU_Ad7792(i);
+				val = HEL700_Termo(val, i);
+				valueSens[j++] = val;
+				break;
+			case GT_TermoHK:
+				val = getU_Ad7792(i);
+
+				valueSens[j++] = val;
 				break;
 			default:
 				break;

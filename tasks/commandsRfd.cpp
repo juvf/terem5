@@ -12,6 +12,9 @@
 #include "../osConfig.h"
 #include "configTerem.h"
 #include "sensor/Sensor.h"
+#include "sensor/SensorM10.h"
+#include "../adc.h"
+#include "sensor/GaugeHEL700.h"
 
 #include <string.h>
 
@@ -51,19 +54,35 @@ int commandGetCurAdc(uint8_t *buffer)
 	}
 	else
 	{
+		float valP = 0;
+		int numChanel = buffer[6];
 		xSemaphoreTake(semaphAdc, portMAX_DELAY);
 		ep1_On();
 		epa_On();
-		float valP = 0;
-		float valU = readAnalogSensor(buffer[6]);
-		switch(configTerem.sensorType[buffer[6]])
+		float valU;
+		switch(configTerem.sensorType[numChanel])
 		{
 			//Датчики перемещения
 			case GT_MM10:
-				valP = valU * 2.0 / 1.17;
-				valP = (valP - configTerem.a[buffer[6]][0]) * 5.5; //Результат в мм
+				valU = readAnalogSensor(numChanel);
+				valP = MM10_Length(valU, configTerem.a[numChanel][0]);
+//				valP = valU * 2.0 / 1.17;
+//				valP = (valP - configTerem.a[buffer[6]][0]) * 5.5; //Результат в мм
+				break;
+			case GT_MM20:
+				valU = readAnalogSensor(numChanel);
+				valP = MM20_Length(valU, configTerem.a[numChanel][0]);
+				break;
+			case GT_MM50:
+				valU = readAnalogSensor(numChanel);
+				valP = MM50_Length(valU, configTerem.a[numChanel][0]);
+				break;
+			case GT_HEL700:
+				valU = getU_Ad7792(numChanel);
+				valP = HEL700_Termo(valU, numChanel);
 				break;
 			default:
+				valP = 0;
 				break;
 		}
 		epa_Off();
@@ -100,14 +119,16 @@ int commandT48(uint8_t *buffer)
 	{ //чтение
 		int numChanel = buffer[7];
 		buffer[6] = configTerem.sensorType[numChanel];
-		memcpy((void*)&buffer[7], (void*)&koeffsAB.koef[numChanel], 10*sizeof(float));
+		memcpy((void*)&buffer[7], (void*)&koeffsAB.koef[numChanel],
+				10 * sizeof(float));
 		return 40 + 7;
 	}
 	else
 	{ //запись
 		configTerem.sensorType[buffer[7]] = buffer[8];
 		saveConfig();
-		memcpy( (void*)&koeffsAB.koef[buffer[7]], (void*)&buffer[9], 10*sizeof(float));
+		memcpy((void*)&koeffsAB.koef[buffer[7]], (void*)&buffer[9],
+				10 * sizeof(float));
 		saveKoeffAB();
 		return 6;
 	}

@@ -21,4 +21,7 @@ void powerDa12_15(uint8_t val);
 float readSensorM(uint8_t numChanel);
 float readAnalogSensor(uint8_t numChanel);
 
+float Polinom4(float x, const float *A);
+float Polinom3(float x, const float *A);
+
 #endif /* TASKS_SENSOR_H_ */

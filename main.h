@@ -12,6 +12,8 @@ void pereferInit();
 int main();
 void initUartForConsol();
 
+#define flErrorCode   1e38
+
 
 
 
