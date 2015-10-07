@@ -10,10 +10,9 @@
 #include  "../../structCommon.h"
 #include  "configTerem.h"
 #include "sensor/Sensor.h"
-#include "sensor/SensorM10.h"
-#include "sensor/GaugeHEL700.h"
 #include "Process.h"
 #include "../../adc.h"
+#include <math.h>
 
 float valueSens[16];
 
@@ -37,44 +36,47 @@ void musuring()
 {
 	static int a = 0;
 	int j = 0;
-	float val;
 	//захватим симафор АЦП
 	xSemaphoreTake( semaphAdc, portMAX_DELAY );
 	ep1_On();
 	epa_On();
 	for(int i = 0; i<8; i++)
 	{//опрос всех каналы
-		switch( configTerem.sensorType[i])
-		{
-			//Датчики перемещения
-			case GT_MM10:
-				val = readAnalogSensor(i);
-				val = MM10_Length(val, configTerem.a[i][0]);
-				valueSens[j++] = val;
-				break;
-			case GT_MM20:
-				val = readAnalogSensor(i);
-				val = MM20_Length(val, configTerem.a[i][0]);
-				valueSens[j++] = val;
-				break;
-			case GT_MM50:
-				val = readAnalogSensor(i);
-				val = MM50_Length(val, configTerem.a[i][0]);
-				valueSens[j++] = val;
-				break;
-			case GT_HEL700:
-				val = getU_Ad7792(i);
-				val = HEL700_Termo(val, i);
-				valueSens[j++] = val;
-				break;
-			case GT_TermoHK:
-				val = getU_Ad7792(i);
+		ResultMes result = readSenser(i);
+		if( isnan(result.u) == 0 )
+			valueSens[j++] = result.p;
+//		switch( configTerem.sensorType[i])
+//		{
+//			//Датчики перемещения
+//			case GT_MM10:
+//				val = readAnalogSensor(i);
+//				val = MM10_Length(val, configTerem.a[i][0]);
+//				valueSens[j++] = val;
+//				break;
+//			case GT_MM20:
+//				val = readAnalogSensor(i);
+//				val = MM20_Length(val, configTerem.a[i][0]);
+//				valueSens[j++] = val;
+//				break;
+//			case GT_MM50:
+//				val = readAnalogSensor(i);
+//				val = MM50_Length(val, configTerem.a[i][0]);
+//				valueSens[j++] = val;
+//				break;
+//			case GT_HEL700:
+//				val = getU_Ad7792(i);
+//				val = HEL700_Termo(val, i);
+//				valueSens[j++] = val;
+//				break;
+//			case GT_TermoHK:
+//				val = getU_Ad7792(i);
+//
+//				valueSens[j++] = val;
+//				break;
+//			default:
+//				break;
+//		}
 
-				valueSens[j++] = val;
-				break;
-			default:
-				break;
-		}
 	}
 	epa_Off();
 	ep1_Off();

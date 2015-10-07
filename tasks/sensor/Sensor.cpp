@@ -9,6 +9,16 @@
 #include "../../structCommon.h"
 #include "../configTerem.h"
 #include "../../adc.h"
+#include "SensorM10.h"
+#include "GaugeHK.h"
+#include "GaugeHA.h"
+#include "GaugeT48.h"
+#include "GaugeHEL700.h"
+#include "GaugeHeatFlow.h"
+#include <math.h>
+
+//температура холодного спая
+#define  TEMP_HS	22
 
 //канал от 0 до 7
 float readAnalogSensor(uint8_t numChanel)
@@ -165,4 +175,59 @@ float Polinom3(float x, const float *A)
 	f *= x; //A1
 	f += A[3];         //A0
 	return f;
+}
+
+//
+ResultMes readSenser(uint8_t numChanel)
+{
+	ResultMes result;
+	switch(configTerem.sensorType[numChanel])
+	{
+		//Датчики перемещения
+		case GT_MM10:
+			result.u = readAnalogSensor(numChanel);
+			result.p = MM10_Length(result.u, configTerem.a[numChanel][0]);
+			//				valP = valU * 2.0 / 1.17;
+			//				valP = (valP - configTerem.a[buffer[6]][0]) * 5.5; //Результат в мм
+			break;
+		case GT_MM20:
+			result.u = readAnalogSensor(numChanel);
+			result.p = MM20_Length(result.u, configTerem.a[numChanel][0]);
+			break;
+		case GT_MM50:
+			result.u = readAnalogSensor(numChanel);
+			result.p = MM50_Length(result.u, configTerem.a[numChanel][0]);
+			break;
+		case GT_HEL700:			//Платиновый ТСП -> в градусах
+			result.u = getU_Ad7792(numChanel);
+			result.p = HEL700_Termo(result.u, numChanel);
+			break;
+		case GT_TermoHK:			//Термопара ХК -> в градусах
+		case GT_TermoHKcom:
+			result.u = getU_Ad7792(numChanel);
+			result.p = HK_Termo(result.u, TEMP_HS);
+			break;
+		case GT_TermoHA:			//Термопара ХА -> в градусах
+		case GT_TermoHAcom:
+			result.u = getU_Ad7792(numChanel);
+			result.p = HA_Termo(result.u, TEMP_HS);
+			break;
+		case GT_Termo48:			//D Универсальный термопарный вход
+			result.u = getU_Ad7792(numChanel);
+			result.p = T48_Termo(result.u, TEMP_HS, numChanel);
+			break;
+		case GT_HeatFlowPeltje:
+			result.u = getU_Ad7792(numChanel);
+			result.p = HF_Flow(result.u, koeffsAB.koef[numChanel].a);
+			break;
+		case GT_HeatFlowPeltje48:
+			result.u = getU_Ad7792(numChanel);
+			result.p = HF_Flow48(result.u, numChanel);
+			break;
+		default:
+			result.u = NAN;
+			result.p = NAN;
+			break;
+	}
+	return result;
 }

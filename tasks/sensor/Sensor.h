@@ -9,6 +9,7 @@
 #define TASKS_SENSOR_H_
 
 #include <stdint.h>
+#include "../../structCommon.h"
 
 #define gnd500mVOn()	GPIO_ResetBits(GPIOC, GPIO_Pin_9)
 #define gnd500mVOff()	GPIO_SetBits(GPIOC, GPIO_Pin_9)
@@ -20,6 +21,7 @@ void powerDa17_16(uint8_t val);
 void powerDa12_15(uint8_t val);
 float readSensorM(uint8_t numChanel);
 float readAnalogSensor(uint8_t numChanel);
+ResultMes readSenser(uint8_t numChanel);
 
 float Polinom4(float x, const float *A);
 float Polinom3(float x, const float *A);

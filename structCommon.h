@@ -195,6 +195,12 @@ typedef struct
 	uint16_t crc[2];          //Контроль целостности
 } KoeffsAB;
 
+typedef struct
+{
+	float u; //измеренное знаечение в вольтах
+	float p; //измеренное значение в еденицах измерения параметра
+} ResultMes;
+
 extern KoeffsAB koeffsAB;
 
 extern uint8_t adcRange[8];

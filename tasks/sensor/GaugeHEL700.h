@@ -3,5 +3,4 @@
 
 float HEL700_Termo(float curU, unsigned char Channel);
 
-
 #endif
