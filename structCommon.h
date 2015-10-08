@@ -15,6 +15,15 @@
 #define epa_On()	GPIO_SetBits(GPIOC, GPIO_Pin_2)
 #define epa_Off()	GPIO_ResetBits(GPIOC, GPIO_Pin_2)
 
+//Типы тензодатчиков
+typedef enum {
+  GTT_KM100B=0,             //KM-100B, встраиваемый датчик напряжения (strain gauge), Tokio Sokki Kenkyujo Co., Ltd.
+  GTT_Weigher,              //Весы
+
+  GTT_Unknown,              //..-FF Датчик неизвестного типа, если >= GTT_Unknown
+  GTT_Max=0xFF
+} GaugeTensoType;
+
 //Возможные типы датчиков (изменять одновременно в StructCommon.h для Терем-4.1, адаптера123 и в GaugeModel.h программы связи)
 enum
 {
@@ -40,7 +49,7 @@ enum
 	GT_HeatFlowPeltje48, //11 Датчик теплового потока - элемент Пельтье, для 48-канального адаптера
 	GT_R7,
 	//Датчики влажности
-	GT_HIH3610,               //13 HIH3610 от Honeywell
+	GT_HIH3610,               //13 HIH3610 от Honeywell подкючить ДА17
 	GT_R8,
 	GT_R9,
 	GT_R10,
@@ -51,7 +60,7 @@ enum
 	GT_R15,
 	GT_R16,
 	//Датчики давления
-	GT_MPX5700,               //1D
+	GT_MPX5700,               //1D эксклюзив
 	GT_R17,
 	GT_R18,
 	GT_R19,
@@ -65,8 +74,8 @@ enum
 	GT_MM10,
 	GT_MM20,
 	GT_MM50, //27, 28, 29
-	GT_Relocate,               //30
-	GT_Rel_Ind,                //31
+	GT_Relocate,               //30 как ММ10 и ММ20
+	GT_Rel_Ind,                //31 эксклюзив
 	GT_R26,
 	GT_R27,
 	GT_R28,

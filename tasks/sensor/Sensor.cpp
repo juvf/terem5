@@ -15,6 +15,7 @@
 #include "GaugeT48.h"
 #include "GaugeHEL700.h"
 #include "GaugeHeatFlow.h"
+#include "GaugeHIH3610.h"
 #include <math.h>
 
 //температура холодного спая
@@ -113,13 +114,13 @@ void switchOn(uint8_t numChanel)
 	}
 }
 
-void powerDa12_15(uint8_t val)
+void powerDa12_15(uint8_t numChanel)
 {
 	GPIO_ResetBits(GPIOD, GPIO_Pin_1 | GPIO_Pin_0 | GPIO_Pin_6);
 	GPIO_ResetBits(GPIOC, GPIO_Pin_11 | GPIO_Pin_10);
 	GPIO_ResetBits(GPIOE, GPIO_Pin_1 | GPIO_Pin_0);
 	GPIO_ResetBits(GPIOB, GPIO_Pin_6);
-	switch(val)
+	switch(numChanel)
 	{
 		case 0:
 			GPIO_SetBits(GPIOC, GPIO_Pin_11);
@@ -199,8 +200,12 @@ ResultMes readSenser(uint8_t numChanel)
 			result.p = MM50_Length(result.u, configTerem.a[numChanel][0]);
 			break;
 		case GT_HEL700:			//Платиновый ТСП -> в градусах
+			powerDa17_16(P_ADC_REF);
+			powerDa12_15(numChanel);
 			result.u = getU_Ad7792(numChanel);
 			result.p = HEL700_Termo(result.u, numChanel);
+			powerDa17_16(P_OFF);
+			powerDa12_15(100);
 			break;
 		case GT_TermoHK:			//Термопара ХК -> в градусах
 		case GT_TermoHKcom:
@@ -223,6 +228,70 @@ ResultMes readSenser(uint8_t numChanel)
 		case GT_HeatFlowPeltje48:
 			result.u = getU_Ad7792(numChanel);
 			result.p = HF_Flow48(result.u, numChanel);
+			break;
+		case GT_Relocate:
+			result.u = readAnalogSensor(numChanel);
+			result.p = Relocate_Length(result.u, koeffsAB.koef[numChanel].a);
+			break;
+		case GT_HIH3610: //DA17 на 3.0 В
+			powerDa17_16(P_3_0);
+			powerDa12_15(numChanel);
+			result.u = getU_Ad7792(numChanel);
+			result.p = HIH3610_Rh(result.u, TEMP_HS,
+					koeffsAB.koef[numChanel].a);
+			powerDa12_15(100);
+			powerDa17_16(P_OFF);
+			break;
+			//Датчики тензометрические
+		case GT_TensoKg:
+//				GT_TensoT,   //31, 32 С выводом кг, т
+//				GT_TensoN,
+//				GT_TensoKN,  //33, 34 С выводом Н, кН
+//				GT_TensoKPa,
+//				GT_TensoMPa, //35, 36 С выводом кПа, МПа
+//				GT_Tenso_uE,
+			break;
+			//Инклинометры
+//				GT_InclinIN_D3,           //39, спецадаптер инклинометра
+//				GT_InclinMK_X,            //3A, спецадаптер с микроконтроллером ATmega
+//				GT_InclinMK_Y,            //3B, спецадаптер с микроконтроллером ATmega
+
+		case GT_SHT1_H_0: //40..47 SHT-10 (влажность) для разных входов microLAN
+//				GT_SHT1_H_1,
+//				GT_SHT1_H_2,
+//				GT_SHT1_H_3,
+//				GT_SHT1_H_4,
+//				GT_SHT1_H_5,
+//				GT_SHT1_H_6,
+//				GT_SHT1_H_7,
+//				GT_SHT1_T,                //48 SHT-10 (температура)
+//				GT_SHT1_DP,               //49 SHT-10 (точка росы)
+			break;
+
+			//Напряжение, мВ
+		case GT_U:                     //54
+		case GT_U2V:                   //55
+			break;
+
+		case GT_R:                     //56 //Сопротивление, кОм
+			break;
+
+			//Датчики на основе тензомостов
+		case GT_TensoKg2:
+		case GT_TensoT2:  //78, 79 С выводом кг, т
+		case GT_TensoN2:
+		case GT_TensoKN2: //7A, 7B С выводом Н, кН
+		case GT_TensoKPa2:
+		case GT_TensoMPa2: //7C, 7D С выводом кПа, МПа
+		case GT_Tenso_uE2:             //7E, Тензо, относительное удлинение
+			powerDa17_16(P_3_0);
+			powerDa12_15(numChanel);
+			result.u = getU_Ad7792(numChanel);
+			result.p = HIH3610_Rh(result.u, TEMP_HS,
+					koeffsAB.koef[numChanel].a);
+			powerDa12_15(100);
+			powerDa17_16(P_OFF);
+			break;
 			break;
 		default:
 			result.u = NAN;

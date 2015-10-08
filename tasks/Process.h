@@ -17,7 +17,7 @@ extern uint16_t countProc;
 
 int commandStartProc(uint8_t *buffer);
 int commandGetProcConf(uint8_t *buffer);
-int commandStopProc(uint8_t *buffer);
+int commandStopProc();
 int commandGetCountProc(uint8_t *buffer);
 int commandGetHeaderProc(uint8_t *buffer);
 int commandDeleteProc(uint8_t *buffer);

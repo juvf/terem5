@@ -49,12 +49,11 @@ float MM50_Length(float curU, float a0)
 }
 
 //Преобразование напряжения в перемещение, универсальный датчик ---------------
-float Relocate_Length(float curU, float *a0)
+float Relocate_Length(float curU, float *a)
 {
-	float *a1 = a0 - 1;
 	curU *= 2.0 / 1.17;
 	//Результат в мм
-	return (curU - *a0) * *a1 / 2.0;
+	return (curU - a[0]) * a[1] / 2.0;
 }
 
 //Напряжение -> перемещение, индуктивный датчик -------------------------------

@@ -14,6 +14,7 @@
 float MM10_Length(float curU, float a0);
 float MM20_Length(float curU, float a0);
 float MM50_Length(float curU, float a0);
+float Relocate_Length(float curU, float *a0);
 
 
 

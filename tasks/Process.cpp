@@ -285,10 +285,17 @@ int commandGetProcConf(uint8_t *buffer)
 	return 19 + 6;
 }
 
-int commandStopProc(uint8_t *buffer)
+int commandStopProc()
 {
-	return 0;
+	if( (stateProcess = 1) || (stateProcess == 3) )
+	{
+		stateProcess = 2;
+		xTimerStop(timerMesuring, 100);
+	}
+	return 5;
 }
+
+
 
 bool headerIsValid(const HeaderProcess &header)
 {
@@ -489,11 +496,11 @@ uint32_t getAdrCurPoint()
 
 uint8_t countSensor(const HeaderProcess& header)
 {
-	uint8_t countSensor = 0;
+	uint8_t countSens = 0;
 	for(int i = 0; i < 8; i++)
 	{
 		if(header.config.sensorType[i] < GT_Absent)
-			countSensor++;
+			countSens++;
 	}
-	return countSensor;
+	return countSens;
 }

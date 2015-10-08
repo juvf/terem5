@@ -18,7 +18,7 @@ enum { P_OFF = 0, P_1_67, P_ADC_REF, P_3_0, P_EP1};
 
 void switchOn(uint8_t numChanel);
 void powerDa17_16(uint8_t val);
-void powerDa12_15(uint8_t val);
+void powerDa12_15(uint8_t numChanel);
 float readSensorM(uint8_t numChanel);
 float readAnalogSensor(uint8_t numChanel);
 ResultMes readSenser(uint8_t numChanel);

@@ -141,6 +141,9 @@ void parser()
 		case 0x09:
 			rfd_sizeOfFrame = commandT48(rfd_buffer);
 			break;
+		case 0x20:
+			rfd_sizeOfFrame = commandStopProc();
+			break;
 		default:
 			rfd_sizeOfFrame = commandError(rfd_buffer);
 			break;
