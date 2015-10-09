@@ -156,7 +156,6 @@ void DefaultKoefTenso(void)
 //#define Tcomp   AB[4]   //Коэфф. температурной компенсации
 //#define Type    *(GaugeTensoType*)&AB[5] //Тип датчика, GaugeTensoType
 //#define T0      AB[6]   //Температура установки нуля
-
 //Преобразование напряжения в результат ---------------------------------------
 //Вход: Измеренное напряжение, физ. номер адаптера, номер канала компенсатора
 float Tenso_3(float curU, uint8_t Channel, float T)
@@ -166,56 +165,65 @@ float Tenso_3(float curU, uint8_t Channel, float T)
 	//Чтение коэффициентов линеаризации из Flash
 //	AB_Read(Ad, Channel, 1);
 
-	float Full = koeffsAB.koef[Channel].a[0];//    AB[0]   //Значение полной шкалы в физических единицах
-	float Uref = koeffsAB.koef[Channel].a[1];//   AB[1]   //Значение полной шкалы в Вольтах
-	float Sens = koeffsAB.koef[Channel].a[2];//   AB[2]   //Чувствительность, мВ/В
-	float U0 = koeffsAB.koef[Channel].a[3];//     AB[3]   //Смещение нуля, мВ
-	float Tcomp = koeffsAB.koef[Channel].a[4];//  AB[4]   //Коэфф. температурной компенсации
-	float Type = *(GaugeTensoType*)&koeffsAB.koef[Channel].b[0];//   *(GaugeTensoType*)&AB[5] //Тип датчика, GaugeTensoType
-	float T0 = koeffsAB.koef[Channel].b[1];//     AB[6]   //Температура установки нуля
+	float Full = koeffsAB.koef[Channel].a[0]; //    AB[0]   //Значение полной шкалы в физических единицах
+	float Uref = koeffsAB.koef[Channel].a[1]; //   AB[1]   //Значение полной шкалы в Вольтах
+	float Sens = koeffsAB.koef[Channel].a[2]; //   AB[2]   //Чувствительность, мВ/В
+	float U0 = koeffsAB.koef[Channel].a[3]; //     AB[3]   //Смещение нуля, мВ
+	float Tcomp = koeffsAB.koef[Channel].a[4]; //  AB[4]   //Коэфф. температурной компенсации
+	GaugeTensoType Type = *(GaugeTensoType*)&koeffsAB.koef[Channel].b[0]; //   *(GaugeTensoType*)&AB[5] //Тип датчика, GaugeTensoType
+	float T0 = koeffsAB.koef[Channel].b[1]; //     AB[6]   //Температура установки нуля
 
 	//Проверки на допустимость
-	if( Full==0) return flErrorCode;
-	if( !isnormal(Full)) return flErrorCode;
-	if( Uref==0) return flErrorCode;
-	if( !isnormal(Uref)) return flErrorCode;
-	if( Sens==0) return flErrorCode;
-	if( !isnormal(Sens)) return flErrorCode;
+	if( Full == 0 )
+		return flErrorCode;
+	if( !isnormal(Full) )
+		return flErrorCode;
+	if( Uref == 0 )
+		return flErrorCode;
+	if( !isnormal(Uref) )
+		return flErrorCode;
+	if( Sens == 0 )
+		return flErrorCode;
+	if( !isnormal(Sens) )
+		return flErrorCode;
 
 	//Если нет данных о температуре, не проводить термокомпенсацию
-	if( !isnormal(T0) && (T0 != 0)) T0=25;
-	if( T0== flErrorCode) T0=25;
+	if( !isnormal(T0) && (T0 != 0) )
+		T0 = 25;
+	if( T0 == flErrorCode )
+		T0 = 25;
 	if( !isnormal(T) && (T != 0) )
 		T = T0;
 	if( T == flErrorCode )
 		T = T0;
 
-		//Различная обработка по типам датчиков
+	//Различная обработка по типам датчиков
 	switch(Type)
 	{
 
 		//KM-100B, встраиваемый датчик напряжения (strain gauge), Tokio Sokki Kenkyujo Co., Ltd.
 		case GTT_KM100B:
 			curU -= U0;                 //Вычитание смещения нуля
-			dLL=2e6*curU/Uref;// uE в мкм/м (dR/R=4*dU/U, dL/L=dR/R/2)
-			Res=dLL*Sens;// uE с коррекцией
-			Res+=(Tcomp-9.3)*(T-T0);//Термокомпенсация
+			dLL = 2e6 * curU / Uref;    // uE в мкм/м (dR/R=4*dU/U, dL/L=dR/R/2)
+			Res = dLL * Sens;                 // uE с коррекцией
+			Res += (Tcomp - 9.3) * (T - T0);                 //Термокомпенсация
 
 			//uE3 = Ce * uEi + (Cbeta - gamma) * dT
 			//                 Tcomp  9.3*10-6
 			return Res;
 
 			//Весы
-			case GTT_Weigher:
-			curU-=U0; curU *= 1000.0;//Перевод в мВ, вычитание смещения нуля
-			Res=curU * Full / (Uref * Sens);
+		case GTT_Weigher:
+			curU -= U0;
+			curU *= 1000.0;			//Перевод в мВ, вычитание смещения нуля
+			Res = curU * Full / (Uref * Sens);
 			return Res;
 
 			//Неизвестный тип датчика
-			default:
+		default:
 			return flErrorCode;
-		}
 	}
+}
 
 ////Установка нуля тензометрического датчика ------------------------------------
 //void Tenso3SetZero(BYTE Ad, BYTE Chan)

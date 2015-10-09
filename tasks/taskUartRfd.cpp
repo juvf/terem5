@@ -163,6 +163,11 @@ void parser()
 	}
 }
 
+void deinitUartRfd()
+{
+	USART_DeInit(USART2);
+}
+
 //задействован USART2
 void initUartRfd()
 {

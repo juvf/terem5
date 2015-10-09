@@ -13,13 +13,17 @@ extern "C"
 #include "semphr.h"
 #include "event_groups.h"
 
-#define FLAG_MESUR	( 1 << 0 )
+#define FLAG_MESUR			( 1 << 0 )
+#define FLAG_SLEEP_MESUR	( 1 << 1 )
+#define FLAG_SLEEP_UART		( 1 << 2 )
   
 #define TASK_PRIORITY_MAIN		0
-#define TASK_PRIORITY_RFD		1
-#define TASK_PRIORITY_USB		2
+#define TASK_PRIORITY_MESUR		1
+#define TASK_PRIORITY_RFD		2
+#define TASK_PRIORITY_USB		3
   
 extern xTaskHandle handleMain;
+extern xTaskHandle handleMesur;
 extern xTaskHandle handleUsb;
 extern xTaskHandle handleRfd;
 
@@ -29,7 +33,7 @@ extern SemaphoreHandle_t semaphAdc; //симафор для измерений
 
 extern xQueueHandle cansolQueue;
 extern xQueueHandle uartRfd232Queue;
-extern EventGroupHandle_t xCreatedEventGroup;
+extern EventGroupHandle_t xEventGroup;
 
 
 

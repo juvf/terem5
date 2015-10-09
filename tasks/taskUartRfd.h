@@ -32,6 +32,7 @@
 #ifdef __cplusplus
 
 void initUartRfd();
+void deinitUartRfd();
 bool reciveByte(uint8_t byte);
 void parser();
 void setRxMode();

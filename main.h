@@ -9,6 +9,7 @@
 #define MAIN_H_
 
 void pereferInit();
+void pereferDeInit();
 int main();
 void initUartForConsol();
 

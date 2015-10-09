@@ -2,6 +2,7 @@
 #include "osConfig.h"
 #include "stm32f4xx_conf.h"
 #include "tasks/taskUartRfd.h"
+#include "tasks/mainTask.h"
 #include "tasks/clock.h"
 #include "i2c.h"
 #include "tasks/configTerem.h"
@@ -19,7 +20,6 @@ int main()
 //	initConfigTerem();
 //	initListProc();
 
-
 //	if(Checksum::crc16((uint8_t*)&koefAB, sizeof(KoefAB)) != 0)
 //	{
 //		intiDefaultKoefAB();
@@ -30,7 +30,6 @@ int main()
 	//flashMx25Write(asd, 0);//пишим 256 байт в адр
 	//flashMx25ReadData(asd, 0, 10);
 	//flashMx25Read((void*)asd, 0, 256);
-
 
 	NVIC_SetVectorTable( NVIC_VectTab_FLASH, 0x0);
 	NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4);
@@ -110,7 +109,7 @@ void pereferInit()
 	initDmaSpi2();
 
 	initSpi1();
-	if(initAdc() != 0)
+	if( initAdc() != 0 )
 		while(1)
 			;
 
@@ -188,5 +187,20 @@ void initUartForConsol()
 	// ¬ключаем прерывани€ и запускаем USART
 	//NVIC_EnableIRQ(USART1_IRQn);
 	USART_Cmd(USART2, ENABLE);
+}
+
+void pereferDeInit()
+{
+	deinitUartRfd();
+
+//	//initRtc();
+//
+//	deinit_I2C1();
+//
+//	deinitSpi2();
+//	deinitDmaSpi2();
+//
+//	deinitSpi1();
+//	deinitAdc();
 }
 

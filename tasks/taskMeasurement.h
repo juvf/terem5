@@ -16,7 +16,8 @@ extern "C"
 {
 #endif
 
-void taskMeasurement(xTimerHandle xTimer);
+void taskMeasurement(void *context);
+void timerMeasurement(xTimerHandle xTimer);
 
 #ifdef __cplusplus
 }

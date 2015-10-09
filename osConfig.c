@@ -7,18 +7,20 @@
 
 //дескрипторы задач
 xTaskHandle handleMain;
+xTaskHandle handleMesur;
 xTaskHandle handleUsb;
 xTaskHandle handleRF;
 
 xTimerHandle timerMesuring;
 
-EventGroupHandle_t xCreatedEventGroup;
+EventGroupHandle_t xEventGroup;
 SemaphoreHandle_t semaphAdc;
 
 xQueueHandle cansolQueue;//очередь для сообщений дебага в кансоль
 xQueueHandle uartRfd232Queue;
 
-#define SIZE_STACK_MAIN (configMINIMAL_STACK_SIZE*2)
+#define SIZE_STACK_MESUR (configMINIMAL_STACK_SIZE*2)
+#define SIZE_STACK_MAIN (configMINIMAL_STACK_SIZE)
 #define SIZE_STACK_USB (configMINIMAL_STACK_SIZE)
 #define SIZE_STACK_RFD (configMINIMAL_STACK_SIZE * 2)
 
@@ -28,9 +30,9 @@ void initOs(void)
 	cansolQueue = xQueueCreate(20, sizeof(char*));
 	uartRfd232Queue = xQueueCreate(10, 1);
 
-	xCreatedEventGroup = xEventGroupCreate();
+	xEventGroup = xEventGroupCreate();
 
-	timerMesuring = xTimerCreate("mesuring", 1000, pdTRUE, 0, taskMeasurement);
+	timerMesuring = xTimerCreate("mesuring", 1000, pdTRUE, 0, timerMeasurement);
 	semaphAdc = xSemaphoreCreateMutex();
 
 	createTasks();
@@ -41,12 +43,12 @@ void createTasks()
 	BaseType_t pTask;
 	pTask = xTaskCreate(mainTask, "mainTask", SIZE_STACK_MAIN, 0,
 			TASK_PRIORITY_MAIN, &handleMain);
+	pTask = xTaskCreate(taskMeasurement, "mesurTask", SIZE_STACK_MESUR, 0,
+			TASK_PRIORITY_MESUR, &handleMesur);
 //	pTask &= xTaskCreate(usbTask, "usbTask", SIZE_STACK_USB, 0,
 //			TASK_PRIORITY_USB, &handleUsb);
 	pTask &= xTaskCreate(taskUartRfd, "taskUartRfd", SIZE_STACK_RFD, 0,
 			TASK_PRIORITY_RFD, &handleRF);
-
-
 
 	if(pTask != pdPASS)
 		while(1)

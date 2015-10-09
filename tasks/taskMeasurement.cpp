@@ -16,19 +16,31 @@
 
 float valueSens[16];
 
-//void taskMeasurement(void *context)
-//{ //задача запускаемая по таймера для измерения точки процесса.
-////нужно пройти по всем подключенным датчика процесса и опросить их.
-////имеем массив датчиков.... у каждого датчика есть настройка - включен он или блять не включен и его тип
-////проверяем енто
-//
-//}
+void taskMeasurement(void *context)
+{ //задача запускаемая по таймера для измерения точки процесса.
+//нужно пройти по всем подключенным датчика процесса и опросить их.
+//имеем массив датчиков.... у каждого датчика есть настройка - включен он или блять не включен и его тип
+//проверяем енто
+	vTaskDelay(1000);
+	while(1)
+	{
+		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup, FLAG_MESUR,
+				pdTRUE, pdTRUE, 1000);
+		if( (uxBits & FLAG_MESUR) == FLAG_MESUR )
+			musuring();
+		else
+		{
+			xEventGroupSetBits(xEventGroup, FLAG_SLEEP_MESUR);
+		}
+	}
 
-void taskMeasurement(xTimerHandle xTimer)
+}
+
+void timerMeasurement(xTimerHandle xTimer)
 {
 // Код функции таймера
 	//musuring();
-	xEventGroupSetBits(xCreatedEventGroup, FLAG_MESUR);
+	xEventGroupSetBits(xEventGroup, FLAG_MESUR);
 	return;
 }
 
@@ -37,11 +49,11 @@ void musuring()
 	static int a = 0;
 	int j = 0;
 	//захватим симафор АЦП
-	xSemaphoreTake( semaphAdc, portMAX_DELAY );
+	xSemaphoreTake(semaphAdc, portMAX_DELAY);
 	ep1_On();
 	epa_On();
-	for(int i = 0; i<8; i++)
-	{//опрос всех каналы
+	for(int i = 0; i < 8; i++)
+	{	//опрос всех каналы
 		ResultMes result = readSenser(i);
 		if( isnan(result.u) == 0 )
 			valueSens[j++] = result.p;
@@ -86,7 +98,7 @@ void musuring()
 	//записываем результат
 	saveResult(valueSens, j);
 
-	if( a == 0)
+	if( a == 0 )
 	{
 		GPIO_SetBits(GPIOA, GPIO_Pin_10);
 //		GPIO_SetBits(GPIOA, GPIO_Pin_9);
@@ -99,5 +111,4 @@ void musuring()
 		a = 0;
 	}
 }
-
 
