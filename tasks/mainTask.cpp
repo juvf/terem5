@@ -12,49 +12,85 @@
 
 void mainTask(void *context)
 {
+
 	initConfigTerem();
 	initListProc();
+	ledRedOn();
+
 	while(1)
 	{
 		//ждем флагов чтобы уйти в режим микропотребления, в Stop Mode
 		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP,
-		pdTRUE, pdTRUE, 1000);
+		pdTRUE, pdTRUE, 5000);
 		if( (uxBits & FLAG_SLEEP) == FLAG_SLEEP )
 			sleep();
 	}
 }
 
+extern "C" void EXTI3_IRQHandler()
+{
+	EXTI_ClearFlag(EXTI_Line3);
+}
+
+void initExti()
+{
+	GPIO_InitTypeDef gpio;
+	EXTI_InitTypeDef exti;
+	NVIC_InitTypeDef nvic;
+
+	gpio.GPIO_Mode = GPIO_Mode_IN;
+	gpio.GPIO_Pin = GPIO_Pin_3;
+	gpio.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOA, &gpio);
+
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOE, EXTI_PinSource1);
+
+	exti.EXTI_Line = EXTI_Line3;
+	exti.EXTI_Mode = EXTI_Mode_Interrupt;
+	exti.EXTI_Trigger = EXTI_Trigger_Falling;
+	exti.EXTI_LineCmd = ENABLE;
+	EXTI_Init(&exti);
+
+	nvic.NVIC_IRQChannel = EXTI3_IRQn;
+	nvic.NVIC_IRQChannelPreemptionPriority = 0;
+	nvic.NVIC_IRQChannelSubPriority = 0;
+	nvic.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&nvic);
+}
+
 void sleep()
 {
 	CritSect cs;
-	//pereferDeInit();
+	pereferDeInit();
+	initExti();
+	ledRedOff();
 	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+	ledRedOn();
 
-		/* Disable Wakeup Counter */
+	/* Disable Wakeup Counter */
 	//	RTC_WakeUpCmd(DISABLE);
-
-		/* After wake-up from STOP reconfigure the system clock */
-		/* Enable HSE */
+	/* After wake-up from STOP reconfigure the system clock */
+	/* Enable HSE */
 	RCC_HSEConfig(RCC_HSE_ON);
 
-		/* Wait till HSE is ready */
-	while (RCC_GetFlagStatus(RCC_FLAG_HSERDY) == RESET)
+	/* Wait till HSE is ready */
+	while(RCC_GetFlagStatus(RCC_FLAG_HSERDY) == RESET)
 	{
 	}
 
 	/* Enable PLL */
 	RCC_PLLCmd(ENABLE);
 
-		/* Wait till PLL is ready */
-	while (RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET)
+	/* Wait till PLL is ready */
+	while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET)
 	{
 	}
 
-		/* Select PLL as system clock source */
+	/* Select PLL as system clock source */
 	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
 
 	/* Wait till PLL is used as system clock source */
-	while (RCC_GetSYSCLKSource() != 0x08)
+	while(RCC_GetSYSCLKSource() != 0x08)
 	{
 	}
 }

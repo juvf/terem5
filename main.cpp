@@ -15,21 +15,8 @@ int main()
 {
 	pereferInit();
 
+
 	initOs();
-
-//	initConfigTerem();
-//	initListProc();
-
-//	if(Checksum::crc16((uint8_t*)&koefAB, sizeof(KoefAB)) != 0)
-//	{
-//		intiDefaultKoefAB();
-//	}
-
-//	spiSector4kErase(0);
-//
-	//flashMx25Write(asd, 0);//пишим 256 байт в адр
-	//flashMx25ReadData(asd, 0, 10);
-	//flashMx25Read((void*)asd, 0, 256);
 
 	NVIC_SetVectorTable( NVIC_VectTab_FLASH, 0x0);
 	NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4);
@@ -112,40 +99,6 @@ void pereferInit()
 	if( initAdc() != 0 )
 		while(1)
 			;
-
-//	setSpiOut(0, 0x9f);
-//	setSpiOut(1, 0x00);
-//	setSpiOut(2, 0x00);
-//	setSpiOut(3, 0x00);
-//	startSpi(4);
-//	spiWait();
-//
-//	spiRDSR();
-//
-//	spiSector4kErase(0);
-//
-//
-//	flashMx25Write(0, 0);
-//	flashMx25Read(0, 0);
-
-	asm("nop");
-
-//	static uint8_t data[4];
-//	csOn();
-//	SPI_I2S_SendData(SPI2, 0x9f);
-//	while(SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET);
-//	data[0] = SPI_I2S_ReceiveData(SPI2);
-//	SPI_I2S_SendData(SPI2, 0x00);
-//	while(SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET);
-//	data[0] = SPI_I2S_ReceiveData(SPI2);
-//	SPI_I2S_SendData(SPI2, 0x00);
-//	while(SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET);
-//	data[1] = SPI_I2S_ReceiveData(SPI2);
-//	SPI_I2S_SendData(SPI2, 0x00);
-//	while(SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET);
-//	data[3] = SPI_I2S_ReceiveData(SPI2);
-//
-//	csOff();
 
 }
 

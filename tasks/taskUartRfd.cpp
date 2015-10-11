@@ -34,42 +34,46 @@ void taskUartRfd(void *context)
 	uint8_t byte;
 	for(;;)
 	{
-		xQueueReceive(uartRfd232Queue, &byte, portMAX_DELAY);
-		if(byte == 0x80)
+		if( xQueueReceive(uartRfd232Queue, &byte, 1000) == pdTRUE )
 		{
-			reciveByte(byte);
-			while(1)
+			if( byte == 0x80 )
 			{
-				if(xQueueReceive(uartRfd232Queue, &byte,
-						100) == pdPASS)
+				reciveByte(byte);
+				while(1)
 				{
-					if( reciveByte(byte) == false )
+					if( xQueueReceive(uartRfd232Queue, &byte,
+							100) == pdPASS )
+					{
+						if( reciveByte(byte) == false )
+							break;
+					}
+					else
+					{
+						setRxMode();
 						break;
-				}
-				else
-				{
-					setRxMode();
-					break;
+					}
 				}
 			}
+			vTaskDelay(100);
 		}
-		vTaskDelay(100);
+		else
+			xEventGroupSetBits(xEventGroup, FLAG_SLEEP_UART);
 	}
 }
 
 bool reciveByte(uint8_t byte)
 {
 	rfd_buffer[rfd_count++] = byte;
-	if(rfd_count >= BUFFER_SIZE)
+	if( rfd_count >= BUFFER_SIZE )
 		--rfd_count;
-	if(rfd_count == 2)
+	if( rfd_count == 2 )
 		rfd_sizeOfFrame = byte;
-	if(rfd_count >= rfd_sizeOfFrame)
+	if( rfd_count >= rfd_sizeOfFrame )
 	{ //приняли весь пакет
 	  //запретить прерывания по приему компорта
 		USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
 		//rfd_isReadReady = true;
-		if(Checksum::crc16(rfd_buffer, rfd_sizeOfFrame) == 0)
+		if( Checksum::crc16(rfd_buffer, rfd_sizeOfFrame) == 0 )
 			parser();
 		else
 			setRxMode();
@@ -93,7 +97,7 @@ void parser()
 	rfd_addresMaster = rfd_buffer[3];
 	rfd_IdFrame = rfd_buffer[4];
 	rfd_command = rfd_buffer[5];
-	if(rfd_addresSlave != ADRRESS)
+	if( rfd_addresSlave != ADRRESS )
 	{
 		setRxMode();
 		return;
@@ -148,7 +152,7 @@ void parser()
 			rfd_sizeOfFrame = commandError(rfd_buffer);
 			break;
 	}
-	if(rfd_sizeOfFrame > 0)
+	if( rfd_sizeOfFrame > 0 )
 	{
 		rfd_buffer[1] = rfd_sizeOfFrame + 2;
 		rfd_buffer[2] = rfd_buffer[3];
@@ -219,11 +223,11 @@ extern "C" void USART2_IRQHandler(void)
 {
 	static portBASE_TYPE xHigherPriorityTaskWoken;
 	xHigherPriorityTaskWoken = pdFALSE;
-	if(USART_GetITStatus(USART2, USART_IT_TC) != RESET) // Если отпавка завершена
+	if( USART_GetITStatus(USART2, USART_IT_TC) != RESET ) // Если отпавка завершена
 	{
 		// Очищаем флаг прерывания, если этого не сделать, оно будет вызываться постоянно.
 		USART_ClearITPendingBit(USART2, USART_IT_TC);
-		if(++rfd_count == rfd_sizeOfFrame)
+		if( ++rfd_count == rfd_sizeOfFrame )
 		{ //передали весь пакет
 			setRxMode();
 		}
@@ -233,7 +237,7 @@ extern "C" void USART2_IRQHandler(void)
 		}
 	}
 
-	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET) // Если приием завершен (регистр приема не пуст)
+	if( USART_GetITStatus(USART2, USART_IT_RXNE) != RESET ) // Если приием завершен (регистр приема не пуст)
 	{
 		// Флаг данного прерывания сбрасыывается прочтением данных
 		static uint8_t byte;
