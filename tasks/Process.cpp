@@ -5,12 +5,15 @@
  *      Author: juvf
  */
 #include "Process.h"
+#include "clock.h"
 #include "stm32f4xx_rtc.h"
 #include "../osConfig.h"
 #include "taskMeasurement.h"
 #include "Checksum.h"
 #include "../flashMx25.h"
 #include "configTerem.h"
+#include "osConfig.h"
+
 #include  <string.h>
 
 uint16_t numProc = 0xffff; //номер текущего процесса в headerList[]
@@ -226,15 +229,20 @@ int commandStartProc(uint8_t *buffer)
 				{
 					currProcessCount = 0; //кол-во записанных точек в процессе
 					musuring();
-					if( xTimerChangePeriod(timerMesuring, per * 1000,
-							100) == pdFAIL)
-						buffer[0] = 4;
-					else
-					{
-						xTimerReset(timerMesuring, 100);
-						buffer[0] = 0;
-						stateProcess = 1;
-					}
+//					setNewAlarmRTC(currProcessHeader.period);
+					setNewAlarmRTC(15);
+//
+//					if( xTimerChangePeriod(timerMesuring, per * 1000,
+//							100) == pdFAIL)
+//						buffer[0] = 4;
+//					else
+//					{
+//						xTimerReset(timerMesuring, 100);
+//						buffer[0] = 0;
+//						stateProcess = 1;
+//					}
+					buffer[0] = 0;
+					stateProcess = 1;
 				}
 				else
 					buffer[0] = 3;
@@ -287,7 +295,7 @@ int commandGetProcConf(uint8_t *buffer)
 
 int commandStopProc()
 {
-	if( (stateProcess = 1) || (stateProcess == 3) )
+	if( (stateProcess == 1) || (stateProcess == 3) )
 	{
 		stateProcess = 2;
 		xTimerStop(timerMesuring, 100);
@@ -462,7 +470,9 @@ void saveResult(float *result, int countSensers)
 	if(currProcessCount == currProcessHeader.count)
 	{ //кончим процесс
 		stateProcess = 2;
-		xTimerStop(timerMesuring, 100);
+//		xTimerStop(timerMesuring, 100);
+		RTC_ITConfig(RTC_IT_ALRA, DISABLE);
+		RTC_AlarmCmd(RTC_Alarm_A, DISABLE);
 	}
 }
 
@@ -503,4 +513,20 @@ uint8_t countSensor(const HeaderProcess& header)
 			countSens++;
 	}
 	return countSens;
+}
+
+extern "C" void RTC_Alarm_IRQHandler()
+{
+	if( RTC_GetITStatus(RTC_IT_ALRA) != RESET )
+	{
+		RTC_ClearITPendingBit(RTC_IT_ALRA);
+
+//		RTC_AlarmCmd(RTC_Alarm_A, DISABLE);
+		EXTI_ClearITPendingBit(EXTI_Line17);
+		/* xHigherPriorityTaskWoken must be initialised to pdFALSE. */
+		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+		xEventGroupSetBitsFromISR(xEventGroup, FLAG_MESUR, &xHigherPriorityTaskWoken);
+		//setNewAlarmRTC(5); 		//перезапустим таймер
+		//setNewAlarmRTC(currProcessHeader.period);
+	}
 }

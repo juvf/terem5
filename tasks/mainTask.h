@@ -6,7 +6,9 @@ extern "C"
 #endif
   
 void mainTask(void *context);
-void sleep();
+void sleepJ();
+void initExti();
+void deinitExti();
 
 #ifdef __cplusplus
 }

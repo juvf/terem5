@@ -9,8 +9,8 @@
 #define MAIN_H_
 
 #define ledGreenOn()	GPIO_SetBits(GPIOA, GPIO_Pin_9)
-#define ledGreenOff()	GPIO_ClearBits(GPIOA, GPIO_Pin_9)
-#define ledRedOn()		GPIO_ResetBits(GPIOA, GPIO_Pin_10);
+#define ledGreenOff()	GPIO_ResetBits(GPIOA, GPIO_Pin_9)
+#define ledRedOn()		GPIO_SetBits(GPIOA, GPIO_Pin_10);
 #define ledRedOff()		GPIO_ResetBits(GPIOA, GPIO_Pin_10);
 
 void pereferInit();

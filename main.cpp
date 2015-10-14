@@ -14,7 +14,7 @@
 int main()
 {
 	pereferInit();
-
+	initRtc();
 
 	initOs();
 
@@ -87,8 +87,6 @@ void pereferInit()
 	//initUartForConsol();
 
 	initUartRfd();
-
-	initRtc();
 
 	init_I2C1();
 

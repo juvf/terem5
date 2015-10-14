@@ -10,13 +10,16 @@
 
 #include "intrinsics.h"
 
-class CritSect
-{
-public:
-	CritSect();
-	virtual ~CritSect();
-private:
-	__istate_t m_statusReg;
-};
+//class CritSect
+//{
+//public:
+//	CritSect();
+//	virtual ~CritSect();
+//private:
+//	__istate_t m_statusReg;
+//};
+
+void enterCritSect();
+void exitCritSect();
 
 #endif /* TASKS_CRITSECT_H_ */

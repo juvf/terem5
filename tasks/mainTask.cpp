@@ -15,21 +15,56 @@ void mainTask(void *context)
 
 	initConfigTerem();
 	initListProc();
-	ledRedOn();
+	//ledRedOn();
+//
+//	static EventBits_t uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP, pdTRUE,
+//			pdTRUE, 1000);
+//	uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP, pdTRUE, pdTRUE, 1000);
+//	xEventGroupSetBits(xEventGroup, FLAG_SLEEP_MESUR);
+//
+//	if( (uxBits & FLAG_SLEEP) == FLAG_SLEEP )
+//		uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP, pdTRUE, pdTRUE,
+//				1000);
+//
+//	for(int i = 0; i < 100; i++)
+//	{
+//		ledGreenOn();
+//		uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP, pdTRUE, pdTRUE,
+//				1000);
+//		ledGreenOff();
+//		uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP, pdTRUE, pdTRUE,
+//				1000);
+//	}
+//	xEventGroupSetBits(xEventGroup, FLAG_SLEEP_MESUR);
+//	uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP, pdTRUE, pdTRUE, 1000);
+//
+//	xEventGroupSetBits(xEventGroup, FLAG_SLEEP);
+//	uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP, pdTRUE, pdTRUE, 1000);
+//	uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP, pdTRUE, pdTRUE, 1000);
+//	uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP, pdTRUE, pdTRUE, 1000);
 
 	while(1)
 	{
+//		ledGreenOn();
 		//ждем флагов чтобы уйти в режим микропотребления, в Stop Mode
 		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP,
-		pdTRUE, pdTRUE, 5000);
-		if( (uxBits & FLAG_SLEEP) == FLAG_SLEEP )
-			sleep();
+		pdTRUE, pdTRUE, 1000);
+//		if( (uxBits & FLAG_SLEEP) == FLAG_SLEEP )
+//			sleepJ();
+
+//		xEventGroupWaitBits(xEventGroup, FLAG_MESUR,
+//		pdTRUE, pdTRUE, 1000);
+		vTaskDelay(3000);
+		//ledGreenOff();
+
 	}
 }
-
+int flagExti = 0;
 extern "C" void EXTI3_IRQHandler()
 {
 	EXTI_ClearFlag(EXTI_Line3);
+	flagExti = 0;
+	deinitExti();
 }
 
 void initExti()
@@ -56,16 +91,46 @@ void initExti()
 	nvic.NVIC_IRQChannelSubPriority = 0;
 	nvic.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&nvic);
+
+	flagExti = 1;
 }
 
-void sleep()
+void deinitExti()
 {
-	CritSect cs;
-	pereferDeInit();
+//	GPIO_InitTypeDef gpio;
+	EXTI_InitTypeDef exti;
+	NVIC_InitTypeDef nvic;
+
+//	gpio.GPIO_Mode = GPIO_Mode_IN;
+//	gpio.GPIO_Pin = GPIO_Pin_3;
+//	gpio.GPIO_Speed = GPIO_Speed_50MHz;
+//	GPIO_Init(GPIOA, &gpio);
+
+	exti.EXTI_Line = EXTI_Line3;
+	exti.EXTI_Mode = EXTI_Mode_Interrupt;
+	exti.EXTI_Trigger = EXTI_Trigger_Falling;
+	exti.EXTI_LineCmd = DISABLE;
+	EXTI_Init(&exti);
+
+	nvic.NVIC_IRQChannel = EXTI3_IRQn;
+	nvic.NVIC_IRQChannelPreemptionPriority = 0;
+	nvic.NVIC_IRQChannelSubPriority = 0;
+	nvic.NVIC_IRQChannelCmd = DISABLE;
+	NVIC_Init(&nvic);
+}
+
+void sleepJ()
+{
+	enterCritSect();
+	ledGreenOn();
 	initExti();
-	ledRedOff();
-	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
-	ledRedOn();
+//	vTaskDelay(1000);
+//	deinitExti();
+//	pereferInit();
+//	ledGreenOff();
+	//PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+	while(flagExti)
+		vTaskDelay(2);
 
 	/* Disable Wakeup Counter */
 	//	RTC_WakeUpCmd(DISABLE);
@@ -93,6 +158,10 @@ void sleep()
 	while(RCC_GetSYSCLKSource() != 0x08)
 	{
 	}
+
+	pereferInit();
+	ledGreenOff();
+	exitCritSect();
 }
 
 //костин код

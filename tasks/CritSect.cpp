@@ -6,14 +6,14 @@
  */
 
 #include "CritSect.h"
-
-CritSect::CritSect()
-	: m_statusReg(__get_interrupt_state())
+static __istate_t m_statusReg;
+void enterCritSect()
 {
+	m_statusReg = __get_interrupt_state();
 	 __disable_interrupt();
 }
 
-CritSect::~CritSect()
+void exitCritSect()
 {
 	 __set_interrupt_state(m_statusReg);
 }
