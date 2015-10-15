@@ -230,7 +230,7 @@ int commandStartProc(uint8_t *buffer)
 					currProcessCount = 0; //кол-во записанных точек в процессе
 					musuring();
 //					setNewAlarmRTC(currProcessHeader.period);
-					setNewAlarmRTC(15);
+					setNewAlarmRTC(4);
 //
 //					if( xTimerChangePeriod(timerMesuring, per * 1000,
 //							100) == pdFAIL)
@@ -521,7 +521,7 @@ extern "C" void RTC_Alarm_IRQHandler()
 	{
 		RTC_ClearITPendingBit(RTC_IT_ALRA);
 
-//		RTC_AlarmCmd(RTC_Alarm_A, DISABLE);
+		//RTC_AlarmCmd(RTC_Alarm_A, DISABLE);
 		EXTI_ClearITPendingBit(EXTI_Line17);
 		/* xHigherPriorityTaskWoken must be initialised to pdFALSE. */
 		BaseType_t xHigherPriorityTaskWoken = pdFALSE;

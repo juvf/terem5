@@ -14,7 +14,6 @@
 void initRtc()
 {
 	//http://microtechnics.ru/stm32f4-chasy-realnogo-vremeni-rtc/
-	RTC_InitTypeDef rtc;
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE); //¬ключаем тактирование (PWR Ч Power Control):
 
 	PWR_BackupAccessCmd(ENABLE);
@@ -22,14 +21,21 @@ void initRtc()
 	RCC_BackupResetCmd(ENABLE);
 	RCC_BackupResetCmd(DISABLE);
 
-	RCC_LSEConfig(RCC_LSE_ON);
-	while (RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET);
-	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
+//	RCC_LSEConfig(RCC_LSE_ON);
+//	while (RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET);
+//	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
+	RCC_LSICmd(ENABLE);
+	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
 	RCC_RTCCLKCmd(ENABLE);
 
+	RTC_InitTypeDef rtc;
 	rtc.RTC_HourFormat = RTC_HourFormat_24;
 	rtc.RTC_SynchPrediv = 0x7FFF;
+	rtc.RTC_AsynchPrediv = 0;
+
 	RTC_Init(&rtc);
+
+	RTC_ClearFlag(RTC_FLAG_ALRAF);
 
 	EXTI_InitTypeDef exti;
 	EXTI_ClearITPendingBit(EXTI_Line17);
@@ -49,6 +55,7 @@ void initRtc()
 //	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 //	NVIC_Init(&NVIC_InitStructure);
 }
+
 //RTC_TimeTypeDef asd[10][3];
 //int ij = 0;
 //заводит будильник Alarm_A на врем€ через seconds секунд
@@ -59,38 +66,30 @@ void setNewAlarmRTC(uint32_t seconds)
 	RTC_ITConfig(RTC_IT_ALRA, DISABLE);
 	RTC_ClearITPendingBit(RTC_IT_ALRA);
 
-	for(int i = 0; i<1000; i++)
-	{
-		asm("nop");
-		asm("nop");
-		asm("nop");
-		asm("nop");
-	}
-
-	RTC_TimeTypeDef time;
-	RTC_GetTime(RTC_Format_BIN, &time);
-
-
-	RTC_AlarmTypeDef alarm1;
+	//RTC_AlarmTypeDef alarm1;
 	//RTC_GetAlarm(RTC_Format_BIN, RTC_Alarm_A, &alarm1);
 	//asd[ij][2] = alarm1.RTC_AlarmTime;
 
-	RTC_TimeTypeDef alarmTime = time;
+	RTC_TimeTypeDef alarmTime;
+	RTC_GetTime(RTC_Format_BIN, &alarmTime);
+//	asd[ij][0] = alarmTime;
 	addSecToTime(&alarmTime, seconds);
-	//asd[ij][0] = time;
-	//if(ij == 10)
-	//	ij--;
+//	asd[ij][1] = alarmTime;
+//	if(ij == 10)
+//		ij--;
 
 	RTC_AlarmTypeDef alarm;
+	RTC_AlarmStructInit(&alarm);
 	alarm.RTC_AlarmTime = alarmTime;
-	//asd[ij++][1] = alarm.RTC_AlarmTime;
 	alarm.RTC_AlarmMask = RTC_AlarmMask_DateWeekDay;
 	RTC_SetAlarm(RTC_Format_BIN, RTC_Alarm_A, &alarm);
+	RTC_GetAlarm(RTC_Format_BIN, RTC_Alarm_A, &alarm);
+//	asd[ij++][2] = alarm.RTC_AlarmTime;
 
 	//RTC_OutputConfig(RTC_Output_AlarmA, RTC_OutputPolarity_High);
 	RTC_ITConfig(RTC_IT_ALRA, ENABLE);
 	RTC_AlarmCmd(RTC_Alarm_A, ENABLE);
-	RTC_ClearFlag(RTC_FLAG_ALRAF);
+	//RTC_ClearFlag(RTC_FLAG_ALRAF);
 }
 
 //прибавл€ет к времени time секунды seconds и помещ€ет полученное врем€ в time

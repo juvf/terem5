@@ -16,32 +16,6 @@ void mainTask(void *context)
 	initConfigTerem();
 	initListProc();
 	//ledRedOn();
-//
-//	static EventBits_t uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP, pdTRUE,
-//			pdTRUE, 1000);
-//	uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP, pdTRUE, pdTRUE, 1000);
-//	xEventGroupSetBits(xEventGroup, FLAG_SLEEP_MESUR);
-//
-//	if( (uxBits & FLAG_SLEEP) == FLAG_SLEEP )
-//		uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP, pdTRUE, pdTRUE,
-//				1000);
-//
-//	for(int i = 0; i < 100; i++)
-//	{
-//		ledGreenOn();
-//		uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP, pdTRUE, pdTRUE,
-//				1000);
-//		ledGreenOff();
-//		uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP, pdTRUE, pdTRUE,
-//				1000);
-//	}
-//	xEventGroupSetBits(xEventGroup, FLAG_SLEEP_MESUR);
-//	uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP, pdTRUE, pdTRUE, 1000);
-//
-//	xEventGroupSetBits(xEventGroup, FLAG_SLEEP);
-//	uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP, pdTRUE, pdTRUE, 1000);
-//	uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP, pdTRUE, pdTRUE, 1000);
-//	uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP, pdTRUE, pdTRUE, 1000);
 
 	while(1)
 	{
@@ -56,7 +30,6 @@ void mainTask(void *context)
 //		pdTRUE, pdTRUE, 1000);
 		vTaskDelay(3000);
 		//ledGreenOff();
-
 	}
 }
 int flagExti = 0;
