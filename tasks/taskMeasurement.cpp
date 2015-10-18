@@ -31,7 +31,7 @@ void taskMeasurement(void *context)
 		if( (uxBits & FLAG_MESUR) == FLAG_MESUR )
 		{
 			ledRedOn();
-			setNewAlarmRTC(4); 		//перезапустим таймер
+			setNewAlarmRTC(getProcessPeriod()); 		//перезапустим таймер
 			musuring();
 			vTaskDelay(1000);
 			ledRedOff();

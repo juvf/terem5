@@ -229,8 +229,8 @@ int commandStartProc(uint8_t *buffer)
 				{
 					currProcessCount = 0; //кол-во записанных точек в процессе
 					musuring();
-//					setNewAlarmRTC(currProcessHeader.period);
-					setNewAlarmRTC(4);
+					setNewAlarmRTC(currProcessHeader.period);
+//					setNewAlarmRTC(4);
 //
 //					if( xTimerChangePeriod(timerMesuring, per * 1000,
 //							100) == pdFAIL)
@@ -476,6 +476,11 @@ void saveResult(float *result, int countSensers)
 	}
 }
 
+uint32_t getProcessPeriod()
+{
+	return currProcessHeader.period;
+}
+
 uint32_t getAdrCurPoint()
 {
 //расчитать размер заголовка
@@ -528,5 +533,6 @@ extern "C" void RTC_Alarm_IRQHandler()
 		xEventGroupSetBitsFromISR(xEventGroup, FLAG_MESUR, &xHigherPriorityTaskWoken);
 		//setNewAlarmRTC(5); 		//перезапустим таймер
 		//setNewAlarmRTC(currProcessHeader.period);
+
 	}
 }

@@ -23,8 +23,8 @@ void mainTask(void *context)
 		//ждем флагов чтобы уйти в режим микропотребления, в Stop Mode
 		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP,
 		pdTRUE, pdTRUE, 1000);
-//		if( (uxBits & FLAG_SLEEP) == FLAG_SLEEP )
-//			sleepJ();
+		if( (uxBits & FLAG_SLEEP) == FLAG_SLEEP )
+			sleepJ();
 
 //		xEventGroupWaitBits(xEventGroup, FLAG_MESUR,
 //		pdTRUE, pdTRUE, 1000);
@@ -45,6 +45,8 @@ void initExti()
 	GPIO_InitTypeDef gpio;
 	EXTI_InitTypeDef exti;
 	NVIC_InitTypeDef nvic;
+
+	EXTI_ClearFlag(EXTI_Line3);
 
 	gpio.GPIO_Mode = GPIO_Mode_IN;
 	gpio.GPIO_Pin = GPIO_Pin_3;
@@ -70,10 +72,10 @@ void initExti()
 
 void deinitExti()
 {
+	EXTI_ClearFlag(EXTI_Line3);
 //	GPIO_InitTypeDef gpio;
 	EXTI_InitTypeDef exti;
 	NVIC_InitTypeDef nvic;
-
 //	gpio.GPIO_Mode = GPIO_Mode_IN;
 //	gpio.GPIO_Pin = GPIO_Pin_3;
 //	gpio.GPIO_Speed = GPIO_Speed_50MHz;
@@ -94,16 +96,16 @@ void deinitExti()
 
 void sleepJ()
 {
-	enterCritSect();
+	//enterCritSect();
 	ledGreenOn();
 	initExti();
 //	vTaskDelay(1000);
 //	deinitExti();
 //	pereferInit();
 //	ledGreenOff();
-	//PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
-	while(flagExti)
-		vTaskDelay(2);
+	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+//	while(flagExti)
+//		vTaskDelay(2);
 
 	/* Disable Wakeup Counter */
 	//	RTC_WakeUpCmd(DISABLE);
@@ -131,10 +133,11 @@ void sleepJ()
 	while(RCC_GetSYSCLKSource() != 0x08)
 	{
 	}
-
+	EXTI_ClearFlag(EXTI_Line3);
+	deinitExti();
 	pereferInit();
 	ledGreenOff();
-	exitCritSect();
+	//exitCritSect();
 }
 
 //костин код
