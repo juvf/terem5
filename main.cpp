@@ -146,7 +146,7 @@ void pereferDeInit()
 
 //	//initRtc();
 //
-//	deinit_I2C1();
+	deinit_I2C1();
 //
 //	deinitSpi2();
 //	deinitDmaSpi2();

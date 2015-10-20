@@ -15,6 +15,7 @@ void mainTask(void *context)
 
 	initConfigTerem();
 	initListProc();
+	ledGreenOn();
 	//ledRedOn();
 
 	while(1)
@@ -32,12 +33,13 @@ void mainTask(void *context)
 		//ledGreenOff();
 	}
 }
-int flagExti = 0;
+
 extern "C" void EXTI3_IRQHandler()
 {
 	EXTI_ClearFlag(EXTI_Line3);
-	flagExti = 0;
+	//flagExti = 0;
 	deinitExti();
+	ledGreenOn();
 }
 
 void initExti()
@@ -48,6 +50,7 @@ void initExti()
 
 	EXTI_ClearFlag(EXTI_Line3);
 
+	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOAEN, ENABLE);
 	gpio.GPIO_Mode = GPIO_Mode_IN;
 	gpio.GPIO_Pin = GPIO_Pin_3;
 	gpio.GPIO_Speed = GPIO_Speed_50MHz;
@@ -67,7 +70,6 @@ void initExti()
 	nvic.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&nvic);
 
-	flagExti = 1;
 }
 
 void deinitExti()
@@ -96,13 +98,9 @@ void deinitExti()
 
 void sleepJ()
 {
-	//enterCritSect();
-	ledGreenOn();
+	enterCritSect();
+	ledGreenOff();
 	initExti();
-//	vTaskDelay(1000);
-//	deinitExti();
-//	pereferInit();
-//	ledGreenOff();
 	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
 //	while(flagExti)
 //		vTaskDelay(2);
@@ -133,11 +131,11 @@ void sleepJ()
 	while(RCC_GetSYSCLKSource() != 0x08)
 	{
 	}
-	EXTI_ClearFlag(EXTI_Line3);
-	deinitExti();
+//	EXTI_ClearFlag(EXTI_Line3);
+//	deinitExti();
 	pereferInit();
-	ledGreenOff();
-	//exitCritSect();
+	ledGreenOn();
+	exitCritSect();
 }
 
 //костин код
