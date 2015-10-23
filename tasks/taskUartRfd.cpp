@@ -34,7 +34,7 @@ void taskUartRfd(void *context)
 	uint8_t byte;
 	for(;;)
 	{
-		if( xQueueReceive(uartRfd232Queue, &byte, 5000) == pdTRUE )
+		if( xQueueReceive(uartRfd232Queue, &byte, 15000) == pdTRUE )
 		{
 			if( byte == 0x80 )
 			{

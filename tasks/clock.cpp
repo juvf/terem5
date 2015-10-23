@@ -118,9 +118,9 @@ bool addSecToTime(RTC_TimeTypeDef *time, uint32_t seconds)
 bool setRtcTime(uint8_t *buffer)
 {
 	RTC_TimeTypeDef time;
-	RTC_TimeStructInit(&time);
-	RTC_DateTypeDef date;
-	RTC_GetDate(RTC_Format_BIN, &date);
+	time.RTC_Hours = buffer[2];
+	time.RTC_Minutes = buffer[1];
+	time.RTC_Seconds = buffer[0];
 
 	if( RTC_SetTime(RTC_Format_BIN, &time) == SUCCESS )
 	{

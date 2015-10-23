@@ -23,7 +23,7 @@ void mainTask(void *context)
 //		ledGreenOn();
 		//ждем флагов чтобы уйти в режим микропотребления, в Stop Mode
 		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP,
-		pdTRUE, pdTRUE, 1000);
+		pdTRUE, pdTRUE, 3000);
 		if( (uxBits & FLAG_SLEEP) == FLAG_SLEEP )
 			sleepJ();
 
@@ -98,12 +98,13 @@ void deinitExti()
 
 void sleepJ()
 {
+//		vTaskDelay(200);
+//		return;
 	enterCritSect();
 	ledGreenOff();
 	initExti();
 	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
 //	while(flagExti)
-//		vTaskDelay(2);
 
 	/* Disable Wakeup Counter */
 	//	RTC_WakeUpCmd(DISABLE);
