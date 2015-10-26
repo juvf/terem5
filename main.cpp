@@ -146,12 +146,11 @@ void pereferDeInit()
 
 //	//initRtc();
 //
-//	deinit_I2C1();
-//
-//	deinitSpi2();
-//	deinitDmaSpi2();
-//
-//	deinitSpi1();
+	I2C_DeInit(I2C1);
+	SPI_I2S_DeInit(SPI1);
+	SPI_I2S_DeInit(SPI2);
+	DMA_DeInit(DMA1_Stream3);
+	DMA_DeInit(DMA1_Stream4);
 //	deinitAdc();
 }
 

@@ -102,6 +102,7 @@ void sleepJ()
 //		return;
 	enterCritSect();
 	ledGreenOff();
+	pereferDeInit();
 	initExti();
 	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
 //	while(flagExti)
