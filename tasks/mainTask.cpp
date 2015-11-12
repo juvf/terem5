@@ -98,13 +98,14 @@ void deinitExti()
 
 void sleepJ()
 {
-//		vTaskDelay(200);
-//		return;
+		vTaskDelay(200);
+		return;
 	enterCritSect();
 	ledGreenOff();
 	pereferDeInit();
 	initExti();
-	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+	vTaskDelay(300);
+	//PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
 //	while(flagExti)
 
 	/* Disable Wakeup Counter */

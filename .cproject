@@ -361,7 +361,9 @@
 								<option id="iar.arm.toolchain.compiler.option.charIs.v6.1.0.1418799625" name="Plain 'char' is:" superClass="iar.arm.toolchain.compiler.option.charIs.v6.1.0" value="iar.arm.toolchain.compiler.option.charIs.signed.v6.1.0" valueType="enumerated"/>
 								<option id="iar.arm.toolchain.compiler.option.preserveComments.v6.2.0.1755304492" name="Preserve comments" superClass="iar.arm.toolchain.compiler.option.preserveComments.v6.2.0"/>
 								<option id="iar.arm.toolchain.compiler.option.generateLineDirectives.v6.2.0.1197562948" name="Generate #line directives" superClass="iar.arm.toolchain.compiler.option.generateLineDirectives.v6.2.0"/>
-								<inputType id="iar.arm.toolchain.compiler.inputType.v5.4.1.1552209066" name="IAR C/C++ Compiler Input Type" superClass="iar.arm.toolchain.compiler.inputType.v5.4.1"/>
+								<inputType id="iar.arm.toolchain.compiler.inputType.v5.4.1.1552209066" name="IAR C/C++ Compiler Input Type"/>
+								<inputType id="iar.arm.toolchain.compiler.inputType.cpp.v6.12.0.414613588" name="IAR C/C++ Compiler Input Type" superClass="iar.arm.toolchain.compiler.inputType.cpp.v6.12.0"/>
+								<inputType id="iar.arm.toolchain.compiler.inputType.c.v6.12.0.446305673" name="IAR C/C++ Compiler Input Type" superClass="iar.arm.toolchain.compiler.inputType.c.v6.12.0"/>
 							</tool>
 							<tool id="iar.arm.toolchain.assembler.v5.4.0.1764515610" name="IAR Assembler for ARM" superClass="iar.arm.toolchain.assembler.v5.4.0">
 								<option defaultValue="true" id="iar.arm.toolchain.assembler.option.debugInfo.v5.4.0.1536893782" name="Generate debug information" superClass="iar.arm.toolchain.assembler.option.debugInfo.v5.4.0" valueType="boolean"/>
@@ -411,6 +413,9 @@
 								<option id="iar.arm.toolchain.linker.option.logFileLibrarySelections.v5.5.0.753557943" name="Log automatic library selection" superClass="iar.arm.toolchain.linker.option.logFileLibrarySelections.v5.5.0"/>
 								<option id="iar.arm.toolchain.linker.option.logFileRedirectedSymbols.v5.5.0.1624281014" name="Log redirected symbols" superClass="iar.arm.toolchain.linker.option.logFileRedirectedSymbols.v5.5.0"/>
 								<option id="iar.arm.toolchain.linker.option.logFileUnusedFragments.v5.5.0.1722647952" name="Log unused section fragments" superClass="iar.arm.toolchain.linker.option.logFileUnusedFragments.v5.5.0"/>
+								<option id="iar.arm.toolchain.linker.option.outFormat.v5.5.2.762570292" superClass="iar.arm.toolchain.linker.option.outFormat.v5.5.2" value="iar.arm.toolchain.linker.option.outFormat.intelExtended.v5.5.2" valueType="enumerated"/>
+								<option id="iar.arm.toolchain.linker.option.overrideDefaultOutputFile.v5.5.2.388144413" superClass="iar.arm.toolchain.linker.option.overrideDefaultOutputFile.v5.5.2"/>
+								<option id="iar.arm.toolchain.linker.option.generateAdditonalOutput.v5.5.2.1070063440" superClass="iar.arm.toolchain.linker.option.generateAdditonalOutput.v5.5.2" value="true" valueType="boolean"/>
 								<inputType id="iar.arm.toolchain.linker.inputType.object.v5.4.0.552501618" name="IAR Linker Input Type for ARM (o)" superClass="iar.arm.toolchain.linker.inputType.object.v5.4.0">
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -727,7 +732,9 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Libraries/CMSIS/Device/ST/STM32F4xx/Include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Libraries/STM32F4xx_StdPeriph_Driver/inc}&quot;"/>
 								</option>
-								<inputType id="iar.arm.toolchain.compiler.inputType.v5.4.1.773299440" name="IAR C/C++ Compiler Input Type" superClass="iar.arm.toolchain.compiler.inputType.v5.4.1"/>
+								<inputType id="iar.arm.toolchain.compiler.inputType.v5.4.1.773299440" name="IAR C/C++ Compiler Input Type"/>
+								<inputType id="iar.arm.toolchain.compiler.inputType.cpp.v6.12.0.218973616" name="IAR C/C++ Compiler Input Type" superClass="iar.arm.toolchain.compiler.inputType.cpp.v6.12.0"/>
+								<inputType id="iar.arm.toolchain.compiler.inputType.c.v6.12.0.1269648188" name="IAR C/C++ Compiler Input Type" superClass="iar.arm.toolchain.compiler.inputType.c.v6.12.0"/>
 							</tool>
 							<tool id="iar.arm.toolchain.assembler.v5.4.0.702685720" name="IAR Assembler for ARM" superClass="iar.arm.toolchain.assembler.v5.4.0.1764515610">
 								<inputType id="iar.arm.toolchain.assembler.inputType.asmFile.v5.4.0.837339251" name="IAR Assembler input type for ARM (asm, s)" superClass="iar.arm.toolchain.assembler.inputType.asmFile.v5.4.0"/>
@@ -1044,7 +1051,9 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Libraries/CMSIS/Device/ST/STM32F4xx/Include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Libraries/STM32F4xx_StdPeriph_Driver/inc}&quot;"/>
 								</option>
-								<inputType id="iar.arm.toolchain.compiler.inputType.v5.4.1.1624571010" name="IAR C/C++ Compiler Input Type" superClass="iar.arm.toolchain.compiler.inputType.v5.4.1"/>
+								<inputType id="iar.arm.toolchain.compiler.inputType.v5.4.1.1624571010" name="IAR C/C++ Compiler Input Type"/>
+								<inputType id="iar.arm.toolchain.compiler.inputType.cpp.v6.12.0.108796214" name="IAR C/C++ Compiler Input Type" superClass="iar.arm.toolchain.compiler.inputType.cpp.v6.12.0"/>
+								<inputType id="iar.arm.toolchain.compiler.inputType.c.v6.12.0.1919426928" name="IAR C/C++ Compiler Input Type" superClass="iar.arm.toolchain.compiler.inputType.c.v6.12.0"/>
 							</tool>
 							<tool id="iar.arm.toolchain.assembler.v5.4.0.313312440" name="IAR Assembler for ARM" superClass="iar.arm.toolchain.assembler.v5.4.0.702685720">
 								<inputType id="iar.arm.toolchain.assembler.inputType.asmFile.v5.4.0.1667860498" name="IAR Assembler input type for ARM (asm, s)" superClass="iar.arm.toolchain.assembler.inputType.asmFile.v5.4.0"/>
@@ -1078,7 +1087,9 @@
 								<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Libraries/STM32F4xx_StdPeriph_Driver/inc}&quot;"/>
 								<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.0\arm\CMSIS\Include&quot;"/>
 							</option>
-							<inputType id="iar.arm.toolchain.compiler.inputType.v5.4.1.1260626458" name="IAR C/C++ Compiler Input Type" superClass="iar.arm.toolchain.compiler.inputType.v5.4.1"/>
+							<inputType id="iar.arm.toolchain.compiler.inputType.v5.4.1.1260626458" name="IAR C/C++ Compiler Input Type"/>
+							<inputType id="iar.arm.toolchain.compiler.inputType.cpp.v6.12.0.800920190" name="IAR C/C++ Compiler Input Type" superClass="iar.arm.toolchain.compiler.inputType.cpp.v6.12.0"/>
+							<inputType id="iar.arm.toolchain.compiler.inputType.c.v6.12.0.1620336139" name="IAR C/C++ Compiler Input Type" superClass="iar.arm.toolchain.compiler.inputType.c.v6.12.0"/>
 						</tool>
 						<tool customBuildStep="true" id="org.eclipse.cdt.managedbuilder.ui.rcbs.1025041232" name="Resource Custom Build Step">
 							<inputType id="org.eclipse.cdt.managedbuilder.ui.rcbs.inputtype.1789923623" name="Resource Custom Build Step Input Type">
@@ -1106,7 +1117,9 @@
 							<option defaultValue="true" id="iar.arm.toolchain.compiler.option.optScheduling.v5.4.0.255976748" name="Disable instruction scheduling" superClass="iar.arm.toolchain.compiler.option.optScheduling.v5.4.0" valueType="boolean"/>
 							<option id="iar.arm.toolchain.compiler.option.cppInlineSemantics.v6.1.0.407989951" name="Use C++ inline semantics" superClass="iar.arm.toolchain.compiler.option.cppInlineSemantics.v6.1.0" value="false" valueType="boolean"/>
 							<option id="iar.arm.toolchain.compiler.option.charIs.v6.1.0.1301797829" name="Plain 'char' is:" superClass="iar.arm.toolchain.compiler.option.charIs.v6.1.0" value="iar.arm.toolchain.compiler.option.charIs.signed.v6.1.0" valueType="enumerated"/>
-							<inputType id="iar.arm.toolchain.compiler.inputType.v5.4.1.163741225" name="IAR C/C++ Compiler Input Type" superClass="iar.arm.toolchain.compiler.inputType.v5.4.1"/>
+							<inputType id="iar.arm.toolchain.compiler.inputType.v5.4.1.163741225" name="IAR C/C++ Compiler Input Type"/>
+							<inputType id="iar.arm.toolchain.compiler.inputType.cpp.v6.12.0.1497298581" name="IAR C/C++ Compiler Input Type" superClass="iar.arm.toolchain.compiler.inputType.cpp.v6.12.0"/>
+							<inputType id="iar.arm.toolchain.compiler.inputType.c.v6.12.0.788051050" name="IAR C/C++ Compiler Input Type" superClass="iar.arm.toolchain.compiler.inputType.c.v6.12.0"/>
 						</tool>
 						<tool customBuildStep="true" id="org.eclipse.cdt.managedbuilder.ui.rcbs.1848234980" name="Resource Custom Build Step">
 							<inputType id="org.eclipse.cdt.managedbuilder.ui.rcbs.inputtype.1804348435" name="Resource Custom Build Step Input Type">
@@ -1445,7 +1458,9 @@
 								<option id="iar.arm.toolchain.compiler.option.wrapDiagnostics.384844114" name="Wrap compiler diagnostics" superClass="iar.arm.toolchain.compiler.option.wrapDiagnostics"/>
 								<option id="iar.arm.toolchain.compiler.option.language.v6.1.0.1622825403" name="Language" superClass="iar.arm.toolchain.compiler.option.language.v6.1.0" value="iar.arm.toolchain.compiler.option.language.cpp.v6.1.0" valueType="enumerated"/>
 								<option id="iar.arm.toolchain.compiler.option.additionalUserOptions.1316987505" name="Use command line options" superClass="iar.arm.toolchain.compiler.option.additionalUserOptions"/>
-								<inputType id="iar.arm.toolchain.compiler.inputType.v5.4.1.1815822230" name="IAR C/C++ Compiler Input Type" superClass="iar.arm.toolchain.compiler.inputType.v5.4.1"/>
+								<inputType id="iar.arm.toolchain.compiler.inputType.v5.4.1.1815822230" name="IAR C/C++ Compiler Input Type"/>
+								<inputType id="iar.arm.toolchain.compiler.inputType.cpp.v6.12.0.1928182084" name="IAR C/C++ Compiler Input Type" superClass="iar.arm.toolchain.compiler.inputType.cpp.v6.12.0"/>
+								<inputType id="iar.arm.toolchain.compiler.inputType.c.v6.12.0.2077201709" name="IAR C/C++ Compiler Input Type" superClass="iar.arm.toolchain.compiler.inputType.c.v6.12.0"/>
 							</tool>
 							<tool id="iar.arm.toolchain.assembler.v5.4.0.331944606" name="IAR Assembler for ARM" superClass="iar.arm.toolchain.assembler.v5.4.0">
 								<option defaultValue="false" id="iar.arm.toolchain.assembler.option.debugInfo.v5.4.0.1469522666" name="Generate debug information" superClass="iar.arm.toolchain.assembler.option.debugInfo.v5.4.0" valueType="boolean"/>

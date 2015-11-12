@@ -144,13 +144,20 @@ void pereferDeInit()
 {
 	deinitUartRfd();
 
-//	//initRtc();
-//
 	I2C_DeInit(I2C1);
 	SPI_I2S_DeInit(SPI1);
 	SPI_I2S_DeInit(SPI2);
 	DMA_DeInit(DMA1_Stream3);
 	DMA_DeInit(DMA1_Stream4);
-//	deinitAdc();
+	deinitGPIO();
+}
+
+void deinitGPIO()
+{
+	GPIO_DeInit(GPIOA);
+	GPIO_DeInit(GPIOB);
+	GPIO_DeInit(GPIOC);
+	GPIO_DeInit(GPIOD);
+	GPIO_DeInit(GPIOE);
 }
 

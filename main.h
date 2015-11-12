@@ -15,6 +15,7 @@
 
 void pereferInit();
 void pereferDeInit();
+void deinitGPIO();
 int main();
 void initUartForConsol();
 
