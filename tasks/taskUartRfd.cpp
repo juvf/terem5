@@ -13,6 +13,8 @@
 #include "Process.h"
 #include "configTerem.h"
 
+#include <string.h>
+
 #define BUFFER_SIZE	256
 #define ADRRESS		0x01
 uint8_t rfd_buffer[4120];
@@ -36,7 +38,7 @@ void taskUartRfd(void *context)
 	{
 		if( xQueueReceive(uartRfd232Queue, &byte, 15000) == pdTRUE )
 		{
-			if( byte == 0x80 )
+			if( 1 ) //byte == 0x80 )
 			{
 				reciveByte(byte);
 				while(1)
@@ -63,21 +65,35 @@ void taskUartRfd(void *context)
 
 bool reciveByte(uint8_t byte)
 {
+	static int flagRing;
 	rfd_buffer[rfd_count++] = byte;
 	if( rfd_count >= BUFFER_SIZE )
 		--rfd_count;
 	if( rfd_count == 2 )
 		rfd_sizeOfFrame = byte;
-	if( rfd_count >= rfd_sizeOfFrame )
-	{ //приняли весь пакет
-	  //запретить прерывания по приему компорта
-		USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
-		//rfd_isReadReady = true;
-		if( Checksum::crc16(rfd_buffer, rfd_sizeOfFrame) == 0 )
-			parser();
+	if( rfd_count == 4 )
+	{
+		if( strncmp((char*)rfd_buffer, "RING", 4) == 0 )
+			flagRing = RING;
+		else if( strncmp((char*)rfd_buffer, "NO C", 4) == 0 )
+			flagRing = NO_CARRIER;
 		else
-			setRxMode();
-		return false;
+			flagRing = COMMAND;
+	}
+
+	if( flagRing == COMMAND )
+	{
+		if( rfd_count >= rfd_sizeOfFrame )
+		{ //приняли весь пакет
+		  //запретить прерывания по приему компорта
+			USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
+			//rfd_isReadReady = true;
+			if( Checksum::crc16(rfd_buffer, rfd_sizeOfFrame) == 0 )
+				parser();
+			else
+				setRxMode();
+			return false;
+		}
 	}
 	return true;
 }
@@ -162,6 +178,7 @@ void parser()
 		rfd_buffer[rfd_sizeOfFrame++] = (uint8_t)(crc >> 8);
 
 		rfd_count = 0;
+		USART_ClearITPendingBit(USART2, USART_IT_TC);
 		USART_ITConfig(USART2, USART_IT_TC, ENABLE); // По окончанию отправки
 		USART_SendData(USART2, rfd_buffer[0]);
 	}
@@ -209,6 +226,7 @@ void initUartRfd()
 	usart.USART_Parity = USART_Parity_No;
 	usart.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
 	usart.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+	USART_ClearITPendingBit(USART2, USART_IT_TC);
 	USART_Init(USART2, &usart);
 	// Включаем прерывания и запускаем USART
 	NVIC_EnableIRQ(USART2_IRQn);

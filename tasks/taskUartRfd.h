@@ -29,6 +29,8 @@
 #define	UART_SetTime	0x15	//Команда установки даты и времени
 #define	UART_GetTime	0x16	//Команда чтения даты и времени
 
+enum { RING, NO_CARRIER, COMMAND };
+
 #ifdef __cplusplus
 
 void initUartRfd();
