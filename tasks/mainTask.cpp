@@ -12,19 +12,18 @@
 
 void mainTask(void *context)
 {
-
+	ledRedOn();
 	initConfigTerem();
 	initListProc();
-	ledGreenOn();
-	//ledRedOn();
+	ledRedOff();
 
 	while(1)
 	{
-		ledGreenOn();
+		//ledGreenOn();
 		//ждем флагов чтобы уйти в режим микропотребления, в Stop Mode
 		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP,
 		pdTRUE, pdTRUE, 1000);
-		ledGreenOff();
+		//ledGreenOff();
 		if( (uxBits & FLAG_SLEEP) == FLAG_SLEEP )
 			sleepJ();
 
@@ -40,7 +39,7 @@ extern "C" void EXTI3_IRQHandler()
 	EXTI_ClearFlag(EXTI_Line3);
 	//flagExti = 0;
 	deinitExti();
-	ledGreenOn();
+	//ledGreenOn();
 }
 
 void initExti()
@@ -102,7 +101,7 @@ void sleepJ()
 		vTaskDelay(200);
 		return;
 	enterCritSect();
-	ledGreenOff();
+	//ledGreenOff();
 	pereferDeInit();
 	initExti();
 	vTaskDelay(300);
@@ -138,7 +137,7 @@ void sleepJ()
 //	EXTI_ClearFlag(EXTI_Line3);
 //	deinitExti();
 	pereferInit();
-	ledGreenOn();
+	//ledGreenOn();
 	exitCritSect();
 }
 

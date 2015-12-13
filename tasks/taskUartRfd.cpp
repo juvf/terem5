@@ -12,6 +12,7 @@
 #include "clock.h"
 #include "Process.h"
 #include "configTerem.h"
+#include "main.h"
 
 #include <string.h>
 
@@ -34,6 +35,16 @@ void taskUartRfd(void *context)
 	rfd_sizeOfFrame = 6;
 	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE); // При получении
 	uint8_t byte;
+
+//	//запретить прерывания по приему компорта
+//	USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
+//	strcpy((char*)rfd_buffer, "SET BT AUTH * 1234\r\n");
+//	rfd_sizeOfFrame = 20;
+//	rfd_count = 0;
+//	USART_ClearITPendingBit(USART2, USART_IT_TC);
+//	USART_ITConfig(USART2, USART_IT_TC, ENABLE); // По окончанию отправки
+//	USART_SendData(USART2, rfd_buffer[0]);
+
 	for(;;)
 	{
 		if( xQueueReceive(uartRfd232Queue, &byte, 15000) == pdTRUE )
@@ -74,10 +85,16 @@ bool reciveByte(uint8_t byte)
 	if( rfd_count == 4 )
 	{
 		if( strncmp((char*)rfd_buffer, "RING", 4) == 0 )
+		{
 			flagRing = RING;
+			ledGreenOn();
+		}
 		else if( strncmp((char*)rfd_buffer, "NO C", 4) == 0 )
+		{
 			flagRing = NO_CARRIER;
-		else
+			ledGreenOff();
+		}
+		else if(rfd_buffer[0] == 0x80)
 			flagRing = COMMAND;
 	}
 
@@ -146,7 +163,7 @@ void parser()
 		case 0x19: //Get_CurrentVal
 			rfd_sizeOfFrame = commandGetCurAdc(rfd_buffer);
 			break;
-		case 0x21: //
+		case 0x21: //UART_ClearFlash
 			rfd_sizeOfFrame = commandClearFlash(rfd_buffer);
 			break;
 		case 0x23: //UART_GetCountProcess
@@ -155,13 +172,13 @@ void parser()
 		case 0x24: //UART_GetHeaderProcess
 			rfd_sizeOfFrame = commandGetHeaderProc(rfd_buffer);
 			break;
-		case 0x22:
+		case 0x22: //UART_ReadFlash
 			rfd_sizeOfFrame = commandReadFlash(rfd_buffer);
 			break;
-		case 0x09:
+		case 0x09: //UART_Cmd48
 			rfd_sizeOfFrame = commandT48(rfd_buffer);
 			break;
-		case 0x20:
+		case 0x20: //Stop_Proc
 			rfd_sizeOfFrame = commandStopProc();
 			break;
 		default:
