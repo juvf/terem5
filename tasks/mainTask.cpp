@@ -20,16 +20,17 @@ void mainTask(void *context)
 
 	while(1)
 	{
-//		ledGreenOn();
+		ledGreenOn();
 		//ждем флагов чтобы уйти в режим микропотребления, в Stop Mode
 		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP,
-		pdTRUE, pdTRUE, 3000);
+		pdTRUE, pdTRUE, 1000);
+		ledGreenOff();
 		if( (uxBits & FLAG_SLEEP) == FLAG_SLEEP )
 			sleepJ();
 
 //		xEventGroupWaitBits(xEventGroup, FLAG_MESUR,
 //		pdTRUE, pdTRUE, 1000);
-		vTaskDelay(3000);
+		vTaskDelay(1000);
 		//ledGreenOff();
 	}
 }

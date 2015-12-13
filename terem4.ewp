@@ -2021,6 +2021,48 @@
     <group>
       <name>sensors</name>
       <file>
+        <name>$PROJ_DIR$\tasks\sensor\GaugeHA.cpp</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\tasks\sensor\GaugeHA.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\tasks\sensor\GaugeHeatFlow.cpp</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\tasks\sensor\GaugeHeatFlow.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\tasks\sensor\GaugeHEL700.cpp</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\tasks\sensor\GaugeHEL700.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\tasks\sensor\GaugeHIH3610.cpp</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\tasks\sensor\GaugeHIH3610.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\tasks\sensor\GaugeHK.cpp</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\tasks\sensor\GaugeHK.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\tasks\sensor\GaugeT48.cpp</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\tasks\sensor\GaugeT48.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\tasks\sensor\GaugeTenso.cpp</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\tasks\sensor\GaugeTenso.h</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\tasks\sensor\Sensor.cpp</name>
       </file>
       <file>

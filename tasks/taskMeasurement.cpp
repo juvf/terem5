@@ -32,8 +32,8 @@ void taskMeasurement(void *context)
 		{
 			ledRedOn();
 			setNewAlarmRTC(getProcessPeriod()); 		//перезапустим таймер
-			musuring();
 			vTaskDelay(1000);
+			musuring();
 			ledRedOff();
 
 		}
