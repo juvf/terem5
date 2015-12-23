@@ -7,14 +7,15 @@
 #include "Process.h"
 #include "main.h"
 #include "CritSect.h"
+#include "sensor/ds1820.h"
 
 #define FLAG_SLEEP	(FLAG_SLEEP_UART | FLAG_SLEEP_MESUR)
-
+float temper;
 void mainTask(void *context)
 {
 	ledRedOn();
 	initConfigTerem();
-	initListProc();
+	//initListProc();
 	ledRedOff();
 
 	while(1)
@@ -29,8 +30,10 @@ void mainTask(void *context)
 
 //		xEventGroupWaitBits(xEventGroup, FLAG_MESUR,
 //		pdTRUE, pdTRUE, 1000);
-		vTaskDelay(1000);
+		vTaskDelay(3000);
 		//ledGreenOff();
+
+		temper = readtemp();
 	}
 }
 
