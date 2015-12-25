@@ -12,6 +12,7 @@
 #include "../osConfig.h"
 #include "configTerem.h"
 #include "sensor/Sensor.h"
+#include "sensor/ds1820.h"
 
 
 #include <string.h>
@@ -54,6 +55,7 @@ int commandGetCurAdc(uint8_t *buffer)
 	{
 		int numChanel = buffer[6];
 		xSemaphoreTake(semaphAdc, portMAX_DELAY);
+		tempOfDs1820 = readtemp();
 		ep1_On();
 		epa_On();
 		ResultMes result = readSenser(numChanel);

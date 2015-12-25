@@ -8,6 +8,8 @@
 #include "osConfig.h"
 #include "stm32f4xx.h"
 
+float tempOfDs1820;
+
 //void initDS1820()
 //{
 //	//Выдача команды преобразования

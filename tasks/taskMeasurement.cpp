@@ -13,6 +13,7 @@
 #include "sensor/Sensor.h"
 #include "Process.h"
 #include "../../adc.h"
+#include "sensor/ds1820.h"
 #include "main.h"
 #include <math.h>
 
@@ -59,6 +60,7 @@ void musuring()
 	int j = 0;
 	//захватим симафор АЦП
 	xSemaphoreTake(semaphAdc, portMAX_DELAY);
+	tempOfDs1820 = readtemp();
 	ep1_On();
 	epa_On();
 	for(int i = 0; i < 8; i++)

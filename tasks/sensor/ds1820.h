@@ -10,6 +10,8 @@
 
 #include <stdint.h>
 
+extern float tempOfDs1820;
+
 ////Макросы работы с microLAN, бит линии определен в переменной DQ_uLAN
 //#define uLANZ0()        PORT_uLAN &=~DQ_uLAN;                       //Обнуление сигнальной линии
 //#define uLAN0()         PORT_uLAN &=~DQ_uLAN; DIR_uLAN |= DQ_uLAN;  //Обнуление сигнальной линии и переключение ее на выход
@@ -29,6 +31,8 @@ void mksDelay(uint16_t time);
 float readtemp();
 void writecommand(uint8_t data);
 uint8_t readbyte();
+
+
 
 
 #endif /* TASKS_SENSOR_DS1820_H_ */

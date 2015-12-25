@@ -10,12 +10,11 @@
 #include "sensor/ds1820.h"
 
 #define FLAG_SLEEP	(FLAG_SLEEP_UART | FLAG_SLEEP_MESUR)
-float temper;
 void mainTask(void *context)
 {
 	ledRedOn();
 	initConfigTerem();
-	//initListProc();
+	initListProc();
 	ledRedOff();
 
 	while(1)
@@ -32,8 +31,6 @@ void mainTask(void *context)
 //		pdTRUE, pdTRUE, 1000);
 		vTaskDelay(3000);
 		//ledGreenOff();
-
-		temper = readtemp();
 	}
 }
 

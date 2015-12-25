@@ -9,6 +9,7 @@
 #include "../../structCommon.h"
 #include "../configTerem.h"
 #include "../../adc.h"
+#include "ds1820.h"
 #include "SensorM10.h"
 #include "GaugeHK.h"
 #include "GaugeHA.h"
@@ -20,7 +21,7 @@
 #include <math.h>
 
 //температура холодного спая
-#define  TEMP_HS	22
+//#define  TEMP_HS	22
 
 //канал от 0 до 7
 float readAnalogSensor(uint8_t numChanel)
@@ -211,16 +212,16 @@ ResultMes readSenser(uint8_t numChanel)
 		case GT_TermoHK:			//Термопара ХК -> в градусах
 		case GT_TermoHKcom:
 			result.u = getU_Ad7792(numChanel);
-			result.p = HK_Termo(result.u, TEMP_HS);
+			result.p = HK_Termo(result.u, tempOfDs1820);
 			break;
 		case GT_TermoHA:			//Термопара ХА -> в градусах
 		case GT_TermoHAcom:
 			result.u = getU_Ad7792(numChanel);
-			result.p = HA_Termo(result.u, TEMP_HS);
+			result.p = HA_Termo(result.u, tempOfDs1820);
 			break;
 		case GT_Termo48:			//D Универсальный термопарный вход
 			result.u = getU_Ad7792(numChanel);
-			result.p = T48_Termo(result.u, TEMP_HS, numChanel);
+			result.p = T48_Termo(result.u, tempOfDs1820, numChanel);
 			break;
 		case GT_HeatFlowPeltje:
 			result.u = getU_Ad7792(numChanel);
@@ -238,7 +239,7 @@ ResultMes readSenser(uint8_t numChanel)
 			powerDa17_16(P_3_0);
 			powerDa12_15(numChanel);
 			result.u = getU_Ad7792(numChanel);
-			result.p = HIH3610_Rh(result.u, TEMP_HS,
+			result.p = HIH3610_Rh(result.u, tempOfDs1820,
 					koeffsAB.koef[numChanel].a);
 			powerDa12_15(100);
 			powerDa17_16(P_OFF);
@@ -285,7 +286,7 @@ ResultMes readSenser(uint8_t numChanel)
 			result.u = getU_Ad7792(numChanel);
 			powerDa12_15(100);
 			powerDa17_16(P_OFF);
-			result.p = Tenso_3(result.u, numChanel, TEMP_HS);
+			result.p = Tenso_3(result.u, numChanel, tempOfDs1820);
 			break;
 
 			//Напряжение, мВ
