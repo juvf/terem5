@@ -23,6 +23,7 @@ int commandGetHeaderProc(uint8_t *buffer);
 int commandDeleteProc(uint8_t *buffer);
 uint32_t getAdrCurPoint();
 uint32_t getProcessPeriod();
+void closeProc();
 
 bool headerIsValid( const HeaderProcess &header);
 bool allocMemForNewProc(const HeaderProcess &header);

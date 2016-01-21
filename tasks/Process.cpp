@@ -206,6 +206,7 @@ int commandStartProc(uint8_t *buffer)
 		if((per > 0) && (per < 4294960))
 		{
 			currProcessHeader.period = per;
+			currProcessHeader.countSaved = 0xffffffff;
 			currProcessHeader.count = buffer[10] | (buffer[11] << 8)
 					| (buffer[12] << 16) | (buffer[13] << 24);
 			if(buffer[0] == 0xff)
@@ -297,10 +298,21 @@ int commandStopProc()
 {
 	if( (stateProcess == 1) || (stateProcess == 3) )
 	{
+		closeProc();
 		stateProcess = 2;
 		xTimerStop(timerMesuring, 100);
 	}
 	return 5;
+}
+
+void closeProc()
+{
+	//запишим кол-во сохраненых точек в заголовок процесса
+	uint16_t sector = headerList[numProc];//номер сектора с заголовком процесса
+	uint8_t tempBuf[256];
+	memset((void*)tempBuf, 0xff, 256);
+	memcpy((void*)&tempBuf[4], (void*)&currProcessCount, 4);
+	flashMx25Write(tempBuf, sector * 4096);
 }
 
 
@@ -469,6 +481,7 @@ void saveResult(float *result, int countSensers)
 	currProcessCount++;
 	if(currProcessCount == currProcessHeader.count)
 	{ //кончим процесс
+		closeProc();
 		stateProcess = 2;
 //		xTimerStop(timerMesuring, 100);
 		RTC_ITConfig(RTC_IT_ALRA, DISABLE);

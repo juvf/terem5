@@ -217,6 +217,7 @@ extern uint8_t adcRange[8];
 //заголовок процесса
 typedef struct
 {
+	uint32_t countSaved; //если 0xffff ffff процесс не завершон, если процесс завершон, то пишем сюда кол-во сохраненых точек
 	uint32_t count;          //колво точек
 	RTC_TimeTypeDef startTime;          //время старта
 	RTC_DateTypeDef startDate;          //дата старта
