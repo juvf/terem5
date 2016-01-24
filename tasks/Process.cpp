@@ -450,6 +450,7 @@ void saveResult(float *result, int countSensers)
 	}
 	uint32_t remainder = address % 256;
 	uint16_t pointSize = countSensers * sizeof(float);
+
 	if((remainder + pointSize) > 256)
 	{ //первую половину
 		uint16_t firstSize = 256 - remainder;
