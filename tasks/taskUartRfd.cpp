@@ -178,7 +178,8 @@ void parser()
 		case 0x09: //UART_Cmd48
 			rfd_sizeOfFrame = commandT48(rfd_buffer);
 			break;
-		case 0x20: //Stop_Proc
+		case 0x20: //Stop_Proc+
+
 			rfd_sizeOfFrame = commandStopProc();
 			break;
 		default:

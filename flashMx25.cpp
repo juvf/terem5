@@ -8,6 +8,7 @@
 #include "flashMx25.h"
 #include "stm32f4xx.h"
 #include "tasks/Process.h"
+#include  "osConfig.h"
 #include <string.h>
 // etaoinsrhldcumfpgwybvkxjqz1234567890! @.?# brust
 
@@ -34,8 +35,14 @@ uint8_t spi2Work = 0;
 
 uint32_t currentAddress = 0; //текущий адрес, куда можно записать новый процесс
 
+volatile uint32_t adrDestination1;
+volatile uint8_t *source1;
+
 void flashMx25Write(uint8_t *source, uint32_t adrDestination)
 {
+	xSemaphoreTake(mutexFlash, portMAX_DELAY);
+	adrDestination1 = adrDestination;
+	source1 = source;
 	uint16_t status;
 	do
 	{
@@ -51,10 +58,12 @@ void flashMx25Write(uint8_t *source, uint32_t adrDestination)
 
 	startSpi(SIZE_BUF_FLASH);
 	spiWait();
+	xSemaphoreGive(mutexFlash);
 }
 
 void flashMx25Read(void *destination, uint32_t adrSource, uint16_t size)
 {
+	xSemaphoreTake(mutexFlash, portMAX_DELAY);
 	uint16_t status;
 	do
 	{
@@ -70,11 +79,13 @@ void flashMx25Read(void *destination, uint32_t adrSource, uint16_t size)
 	flashBuffOut[3] = adrSource;
 	startSpi(size + 4);
 	spiWait();
+	xSemaphoreGive(mutexFlash);
 	memcpy(destination, (void*)(flashBuffIn + 4), size);
 }
 
 void flashMx25ReadData(uint8_t *destination, uint32_t adrSource, uint16_t size)
 {
+	xSemaphoreTake(mutexFlash, portMAX_DELAY);
 	uint16_t status;
 	do
 	{
@@ -90,6 +101,7 @@ void flashMx25ReadData(uint8_t *destination, uint32_t adrSource, uint16_t size)
 	flashBuffOut[3] = adrSource;
 	startSpi(size + 4);
 	spiWait();
+	xSemaphoreGive(mutexFlash);
 }
 
 uint16_t spiRDSR()
@@ -108,6 +120,7 @@ uint16_t spiRDSR()
 
 void spiSector4kErase(uint16_t numSector)
 {
+	xSemaphoreTake(mutexFlash, portMAX_DELAY);
 	uint16_t status;
 	do
 	{
@@ -121,6 +134,7 @@ void spiSector4kErase(uint16_t numSector)
 	flashBuffOut[3] = numSector;
 	startSpi(4);
 	spiWait();
+	xSemaphoreGive(mutexFlash);
 }
 
 void spiWREN()
@@ -298,6 +312,7 @@ void getFirstLastProcess(uint32_t *firstHeader, uint32_t *lastFreeHeader)
 
 void spiChipErase()
 {
+	xSemaphoreTake(mutexFlash, portMAX_DELAY);
 	uint16_t status;
 	do
 	{
@@ -307,11 +322,7 @@ void spiChipErase()
 	flashBuffOut[0] = 0x60;
 	startSpi(1);
 	spiWait();
-}
-
-void readFlash(uint32_t adrInFlash, uint8_t *distanation, uint16_t size)
-{
-
+	xSemaphoreGive(mutexFlash);
 }
 
 void findBeginEndFreeMem(uint32_t *beginSector, uint32_t *endSector)

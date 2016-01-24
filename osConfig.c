@@ -15,6 +15,7 @@ xTimerHandle timerMesuring;
 
 EventGroupHandle_t xEventGroup;
 SemaphoreHandle_t semaphAdc;
+SemaphoreHandle_t mutexFlash;
 
 xQueueHandle cansolQueue;//очередь для сообщений дебага в кансоль
 xQueueHandle uartRfd232Queue;
@@ -34,6 +35,8 @@ void initOs(void)
 
 	timerMesuring = xTimerCreate("mesuring", 1000, pdTRUE, 0, timerMeasurement);
 	semaphAdc = xSemaphoreCreateMutex();
+
+	mutexFlash = xSemaphoreCreateMutex();
 
 	createTasks();
 }

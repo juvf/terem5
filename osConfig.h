@@ -30,6 +30,7 @@ extern xTaskHandle handleRfd;
 extern xTimerHandle timerMesuring;
 
 extern SemaphoreHandle_t semaphAdc; //симафор для измерений
+extern SemaphoreHandle_t mutexFlash; //мьютикс для доступа к флешпамяти
 
 extern xQueueHandle cansolQueue;
 extern xQueueHandle uartRfd232Queue;
