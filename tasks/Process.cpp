@@ -75,7 +75,7 @@ int commandGetHeaderProc(uint8_t *buffer)
 	}
 	uint32_t addrInFlash = headerList[number] * 4096;
 
-	if(addrInFlash == 0xffff)
+	if(headerList[number] == 0xffff)
 	{
 		buffer[5] = 0x0e;
 		buffer[6] = 0x04;
@@ -459,6 +459,7 @@ void saveResult(float *result, int countSensers)
 //пишем вторую половину
 		memset((void*)tempBuf, 0xff, 256);
 		address += firstSize;
+		remainder = address % 256;
 		if((address % 4096) == 0)
 		{ //записать адрес предыдущего сектора и адрес следующего сектора в начало сектора
 			uint16_t cursector = address / 4096;
@@ -466,9 +467,9 @@ void saveResult(float *result, int countSensers)
 			tempBuf[1] = flashMap[cursector][0] >> 8;
 			tempBuf[2] = flashMap[cursector][1];
 			tempBuf[3] = flashMap[cursector][1] >> 8;
-			address += 4;
+//			address += 4;
+			remainder += 4;
 		}
-		remainder = address % 256;
 		uint16_t secondSize = pointSize - firstSize;
 		resultVoid += firstSize;
 		memcpy((void*)&tempBuf[remainder], (void*)resultVoid, secondSize);
@@ -480,7 +481,7 @@ void saveResult(float *result, int countSensers)
 		flashMx25Write(tempBuf, 256 * (address / 256));
 	}
 	currProcessCount++;
-	if(currProcessCount == currProcessHeader.count)
+	if(currProcessCount >= currProcessHeader.count)
 	{ //кончим процесс
 		closeProc();
 		stateProcess = 2;
@@ -505,8 +506,11 @@ uint32_t getAdrCurPoint()
 //расчитать размер данных уже записанных
 	uint32_t dataSize = currProcessCount * countSensor(currProcessHeader)
 			* sizeof(float);
+//размер заголовка + сектора
+	uint16_t offset = 4 + headerSize + coinSectorSize;
 //посчитать адрес куда нужно писать
 	uint32_t sizeData = headerSize + coinSectorSize + dataSize;
+	//почитаем размер данных в первом сеторе
 	uint32_t numSector = sizeData / (4096 - 4); // = Целое и остаток
 	numSector++; // целое+1 = это номер сектора в цепочке
 

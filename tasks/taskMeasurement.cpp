@@ -69,6 +69,8 @@ void musuring()
 		if( isnan(result.u) == 0 )
 			valueSens[j++] = result.p;
 	}
+	if( j != 4)
+		asm("nop");
 	epa_Off();
 	ep1_Off();
 	//освободим симафор АЦП

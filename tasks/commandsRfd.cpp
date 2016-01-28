@@ -110,7 +110,6 @@ int commandReadFlash(uint8_t *buffer)
 	memcpy((void*)&buffer[6], (void*)ttBuf, 200);
 	for(int i = 0; i < size; i++)
 		buffer[6 + i] = buffer[6 + i + 4];
-//	memcpy((void*)&buffer[6], (void*)&buffer[10], size-4);
 	return 6 + size;
 }
 
