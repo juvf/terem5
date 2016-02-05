@@ -298,9 +298,10 @@ int commandStopProc()
 {
 	if( (stateProcess == 1) || (stateProcess == 3) )
 	{
+		RTC_ITConfig(RTC_IT_ALRA, DISABLE);
+		RTC_AlarmCmd(RTC_Alarm_A, DISABLE);
 		closeProc();
 		stateProcess = 2;
-		xTimerStop(timerMesuring, 100);
 	}
 	return 5;
 }
@@ -483,11 +484,11 @@ void saveResult(float *result, int countSensers)
 	currProcessCount++;
 	if(currProcessCount >= currProcessHeader.count)
 	{ //кончим процесс
+		RTC_ITConfig(RTC_IT_ALRA, DISABLE);
+		RTC_AlarmCmd(RTC_Alarm_A, DISABLE);
 		closeProc();
 		stateProcess = 2;
 //		xTimerStop(timerMesuring, 100);
-		RTC_ITConfig(RTC_IT_ALRA, DISABLE);
-		RTC_AlarmCmd(RTC_Alarm_A, DISABLE);
 	}
 }
 

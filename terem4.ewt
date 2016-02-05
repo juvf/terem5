@@ -247,6 +247,12 @@
         <name>$PROJ_DIR$\Libraries\STM32F4xx_StdPeriph_Driver\src\stm32f4xx_dma.c</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\Libraries\STM32F4xx_StdPeriph_Driver\src\stm32f4xx_exti.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_exti.h</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\Libraries\STM32F4xx_StdPeriph_Driver\src\stm32f4xx_gpio.c</name>
       </file>
       <file>
@@ -297,6 +303,12 @@
     <name>tasks</name>
     <group>
       <name>sensors</name>
+      <file>
+        <name>$PROJ_DIR$\tasks\sensor\ds1820.cpp</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\tasks\sensor\ds1820.h</name>
+      </file>
       <file>
         <name>$PROJ_DIR$\tasks\sensor\GaugeHA.cpp</name>
       </file>
