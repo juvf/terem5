@@ -92,6 +92,7 @@ for(;;);
   * @param  None
   * @retval None
   */
+//https://blog.feabhas.com/2013/02/developing-a-generic-hard-fault-handler-for-arm-cortex-m3cortex-m4/
 void HardFault_Handler(void)
 {  /* Go to infinite loop when Hard Fault exception occurs */
   asm volatile (

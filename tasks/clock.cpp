@@ -21,12 +21,12 @@ void initRtc()
 	RCC_BackupResetCmd(ENABLE);
 	RCC_BackupResetCmd(DISABLE);
 
-//	RCC_LSEConfig(RCC_LSE_ON);
-//	while (RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET);
-//	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
-	RCC_LSICmd(ENABLE);
-	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
-	RCC_RTCCLKCmd(ENABLE);
+	RCC_LSEConfig(RCC_LSE_ON);
+	while (RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET);
+	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
+//	RCC_LSICmd(ENABLE);
+//	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
+//	RCC_RTCCLKCmd(ENABLE);
 
 	RTC_InitTypeDef rtc;
 	rtc.RTC_HourFormat = RTC_HourFormat_24;

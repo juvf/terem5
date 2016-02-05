@@ -12,10 +12,12 @@
 #define FLAG_SLEEP	(FLAG_SLEEP_UART | FLAG_SLEEP_MESUR)
 void mainTask(void *context)
 {
-	ledRedOn();
+	ledRedOn()
+	;
 	initConfigTerem();
 	initListProc();
-	ledRedOff();
+	ledRedOff()
+	;
 
 	while(1)
 	{
@@ -98,8 +100,8 @@ void deinitExti()
 
 void sleepJ()
 {
-		vTaskDelay(200);
-		return;
+	vTaskDelay(200);
+	return;
 	enterCritSect();
 	//ledGreenOff();
 	pereferDeInit();
