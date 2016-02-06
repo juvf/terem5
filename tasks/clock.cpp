@@ -26,7 +26,7 @@ void initRtc()
 	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
 //	RCC_LSICmd(ENABLE);
 //	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
-//	RCC_RTCCLKCmd(ENABLE);
+	RCC_RTCCLKCmd(ENABLE);
 
 	RTC_InitTypeDef rtc;
 	rtc.RTC_HourFormat = RTC_HourFormat_24;
