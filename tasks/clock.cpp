@@ -5,6 +5,7 @@
  *      Author: juvf
  */
 #include "clock.h"
+#include "Process.h"
 #include "stm32f4xx.h"
 #include "stm32f4xx_rcc.h"
 #include "stm32f4xx_pwr.h"
@@ -22,7 +23,8 @@ void initRtc()
 	RCC_BackupResetCmd(DISABLE);
 
 	RCC_LSEConfig(RCC_LSE_ON);
-	while (RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET);
+	while(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET)
+		;
 	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
 //	RCC_LSICmd(ENABLE);
 //	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
@@ -33,6 +35,7 @@ void initRtc()
 	rtc.RTC_SynchPrediv = 0x7FFF;
 	rtc.RTC_AsynchPrediv = 0;
 
+	RTC_WaitForSynchro();
 	RTC_Init(&rtc);
 
 	RTC_ClearFlag(RTC_FLAG_ALRAF);
@@ -56,8 +59,6 @@ void initRtc()
 //	NVIC_Init(&NVIC_InitStructure);
 }
 
-//RTC_TimeTypeDef asd[10][3];
-//int ij = 0;
 //заводит будильник Alarm_A на время через seconds секунд
 void setNewAlarmRTC(uint32_t seconds)
 {
@@ -66,17 +67,9 @@ void setNewAlarmRTC(uint32_t seconds)
 	RTC_ITConfig(RTC_IT_ALRA, DISABLE);
 	RTC_ClearITPendingBit(RTC_IT_ALRA);
 
-	//RTC_AlarmTypeDef alarm1;
-	//RTC_GetAlarm(RTC_Format_BIN, RTC_Alarm_A, &alarm1);
-	//asd[ij][2] = alarm1.RTC_AlarmTime;
-
 	RTC_TimeTypeDef alarmTime;
 	RTC_GetTime(RTC_Format_BIN, &alarmTime);
-//	asd[ij][0] = alarmTime;
 	addSecToTime(&alarmTime, seconds);
-//	asd[ij][1] = alarmTime;
-//	if(ij == 10)
-//		ij--;
 
 	RTC_AlarmTypeDef alarm;
 	RTC_AlarmStructInit(&alarm);
@@ -84,12 +77,9 @@ void setNewAlarmRTC(uint32_t seconds)
 	alarm.RTC_AlarmMask = RTC_AlarmMask_DateWeekDay;
 	RTC_SetAlarm(RTC_Format_BIN, RTC_Alarm_A, &alarm);
 	RTC_GetAlarm(RTC_Format_BIN, RTC_Alarm_A, &alarm);
-//	asd[ij++][2] = alarm.RTC_AlarmTime;
 
-	//RTC_OutputConfig(RTC_Output_AlarmA, RTC_OutputPolarity_High);
 	RTC_ITConfig(RTC_IT_ALRA, ENABLE);
 	RTC_AlarmCmd(RTC_Alarm_A, ENABLE);
-	//RTC_ClearFlag(RTC_FLAG_ALRAF);
 }
 
 //прибавляет к времени time секунды seconds и помещяет полученное время в time
@@ -117,20 +107,23 @@ bool addSecToTime(RTC_TimeTypeDef *time, uint32_t seconds)
 
 bool setRtcTime(uint8_t *buffer)
 {
-	RTC_TimeTypeDef time;
-	time.RTC_Hours = buffer[2];
-	time.RTC_Minutes = buffer[1];
-	time.RTC_Seconds = buffer[0];
-
-	if( RTC_SetTime(RTC_Format_BIN, &time) == SUCCESS )
+	if( (stateProcess == 2) || (stateProcess == 0) )
 	{
-		RTC_DateTypeDef date;
-		RTC_DateStructInit(&date);
-		date.RTC_Date = buffer[3];
-		date.RTC_Month = buffer[4];
-		date.RTC_Year = buffer[5];
-		if( RTC_SetDate(RTC_Format_BIN, &date) == SUCCESS )
-			return true;
+		RTC_TimeTypeDef time;
+		time.RTC_Hours = buffer[2];
+		time.RTC_Minutes = buffer[1];
+		time.RTC_Seconds = buffer[0];
+
+		if( RTC_SetTime(RTC_Format_BIN, &time) == SUCCESS )
+		{
+			RTC_DateTypeDef date;
+			RTC_DateStructInit(&date);
+			date.RTC_Date = buffer[3];
+			date.RTC_Month = buffer[4];
+			date.RTC_Year = buffer[5];
+			if( RTC_SetDate(RTC_Format_BIN, &date) == SUCCESS )
+				return true;
+		}
 	}
 	return false;
 }

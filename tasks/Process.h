@@ -14,6 +14,7 @@
 
 extern uint16_t headerList[MAX_SECTORS]; //
 extern uint16_t countProc;
+extern uint8_t stateProcess;
 
 int commandStartProc(uint8_t *buffer);
 int commandGetProcConf(uint8_t *buffer);

@@ -94,7 +94,7 @@ bool reciveByte(uint8_t byte)
 			flagRing = NO_CARRIER;
 			ledGreenOff();
 		}
-		else if(rfd_buffer[0] == 0x80)
+		else if( rfd_buffer[0] == 0x80 )
 			flagRing = COMMAND;
 	}
 
@@ -141,8 +141,10 @@ void parser()
 			rfd_sizeOfFrame = commandTestConnect(rfd_buffer);
 			break;
 		case UART_SetTime:
-			setRtcTime(rfd_buffer + 6);
-			rfd_sizeOfFrame = 6;
+			if( setRtcTime(rfd_buffer + 6) )
+				rfd_sizeOfFrame = 6;
+			else
+				rfd_sizeOfFrame = commandError(rfd_buffer);
 			break;
 		case UART_GetTime:
 			getRtcTime(rfd_buffer + 6);
