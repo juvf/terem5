@@ -298,12 +298,14 @@ int commandStopProc()
 {
 	if( (stateProcess == 1) || (stateProcess == 3) )
 	{
+		taskENTER_CRITICAL();
 		RTC_ITConfig(RTC_IT_ALRA, DISABLE);
 		RTC_AlarmCmd(RTC_Alarm_A, DISABLE);
+		taskEXIT_CRITICAL();
 		closeProc();
 		stateProcess = 2;
 	}
-	return 5;
+	return 6;
 }
 
 void closeProc()
@@ -549,7 +551,8 @@ extern "C" void RTC_Alarm_IRQHandler()
 		EXTI_ClearITPendingBit(EXTI_Line17);
 		/* xHigherPriorityTaskWoken must be initialised to pdFALSE. */
 		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-		xEventGroupSetBitsFromISR(xEventGroup, FLAG_MESUR, &xHigherPriorityTaskWoken);
+		if(stateProcess == 1)
+			xEventGroupSetBitsFromISR(xEventGroup, FLAG_MESUR, &xHigherPriorityTaskWoken);
 		//setNewAlarmRTC(5); 		//перезапустим таймер
 		//setNewAlarmRTC(currProcessHeader.period);
 

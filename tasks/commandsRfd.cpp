@@ -28,6 +28,13 @@ int commandError(uint8_t *buffer)
 	return 6;
 }
 
+int commandGetState(uint8_t *buffer)
+{
+	buffer[6] = 100;
+	buffer[7] = (stateProcess == 1) || (stateProcess == 3) ? 1 : 0;
+	return 8;
+}
+
 int commandClearFlash(uint8_t *buffer)
 {
 	uint8_t state = getProcessStatus();

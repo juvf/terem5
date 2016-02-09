@@ -99,7 +99,7 @@ void pereferInit()
 	if( initAdc() != 0 )
 		while(1)
 			;
-
+	initIntAdc();
 }
 
 void initUartForConsol()

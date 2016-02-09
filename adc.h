@@ -154,4 +154,9 @@ void AD7792Calibr7();
 void IO_Off();
 float GainKoef(unsigned char Range);
 
+
+//--- функции по работе с внетренним АЦП
+void initIntAdc();
+
+
 #endif /* ADC_H_ */
