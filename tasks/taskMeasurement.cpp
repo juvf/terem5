@@ -56,7 +56,6 @@ void timerMeasurement(xTimerHandle xTimer)
 
 void musuring()
 {
-	static int a = 0;
 	int j = 0;
 	//захватим симафор АЦП
 	xSemaphoreTake(semaphAdc, portMAX_DELAY);

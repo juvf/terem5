@@ -89,7 +89,8 @@ int commandGetHeaderProc(uint8_t *buffer)
 		buffer[6] = 0x02;
 		return 7;
 	}
-	memcpy(buffer + 6, (void*)&header.header, sizeof(HeaderProcess));
+	int ss = sizeof(HeaderProcess);
+	memcpy(buffer + 6, (void*)&header.header, ss);//sizeof(HeaderProcess));
 	buffer += 6 + sizeof(HeaderProcess);
 	*buffer++ = addrInFlash;
 	*buffer++ = addrInFlash>>8;
