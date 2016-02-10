@@ -79,7 +79,7 @@ void pereferInit()
 	//инициализация GPIOE
 	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOEEN, ENABLE);
 	GPIO_StructInit(&port);
-	port.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1;
+	port.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_15;
 	port.GPIO_Mode = GPIO_Mode_OUT;
 	port.GPIO_OType = GPIO_OType_PP;
 	port.GPIO_PuPd = GPIO_PuPd_UP;

@@ -9,6 +9,7 @@
 #include "tasks/configTerem.h"
 #include "osConfig.h"
 #include "tasks/sensor/Sensor.h"
+#include "stm32f4xx_adc.h"
 
 #define csOn()	GPIO_ResetBits(GPIOA, GPIO_Pin_4)
 #define csOff()	GPIO_SetBits(GPIOA, GPIO_Pin_4)
@@ -88,7 +89,7 @@ uint8_t initAdc()
 
 	//Чтение регистра идентификации (д.б. 0xXA)
 	uint8_t regId = AD7792Rd(ID);
-	if( (regId & 0x0F) != 0x0A )
+	if((regId & 0x0F) != 0x0A)
 	{              //Ошибка, не тот ответ
 		csOff();
 		return regId;
@@ -186,7 +187,7 @@ float getU_Ad7792(unsigned char numChanel)
 	switchOn(numChanel);
 
 	//Для HEL700
-	if( configTerem.sensorType[numChanel] == GT_HEL700 )
+	if(configTerem.sensorType[numChanel] == GT_HEL700)
 	{
 		csOn();  //Подача Chip Select
 		IO_420();     //Источники тока 2*210 мкА на IOUT2
@@ -212,7 +213,7 @@ float getU_Ad7792(unsigned char numChanel)
 		CurCode = AD7792Measure();
 		IO_Off(); //Источники тока отключить
 		csOff();
-		if( (CurCode == 0) || (CurCode == 0xFFFF) )
+		if((CurCode == 0) || (CurCode == 0xFFFF))
 			//gFlags.BadResult = 1;
 			;
 		else //           Код   2кОм 16 бит
@@ -264,10 +265,10 @@ float getU_Ad7792(unsigned char numChanel)
 							(CON0_CH_3 * 0)         //Канал AIN1 (0)
 							);
 			//Калибровка канала 1
-			if( CurRangeADC != *CurRange )
+			if(CurRangeADC != *CurRange)
 			{
 				CurRangeADC = *CurRange;
-				if( *CurRange != 7 )
+				if(*CurRange != 7)
 					AD7792Calibr();
 				else
 					AD7792Calibr7();
@@ -282,16 +283,16 @@ float getU_Ad7792(unsigned char numChanel)
 //				vTaskDelay(1000);
 			}
 			//Перегрузка (+), уменьшить коэффициент усиления PGA
-			if( CurCode == 0xFFFF )
+			if(CurCode == 0xFFFF)
 			{
-				if( *CurRange )
+				if(*CurRange)
 				{
-					if( --(*CurRange) )
+					if(--(*CurRange))
 						(*CurRange)--;
 					//gFlags.RangeChanged = 1;
 				}
-				else if( (configTerem.sensorType[numChanel] >= GT_MM10)
-						&& (configTerem.sensorType[numChanel] <= GT_Rel_Ind) )
+				else if((configTerem.sensorType[numChanel] >= GT_MM10)
+						&& (configTerem.sensorType[numChanel] <= GT_Rel_Ind))
 				{
 					//gFlags.BadResult = 0;
 					break;
@@ -303,11 +304,11 @@ float getU_Ad7792(unsigned char numChanel)
 				}
 				//Перегрузка (-), уменьшить коэффициент усиления
 			}
-			else if( !CurCode )
+			else if(!CurCode)
 			{
-				if( *CurRange )
+				if(*CurRange)
 				{
-					if( --(*CurRange) )
+					if(--(*CurRange))
 						(*CurRange)--;
 					//gFlags.RangeChanged = 1;
 				}
@@ -318,8 +319,7 @@ float getU_Ad7792(unsigned char numChanel)
 				}
 				//Недостаточное использование разрядности
 			}
-			else if( (CurCode < 0x8800) && (CurCode > 0x7800)
-					&& (*CurRange < 7) )
+			else if((CurCode < 0x8800) && (CurCode > 0x7800) && (*CurRange < 7))
 			{
 				//Увеличить коэффициент усиления PGA для увеличения точности
 				while((CurCode < 0x8800) && (CurCode > 0x7800)
@@ -462,11 +462,34 @@ void initIntAdc()
 	port.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOA, &port);
 
-
+	ADC_DeInit(); // сброс параметров АЦП
 	ADC_InitTypeDef adcStruct;
 	ADC_StructInit(&adcStruct);
+	adcStruct.ADC_Resolution = ADC_Resolution_12b;
 	adcStruct.ADC_DataAlign = ADC_DataAlign_Right;
 	adcStruct.ADC_ContinuousConvMode = DISABLE;
-	adcStruct.ADC_ExternalTrigConv =
+	adcStruct.ADC_ExternalTrigConv = ADC_ExternalTrigConvEdge_None; // начинать преобразование програмно, а не по срабатываню триггера
+	adcStruct.ADC_NbrOfConversion = 1;
+
+	ADC_CommonInitTypeDef comomnInit;
+	comomnInit.ADC_Mode = ADC_Mode_Independent; // независимый режим работы АЦП
+	comomnInit.ADC_Prescaler = ADC_Prescaler_Div2; // выбор частоты тактового к АЦП
+	comomnInit.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled;
+	ADC_CommonInit(&comomnInit); // инициализация
+	ADC_Init(ADC1, &adcStruct); // инициализация
+	ADC_Cmd(ADC1, ENABLE); // включение АЦП1
+
+	getBatValue();
+}
+
+uint16_t getBatValue()
+{
+	GPIO_SetBits(GPIOE, GPIO_Pin_15);	//включим батарею на делитель
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_8, 1, ADC_SampleTime_28Cycles);
+	ADC_SoftwareStartConv(ADC1);
+	while(ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET)
+		;
+	GPIO_ResetBits(GPIOE, GPIO_Pin_15);	//выключим батарею на делитель
+	return ADC_GetConversionValue(ADC1);
 }
 
