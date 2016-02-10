@@ -456,35 +456,37 @@ void initIntAdc()
 	GPIO_InitTypeDef port;
 	GPIO_StructInit(&port);
 	port.GPIO_Pin = GPIO_Pin_0;
-	port.GPIO_Mode = GPIO_Mode_AF;
-	port.GPIO_OType = GPIO_OType_PP;
-	port.GPIO_PuPd = GPIO_PuPd_UP;
-	port.GPIO_Speed = GPIO_Speed_2MHz;
-	GPIO_Init(GPIOA, &port);
+	port.GPIO_Mode = GPIO_Mode_AN;
+	port.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_Init(GPIOB, &port);
 
-	ADC_DeInit(); // сброс параметров АЦП
-	ADC_InitTypeDef adcStruct;
-	ADC_StructInit(&adcStruct);
-	adcStruct.ADC_Resolution = ADC_Resolution_12b;
-	adcStruct.ADC_DataAlign = ADC_DataAlign_Right;
-	adcStruct.ADC_ContinuousConvMode = DISABLE;
-	adcStruct.ADC_ExternalTrigConv = ADC_ExternalTrigConvEdge_None; // начинать преобразование програмно, а не по срабатываню триггера
-	adcStruct.ADC_NbrOfConversion = 1;
-
+	/* ADC Common Init **********************************************************/
 	ADC_CommonInitTypeDef comomnInit;
 	comomnInit.ADC_Mode = ADC_Mode_Independent; // независимый режим работы АЦП
 	comomnInit.ADC_Prescaler = ADC_Prescaler_Div2; // выбор частоты тактового к АЦП
 	comomnInit.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled;
+	comomnInit.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles;
 	ADC_CommonInit(&comomnInit); // инициализация
-	ADC_Init(ADC1, &adcStruct); // инициализация
-	ADC_Cmd(ADC1, ENABLE); // включение АЦП1
 
-	getBatValue();
+	/* ADC1 Init ****************************************************************/
+	ADC_InitTypeDef adcStruct;
+	ADC_StructInit(&adcStruct);
+	adcStruct.ADC_Resolution = ADC_Resolution_8b;
+	adcStruct.ADC_DataAlign = ADC_DataAlign_Right;
+	adcStruct.ADC_ScanConvMode = DISABLE;
+	adcStruct.ADC_ContinuousConvMode = DISABLE;
+	adcStruct.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None; // начинать преобразование програмно, а не по срабатываню триггера
+	//adcStruct.ADC_ExternalTrigConv = ADC_ExternalTrigConvEdge_None; // начинать преобразование програмно, а не по срабатываню триггера
+	adcStruct.ADC_NbrOfConversion = 1;
+	ADC_Init(ADC1, &adcStruct); // инициализация
+
+	ADC_Cmd(ADC1, ENABLE); // включение АЦП1
 }
 
 uint16_t getBatValue()
 {
 	GPIO_SetBits(GPIOE, GPIO_Pin_15);	//включим батарею на делитель
+	vTaskDelay(7);
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_8, 1, ADC_SampleTime_28Cycles);
 	ADC_SoftwareStartConv(ADC1);
 	while(ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET)
