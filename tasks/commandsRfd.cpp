@@ -13,6 +13,7 @@
 #include "configTerem.h"
 #include "sensor/Sensor.h"
 #include "sensor/ds1820.h"
+#include "adc.h"
 
 
 #include <string.h>
@@ -30,7 +31,7 @@ int commandError(uint8_t *buffer)
 
 int commandGetState(uint8_t *buffer)
 {
-	buffer[6] = 100;
+	buffer[6] = getBatValue();
 	buffer[7] = (stateProcess == 1) || (stateProcess == 3) ? 1 : 0;
 	return 8;
 }
