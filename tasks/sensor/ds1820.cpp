@@ -216,6 +216,7 @@ float readtemp()
 	// Convert
 	writecommand(0xCC);
 	writecommand(0x44);
+
 	init_ds18b20();
 //   // Read Scratch memory area
 	writecommand(0xCC);
