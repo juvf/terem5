@@ -216,6 +216,7 @@ float readtemp()
 	// Convert
 	writecommand(0xCC);
 	writecommand(0x44);
+	vTaskDelay(770);//пауза для преобразования температуры в код ds-кой (для 12-ти бит надо 750 мс)
 
 	init_ds18b20();
 //   // Read Scratch memory area
