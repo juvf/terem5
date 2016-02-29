@@ -19,7 +19,7 @@ extern uint8_t stateProcess;
 int commandStartProc(uint8_t *buffer);
 int commandGetProcConf(uint8_t *buffer);
 int commandStopProc();
-int commandDeleteProc(uint32_t startAdress);
+int commandDeleteProc(uint8_t *buffer);
 int commandGetCountProc(uint8_t *buffer);
 int commandGetHeaderProc(uint8_t *buffer);
 int commandDeleteProc(uint8_t *buffer);
@@ -35,6 +35,7 @@ uint32_t calcCountSectors(const HeaderProcess &header);
 void saveResult(float *result, int countSensers);
 uint8_t countSensor(const HeaderProcess& header);
 uint32_t getAdrCurPoint();
+int getNumProcFromHeaderAdr(uint32_t address);
 
 
 #endif /* TASKS_PROCESS_H_ */

@@ -10,6 +10,12 @@
 #include <stdint.h>
 #include "stm32f4xx_rtc.h"
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+
 #define ep1_On()	GPIO_SetBits(GPIOC, GPIO_Pin_8)
 #define ep1_Off()	GPIO_ResetBits(GPIOC, GPIO_Pin_8)
 #define epa_On()	GPIO_SetBits(GPIOC, GPIO_Pin_2)
@@ -224,5 +230,12 @@ typedef struct
 	uint32_t period;          //интервал в сек
 	TeremConfig config;          //конфигурация прибора во время процесса
 } HeaderProcess;
+
+uint32_t u32FromU8(const uint8_t *buffer);
+uint16_t u16FromU8(const uint8_t *buffer);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* STRUCTCOMMON_H_ */
