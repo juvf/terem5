@@ -19,6 +19,7 @@ extern uint8_t stateProcess;
 int commandStartProc(uint8_t *buffer);
 int commandGetProcConf(uint8_t *buffer);
 int commandStopProc();
+int commandDeleteProc(uint32_t startAdress);
 int commandGetCountProc(uint8_t *buffer);
 int commandGetHeaderProc(uint8_t *buffer);
 int commandDeleteProc(uint8_t *buffer);

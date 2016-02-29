@@ -21,7 +21,7 @@ HeaderProcess currProcessHeader; //заголовок текущего процесса
 uint32_t currProcessCount; //кол-во записанных точек
 uint8_t stateProcess; //текущее состояние процесса 0-нет процесса, 1-едёт процесс, 2-закончился, 3-ждет старта
 
-uint16_t headerList[MAX_SECTORS] = { 0xffff }; //
+uint16_t headerList[MAX_SECTORS]//
 uint16_t countProc = 0; //кол-во процессов в флешке, включая текущий
 
 struct Header
@@ -89,8 +89,7 @@ int commandGetHeaderProc(uint8_t *buffer)
 		buffer[6] = 0x02;
 		return 7;
 	}
-	int ss = sizeof(HeaderProcess);
-	memcpy(buffer + 6, (void*)&header.header, ss);//sizeof(HeaderProcess));
+	memcpy(buffer + 6, (void*)&header.header, sizeof(HeaderProcess));
 	buffer += 6 + sizeof(HeaderProcess);
 	*buffer++ = addrInFlash;
 	*buffer++ = addrInFlash>>8;

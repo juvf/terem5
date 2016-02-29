@@ -181,9 +181,12 @@ void parser()
 			rfd_sizeOfFrame = commandT48(rfd_buffer);
 			break;
 		case 0x20: //Stop_Proc+
-			rfd_sizeOfFrame = commandStopProc();
+			rfd_sizeOfFrame = commandStopProc(uint32_t startAdress);
 			break;
 		case UART_State:
+			rfd_sizeOfFrame = commandGetState(rfd_buffer);
+			break;
+		case UART_RemoveProcess:
 			rfd_sizeOfFrame = commandGetState(rfd_buffer);
 			break;
 		default:

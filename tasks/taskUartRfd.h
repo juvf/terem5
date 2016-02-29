@@ -28,6 +28,7 @@
 #define UART_DontSleep	0x14
 #define	UART_SetTime	0x15	//Команда установки даты и времени
 #define	UART_GetTime	0x16	//Команда чтения даты и времени
+#define UART_RemoveProcess 0x25	//команда удаления процесса
 
 enum { RING, NO_CARRIER, COMMAND };
 
