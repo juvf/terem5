@@ -13,7 +13,7 @@
 #include "../flashMx25.h"
 #include "configTerem.h"
 #include "osConfig.h"
-#include "../structCommon.h"
+//#include "../structCommon.h"
 
 #include  <string.h>
 
@@ -36,6 +36,15 @@ struct Header
 //{
 //
 //}
+
+uint32_t u32FromU8(uint8_t *buf)
+{
+	uint32_t r = (uint32_t)buf[0] & 0xff;
+	r |= ((uint32_t)buf[1] & 0xff) << 8;
+	r |= ((uint32_t)buf[2] & 0xff) << 16;
+	r |= ((uint32_t)buf[3] & 0xff) << 24;
+	return r;
+}
 
 //сканирование флешки и заполненеи массива указателей заголовков процесса headerList[]
 void initListProc()
@@ -167,11 +176,11 @@ int commandDeleteProc(uint8_t *buffer)
 	int number = getNumProcFromHeaderAdr(headerAddress);
 	if( number < 0)
 	{
-		buffer[6] = 4;//недопустимый адресс процесса в запросе
+		buffer[6] = 4;//нет процесса, с таким адресом
 		return 7;
 	}
 	Header header;
-	flashMx25Read((void*)&header, headerList[number], sizeof(Header));
+	flashMx25Read((void*)&header, headerAddress, sizeof(Header));
 	if(!headerIsValid(header.header))
 	{
 		buffer[6] = 0x02;//ошибка заголовка процесса во флеше
@@ -185,9 +194,9 @@ int commandDeleteProc(uint8_t *buffer)
 	{
 		for(int i = 1; i < countSectords; i++)
 		{
-			uint32_t sectorInFlash = header.preNext[1];
-			flashMx25Read((void*)&header, sectorInFlash, 4);
-			spiSector4kErase(sectorInFlash);
+			uint32_t adrInFlash = header.preNext[1] * 4096;
+			flashMx25Read((void*)&header, adrInFlash, 4);
+			spiSector4kErase(adrInFlash);
 			if(header.preNext[1] == 0xffff)
 				break;
 		}
@@ -195,12 +204,13 @@ int commandDeleteProc(uint8_t *buffer)
 	//сдвиним весь массив headerList
 	for(int i = number + 1; i < MAX_SECTORS; i++)
 	{
-		headerList[number - 1] = headerList[number];
-		if(headerList[number] == 0xffff)
+		headerList[i - 1] = headerList[i];
+		if(headerList[i] == 0xffff)
 			break;
 	}
 	headerList[MAX_SECTORS - 1] = 0xffff;
 	buffer[6] = 0;
+	countProc--;
 	return 7;
 }
 
@@ -241,7 +251,8 @@ int commandStartProc(uint8_t *buffer)
 				if(allocMemForNewProc(currProcessHeader))
 				{
 					currProcessCount = 0; //кол-во записанных точек в процессе
-					musuring();
+					//musuring();
+					xEventGroupSetBits(xEventGroup, FLAG_MESUR);
 					setNewAlarmRTC(currProcessHeader.period);
 //					setNewAlarmRTC(4);
 //
@@ -330,7 +341,7 @@ void closeProc()
 	flashMx25Write(tempBuf, sector * 4096);
 }
 
-bool headerIsValid(const HeaderProcess &header)
+bool headerIsValid( const HeaderProcess &header)
 {
 	return (Checksum::crc16((uint8_t*)&header.config, sizeof(TeremConfig)) == 0);
 }
