@@ -48,8 +48,8 @@ void createTasks()
 			TASK_PRIORITY_MAIN, &handleMain);
 	pTask = xTaskCreate(taskMeasurement, "mesurTask", SIZE_STACK_MESUR, 0,
 			TASK_PRIORITY_MESUR, &handleMesur);
-//	pTask &= xTaskCreate(usbTask, "usbTask", SIZE_STACK_USB, 0,
-//			TASK_PRIORITY_USB, &handleUsb);
+	pTask &= xTaskCreate(usbTask, "usbTask", SIZE_STACK_USB, 0,
+			TASK_PRIORITY_USB, &handleUsb);
 	pTask &= xTaskCreate(taskUartRfd, "taskUartRfd", SIZE_STACK_RFD, 0,
 			TASK_PRIORITY_RFD, &handleRF);
 
