@@ -14,7 +14,7 @@
 int main()
 {
 	pereferInit();
-	//initRtc();
+	initRtc();
 
 	initOs();
 
@@ -29,19 +29,19 @@ void pereferInit()
 {
 	// Включаем прерывания
 	__enable_irq();
-
+//инициализация светодиода
 	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOAEN, ENABLE);
 	GPIO_InitTypeDef port;
-/*	GPIO_StructInit(&port);
-	port.GPIO_Pin = GPIO_Pin_9 | GPIO_Pin_10;
+	GPIO_StructInit(&port);
+	port.GPIO_Pin = GPIO_Pin_10;
 	port.GPIO_Mode = GPIO_Mode_OUT;
 	port.GPIO_OType = GPIO_OType_PP;
 	port.GPIO_PuPd = GPIO_PuPd_UP;
 	port.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOA, &port);
-*/
+
 	//инициализация GPIOB
-/*	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOBEN, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOBEN, ENABLE);
 	GPIO_StructInit(&port);
 	port.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_5 | GPIO_Pin_7 | GPIO_Pin_10;
 	port.GPIO_Mode = GPIO_Mode_OUT;
@@ -49,8 +49,8 @@ void pereferInit()
 	port.GPIO_PuPd = GPIO_PuPd_UP;
 	port.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOB, &port);
-*/
-//	GPIO_SetBits(GPIOB, GPIO_Pin_10); //1-Wire подтянем к "1"
+
+	GPIO_SetBits(GPIOB, GPIO_Pin_10); //1-Wire подтянем к "1"
 
 	//инициализация GPIOC
 	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOCEN, ENABLE);
@@ -65,7 +65,7 @@ void pereferInit()
 	GPIO_SetBits(GPIOC, GPIO_Pin_9);	//выключим 500 мВ
 
 	//инициализация GPIOD
-/*	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIODEN, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIODEN, ENABLE);
 	GPIO_StructInit(&port);
 	port.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_1
 			| GPIO_Pin_0 | GPIO_Pin_6 | GPIO_Pin_5 |
@@ -75,9 +75,9 @@ void pereferInit()
 	port.GPIO_PuPd = GPIO_PuPd_UP;
 	port.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOD, &port);
-*/
+
 	//инициализация GPIOE
-/*	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOEEN, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOEEN, ENABLE);
 	GPIO_StructInit(&port);
 	port.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_15;
 	port.GPIO_Mode = GPIO_Mode_OUT;
@@ -85,21 +85,21 @@ void pereferInit()
 	port.GPIO_PuPd = GPIO_PuPd_UP;
 	port.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOE, &port);
-*/
+
 	//initUartForConsol();
 
 	initUartRfd();
 
-//	init_I2C1();
+	init_I2C1();
 
-//	initSpi2();
-//	initDmaSpi2();
+	initSpi2();
+	initDmaSpi2();
 
-//	initSpi1();
-//	if( initAdc() != 0 )
-//		while(1)
+	initSpi1();
+	if( initAdc() != 0 )
+		while(1)
 			;
-//	initIntAdc();
+	initIntAdc();
 }
 
 void initUartForConsol()
