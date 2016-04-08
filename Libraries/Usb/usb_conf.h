@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    usb_conf.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    19-March-2012
+  * @version V1.2.0
+  * @date    09-November-2015
   * @brief   General low level driver configuration
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -30,46 +30,7 @@
 #define __USB_CONF__H__
 
 /* Includes ------------------------------------------------------------------*/
-//#if defined (USE_STM322xG_EVAL)
-// #include "stm322xg_eval.h"
-// #include "stm322xg_eval_lcd.h"
-// #include "stm322xg_eval_ioe.h"
-// #include "stm322xg_eval_sdio_sd.h"
-//#elif defined(USE_STM324xG_EVAL)
  #include "stm32f4xx.h"
-// #include "stm324xg_eval.h"
-// #include "stm324xg_eval_lcd.h"
-// #include "stm324xg_eval_ioe.h"
-// #include "stm324xg_eval_sdio_sd.h"
-//#elif defined (USE_STM3210C_EVAL)
-// #include "stm32f10x.h"
-// #include "stm3210c_eval.h"
-// #include "stm3210c_eval_lcd.h"
-// #include "stm3210c_eval_ioe.h"
-// #include "stm3210c_eval_spi_sd.h"
-//#else
-// #error "Missing define: Evaluation board (ie. USE_STM322xG_EVAL)"
-//#endif
-
-
-/** @addtogroup USB_OTG_DRIVER
-  * @{
-  */
-  
-/** @defgroup USB_CONF
-  * @brief USB low level driver configuration file
-  * @{
-  */ 
-
-/** @defgroup USB_CONF_Exported_Defines
-  * @{
-  */ 
-
-/* USB Core and PHY interface configuration.
-   Tip: To avoid modifying these defines each time you need to change the USB
-        configuration, you can declare the needed define in your toolchain
-        compiler preprocessor.
-   */
 /****************** USB OTG FS PHY CONFIGURATION *******************************
 *  The USB OTG FS Core supports one on-chip Full Speed PHY.
 *  
@@ -77,7 +38,7 @@
 *  when FS core is used.
 *******************************************************************************/
 #ifndef USE_USB_OTG_FS
- //#define USE_USB_OTG_FS
+/* #define USE_USB_OTG_FS */
 #endif /* USE_USB_OTG_FS */
 
 #ifdef USE_USB_OTG_FS 
@@ -102,15 +63,15 @@
 *     STM32 device datasheet.
 *******************************************************************************/
 #ifndef USE_USB_OTG_HS
- //#define USE_USB_OTG_HS
+/* #define USE_USB_OTG_HS */
 #endif /* USE_USB_OTG_HS */
 
 #ifndef USE_ULPI_PHY
- //#define USE_ULPI_PHY
+/* #define USE_ULPI_PHY */
 #endif /* USE_ULPI_PHY */
 
 #ifndef USE_EMBEDDED_PHY
- //#define USE_EMBEDDED_PHY
+/* #define USE_EMBEDDED_PHY */
 #endif /* USE_EMBEDDED_PHY */
 
 #ifdef USE_USB_OTG_HS 
@@ -163,7 +124,7 @@
  #define TX4_FIFO_HS_SIZE                           0
  #define TX5_FIFO_HS_SIZE                           0
 
-// #define USB_OTG_HS_SOF_OUTPUT_ENABLED
+/* #define USB_OTG_HS_SOF_OUTPUT_ENABLED */
 
  #ifdef USE_ULPI_PHY
   #define USB_OTG_ULPI_PHY_ENABLED
@@ -171,7 +132,7 @@
  #ifdef USE_EMBEDDED_PHY 
    #define USB_OTG_EMBEDDED_PHY_ENABLED
    /* wakeup is working only when HS core is configured in FS mode */
-   #define USB_OTG_HS_LOW_PWR_MGMT_SUPPORT
+   /* #define USB_OTG_HS_LOW_PWR_MGMT_SUPPORT */
  #endif
  /* #define USB_OTG_HS_INTERNAL_DMA_ENABLED */ /* Be aware that enabling DMA mode will result in data being sent only by
                                                   multiple of 4 packet sizes. This is due to the fact that USB DMA does
@@ -189,17 +150,23 @@
  #define TX2_FIFO_FS_SIZE                          32 
  #define TX3_FIFO_FS_SIZE                           0
 
-// #define USB_OTG_FS_LOW_PWR_MGMT_SUPPORT
-// #define USB_OTG_FS_SOF_OUTPUT_ENABLED
+/* #define USB_OTG_FS_LOW_PWR_MGMT_SUPPORT */
+/* #define USB_OTG_FS_SOF_OUTPUT_ENABLED */
 #endif
 
 /****************** USB OTG MISC CONFIGURATION ********************************/
+#if defined(USE_STM324x9I_EVAL)
+/* #define VBUS_SENSING_ENABLED */
+   /* VBUS sensing is disabled because in the USART RX/TX pins are shared with USB Pins
+      PA9/PA10 in the STM324x9I_EVAL */
+#else
 #define VBUS_SENSING_ENABLED
+#endif
 
 /****************** USB OTG MODE CONFIGURATION ********************************/
-//#define USE_HOST_MODE
+/* #define USE_HOST_MODE */
 #define USE_DEVICE_MODE
-//#define USE_OTG_MODE
+/* #define USE_OTG_MODE */
 
 #ifndef USB_OTG_FS_CORE
  #ifndef USB_OTG_HS_CORE
@@ -217,7 +184,7 @@
  #ifndef USE_USB_OTG_FS
     #error  "USE_USB_OTG_HS or USE_USB_OTG_FS should be defined"
  #endif
-#else //USE_USB_OTG_HS
+#else /* USE_USB_OTG_HS */
  #ifndef USE_ULPI_PHY
   #ifndef USE_EMBEDDED_PHY
      #error  "USE_ULPI_PHY or USE_EMBEDDED_PHY should be defined"
@@ -293,7 +260,7 @@
   */ 
 
 
-#endif //__USB_CONF__H__
+#endif /* __USB_CONF__H__ */
 
 
 /**

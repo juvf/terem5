@@ -369,6 +369,7 @@
 #if defined(STM32F40_41xxx) || defined(STM32F427_437xx) || defined(STM32F429_439xx) || defined(STM32F401xx)
 /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLL_M) * PLL_N */
 #define PLL_M      12
+#define PLL_N      336
 #elif defined (STM32F446xx)
 #define PLL_M      8
 #elif defined (STM32F411xE)
@@ -436,6 +437,7 @@ uint32_t SystemCoreClock = 180000000;
 #if defined(STM32F401xx)
 //uint32_t SystemCoreClock = 48000000;
 uint32_t SystemCoreClock = 84000000;
+//uint32_t SystemCoreClock = 56000000;
 #endif /* STM32F401xx */
 
 #if defined(STM32F411xE)

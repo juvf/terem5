@@ -27,6 +27,7 @@ uint8_t rfd_IdFrame; //id пакета
 uint8_t rfd_command; //код команды
 uint16_t crc;
 bool rfd_isReadReady;
+int endTransmit = 0;
 
 void taskUartRfd(void *context)
 {
@@ -272,6 +273,7 @@ extern "C" void USART2_IRQHandler(void)
 		USART_ClearITPendingBit(USART2, USART_IT_TC);
 		if( ++rfd_count == rfd_sizeOfFrame )
 		{ //передали весь пакет
+                        endTransmit = 0;
 			setRxMode();
 		}
 		else
