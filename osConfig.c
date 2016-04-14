@@ -19,6 +19,7 @@ SemaphoreHandle_t mutexFlash;
 
 xQueueHandle cansolQueue;//очередь для сообщений дебага в кансоль
 xQueueHandle uartRfd232Queue;
+//xQueueHandle wt41AQueue;
 
 #define SIZE_STACK_MESUR (configMINIMAL_STACK_SIZE*2)
 #define SIZE_STACK_MAIN (configMINIMAL_STACK_SIZE)
@@ -30,6 +31,7 @@ void initOs(void)
 	NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 );
 	cansolQueue = xQueueCreate(20, sizeof(char*));
 	uartRfd232Queue = xQueueCreate(10, 1);
+	//wt41AQueue = xQueueCreate(SIZE_BUFF_WH41, 20);
 
 	xEventGroup = xEventGroupCreate();
 

@@ -27,6 +27,7 @@ extern uint8_t rfd_sizeOfFrame; //длинна пакета;
    
 __ALIGN_BEGIN USB_OTG_CORE_HANDLE    USB_OTG_dev __ALIGN_END ;
 
+
 void usbTask(void *context)
 {
 
@@ -57,11 +58,11 @@ void usbTask(void *context)
 	{
           
                                         
-		if( xQueueReceive( cansolQueue, &( message ), ( TickType_t ) 10 ) )
+		if(xQueueReceive(cansolQueue,  &message , ( TickType_t ) 10 ) )
 		{
 			//выдадим сообщение
 			strcpy((char*)rfd_buffer, message);
-                        strcat((char*)rfd_buffer, "\n\r");
+                        strcat((char*)rfd_buffer, "\r\n");
                         endTransmit = 1;
                           rfd_sizeOfFrame = strlen((char*)rfd_buffer);
                       rfd_count = 0;

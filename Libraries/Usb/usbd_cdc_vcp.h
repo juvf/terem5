@@ -34,4 +34,13 @@
 #include "usbd_conf.h"
 #endif /* __USBD_CDC_VCP_H */
 
+#define COM_USB_SEND_MESSAGE	3 //от компа
+#define COM_USB_GET_MESSAGE		4 //получить компу
+
+
+
+void usbReplayGetMessage(void *pdev);
+void usbSenMessToWT41(uint8_t *buf, uint32_t Len);
+
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

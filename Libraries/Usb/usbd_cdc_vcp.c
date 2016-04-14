@@ -6,6 +6,11 @@
 #include "usbd_cdc_vcp.h"
 #include "osConfig.h"
 
+#include  <string.h>
+
+extern uint8_t *replayWHh41;
+extern uint8_t fUart2Usb;
+
 USART_InitTypeDef USART_InitStructure;
 
 /* These are external variables imported from CDC core to be used for IN 
@@ -24,6 +29,8 @@ static uint16_t VCP_DataRx(uint8_t* Buf, uint32_t Len, void *pdev);
 CDC_IF_Prop_TypeDef VCP_fops = { VCP_DataTx, VCP_DataRx };
 static uint16_t VCP_DataTx(void)
 {
+	if(fUart2Usb == 1)
+		fUart2Usb = 0;
 	return USBD_OK;
 }
 
@@ -41,12 +48,40 @@ static uint16_t VCP_DataRx(uint8_t* buffer, uint32_t Len, void *pdev)
 
 			DCD_EP_Tx(pdev, 02, "Hello", 6);
 			break;
-		case 03:
-			sizeNextPaket = *(uint32_t*)&buffer[4];
+		case COM_USB_SEND_MESSAGE:
+			usbSenMessToWT41(&buffer[4], Len - 4);
+			break;
+		case COM_USB_GET_MESSAGE:
+			usbReplayGetMessage(pdev);
 			break;
 	}
 
 	return USBD_OK;
+}
+
+const char *usb_txt[] = { "DCD_HandleOutEP_ISR", //0
+		"DCD_HandleInEP_ISR", //1
+		"USB_OTG_WRITE_REG32" };
+
+static char mess[100];
+void usbSenMessToWT41(uint8_t *buf, uint32_t Len)
+{
+	if(Len > 99)
+		Len = 99;
+	memcpy((void*)mess, (void*)buf, Len);
+	mess[Len] = 0;
+	char *p = mess;
+	xQueueSendFromISR(cansolQueue, &p, 0);
+}
+
+void usbReplayGetMessage(void *pdev)
+{
+	static char cRxChar;
+	EventBits_t event = xEventGroupClearBitsFromISR(xEventGroup, FLAG_UART_USB);
+	if( fUart2Usb == 1 )
+	{
+		DCD_EP_Tx(pdev, 02, (uint8_t*)&replayWHh41, 1);
+	}
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

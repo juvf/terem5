@@ -14,6 +14,7 @@
 #include "configTerem.h"
 #include "main.h"
 
+
 #include <string.h>
 
 #define BUFFER_SIZE	256
@@ -26,6 +27,7 @@ uint8_t rfd_sizeOfFrame; //длинна пакета
 uint8_t rfd_IdFrame; //id пакета
 uint8_t rfd_command; //код команды
 uint16_t crc;
+uint8_t fUart2Usb;
 bool rfd_isReadReady;
 int endTransmit = 0;
 
@@ -48,17 +50,17 @@ void taskUartRfd(void *context)
 
 	for(;;)
 	{
-		if( xQueueReceive(uartRfd232Queue, &byte, 15000) == pdTRUE )
+		if( xQueueReceive(uartRfd232Queue, &byte, 15000) == pdTRUE)
 		{
-			if( 1 ) //byte == 0x80 )
+			if(1) //byte == 0x80 )
 			{
 				reciveByte(byte);
 				while(1)
 				{
 					if( xQueueReceive(uartRfd232Queue, &byte,
-							100) == pdPASS )
+							100) == pdPASS)
 					{
-						if( reciveByte(byte) == false )
+						if(reciveByte(byte) == false)
 							break;
 					}
 					else
@@ -79,34 +81,34 @@ bool reciveByte(uint8_t byte)
 {
 	static int flagRing;
 	rfd_buffer[rfd_count++] = byte;
-	if( rfd_count >= BUFFER_SIZE )
+	if(rfd_count >= BUFFER_SIZE)
 		--rfd_count;
-	if( rfd_count == 2 )
+	if(rfd_count == 2)
 		rfd_sizeOfFrame = byte;
-	if( rfd_count == 4 )
+	if(rfd_count == 4)
 	{
-		if( strncmp((char*)rfd_buffer, "RING", 4) == 0 )
+		if(strncmp((char*)rfd_buffer, "RING", 4) == 0)
 		{
 			flagRing = RING;
 			ledGreenOn();
 		}
-		else if( strncmp((char*)rfd_buffer, "NO C", 4) == 0 )
+		else if(strncmp((char*)rfd_buffer, "NO C", 4) == 0)
 		{
 			flagRing = NO_CARRIER;
 			ledGreenOff();
 		}
-		else if( rfd_buffer[0] == 0x80 )
+		else if(rfd_buffer[0] == 0x80)
 			flagRing = COMMAND;
 	}
 
-	if( flagRing == COMMAND )
+	if(flagRing == COMMAND)
 	{
-		if( rfd_count >= rfd_sizeOfFrame )
+		if(rfd_count >= rfd_sizeOfFrame)
 		{ //приняли весь пакет
 		  //запретить прерывания по приему компорта
 			USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
 			//rfd_isReadReady = true;
-			if( Checksum::crc16(rfd_buffer, rfd_sizeOfFrame) == 0 )
+			if(Checksum::crc16(rfd_buffer, rfd_sizeOfFrame) == 0)
 				parser();
 			else
 				setRxMode();
@@ -131,7 +133,7 @@ void parser()
 	rfd_addresMaster = rfd_buffer[3];
 	rfd_IdFrame = rfd_buffer[4];
 	rfd_command = rfd_buffer[5];
-	if( rfd_addresSlave != ADRRESS )
+	if(rfd_addresSlave != ADRRESS)
 	{
 		setRxMode();
 		return;
@@ -142,7 +144,7 @@ void parser()
 			rfd_sizeOfFrame = commandTestConnect(rfd_buffer);
 			break;
 		case UART_SetTime:
-			if( setRtcTime(rfd_buffer + 6) )
+			if(setRtcTime(rfd_buffer + 6))
 				rfd_sizeOfFrame = 6;
 			else
 				rfd_sizeOfFrame = commandError(rfd_buffer);
@@ -194,7 +196,7 @@ void parser()
 			rfd_sizeOfFrame = commandError(rfd_buffer);
 			break;
 	}
-	if( rfd_sizeOfFrame > 0 )
+	if(rfd_sizeOfFrame > 0)
 	{
 		rfd_buffer[1] = rfd_sizeOfFrame + 2;
 		rfd_buffer[2] = rfd_buffer[3];
@@ -233,13 +235,6 @@ void initUartRfd()
 	gpio.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIO_Init(GPIOA, &gpio);
 
-//	gpio.GPIO_Mode = GPIO_Mode_AF;
-//	gpio.GPIO_Pin = GPIO_Pin_3;
-//	gpio.GPIO_Speed = GPIO_Speed_50MHz;
-//	gpio.GPIO_OType = GPIO_OType_PP;	//RxD
-//	gpio.GPIO_PuPd = GPIO_PuPd_UP;
-//	GPIO_Init(GPIOA, &gpio);
-
 	// И вот еще функция, которой не было при работе с STM32F10x,
 	// но которую нужно вызывать при использовании STM32F4xx
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource2, GPIO_AF_USART2);
@@ -262,18 +257,20 @@ void initUartRfd()
 	//USART_ITConfig(USART3, USART_IT_TC, ENABLE); // По окончанию отправки
 	//USART_ITConfig(USART6, USART_IT_RXNE, ENABLE); // При получении
 }
+char replayWHh41[SIZE_BUFF_WH41];
+int itWh41 = 0;
 
 extern "C" void USART2_IRQHandler(void)
 {
 	static portBASE_TYPE xHigherPriorityTaskWoken;
 	xHigherPriorityTaskWoken = pdFALSE;
-	if( USART_GetITStatus(USART2, USART_IT_TC) != RESET ) // Если отпавка завершена
+	if(USART_GetITStatus(USART2, USART_IT_TC) != RESET) // Если отпавка завершена
 	{
 		// Очищаем флаг прерывания, если этого не сделать, оно будет вызываться постоянно.
 		USART_ClearITPendingBit(USART2, USART_IT_TC);
-		if( ++rfd_count == rfd_sizeOfFrame )
+		if(++rfd_count == rfd_sizeOfFrame)
 		{ //передали весь пакет
-                        endTransmit = 0;
+			endTransmit = 0;
 			setRxMode();
 		}
 		else
@@ -282,12 +279,30 @@ extern "C" void USART2_IRQHandler(void)
 		}
 	}
 
-	if( USART_GetITStatus(USART2, USART_IT_RXNE) != RESET ) // Если приием завершен (регистр приема не пуст)
+	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET) // Если приием завершен (регистр приема не пуст)
 	{
 		// Флаг данного прерывания сбрасыывается прочтением данных
 		static uint8_t byte;
 		byte = USART_ReceiveData(USART2);
 		xQueueSendFromISR(uartRfd232Queue, &byte, &xHigherPriorityTaskWoken);
+		replayWHh41[itWh41] = byte;
+		if(replayWHh41[itWh41] == '\n')
+		{
+			replayWHh41[itWh41 + 1] = 0;
+			fUart2Usb = 1;
+			//xEventGroupSetBitsFromISR(xEventGroup, FLAG_UART_USB, &xHigherPriorityTaskWoken);
+			itWh41 = 0;
+		}
+
+		//EventBits_t event = xEventGroupClearBitsFromISR(xEventGroup, FLAG_UART_USB);
+
+		if(++itWh41 == (SIZE_BUFF_WH41 - 1))
+		{
+			replayWHh41[itWh41] = 0;
+			fUart2Usb = 1;
+			//xEventGroupSetBitsFromISR(xEventGroup, FLAG_UART_USB, &xHigherPriorityTaskWoken);
+			itWh41 = 0;
+		}
 	}
 	portEND_SWITCHING_ISR(xHigherPriorityTaskWoken == pdTRUE);
 }
