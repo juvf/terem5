@@ -285,6 +285,7 @@ extern "C" void USART2_IRQHandler(void)
 		static uint8_t byte;
 		byte = USART_ReceiveData(USART2);
 		xQueueSendFromISR(uartRfd232Queue, &byte, &xHigherPriorityTaskWoken);
+		//replayWHh41[0] = 'f';
 		replayWHh41[itWh41] = byte;
 		if(replayWHh41[itWh41] == '\n')
 		{
@@ -293,10 +294,7 @@ extern "C" void USART2_IRQHandler(void)
 			//xEventGroupSetBitsFromISR(xEventGroup, FLAG_UART_USB, &xHigherPriorityTaskWoken);
 			itWh41 = 0;
 		}
-
-		//EventBits_t event = xEventGroupClearBitsFromISR(xEventGroup, FLAG_UART_USB);
-
-		if(++itWh41 == (SIZE_BUFF_WH41 - 1))
+		else if(++itWh41 == (SIZE_BUFF_WH41 - 1))
 		{
 			replayWHh41[itWh41] = 0;
 			fUart2Usb = 1;
