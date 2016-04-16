@@ -76,14 +76,14 @@ void usbSenMessToWT41(uint8_t *buf, uint32_t Len)
 
 void usbReplayGetMessage(void *pdev)
 {
-	static char cRxChar = 'd';
-	replayWHh41[0] = 'a';
-	replayWHh41[1] = 'b';
-	replayWHh41[2] = 0;
-//	if( fUart2Usb == 1 )
+	static char *cRxChar = "hello ";
+//	replayWHh41[0] = 'a';
+//	replayWHh41[1] = 'b';
+//	replayWHh41[2] = 0;
+	if( fUart2Usb == 1 )
 	{
 //		DCD_EP_Tx(pdev, 02, (uint8_t*)&cRxChar, 1);
-		DCD_EP_Tx(pdev, 02, (uint8_t*)&replayWHh41, 2);//SIZE_BUFF_WH41);
+		DCD_EP_Tx(pdev, 02, (uint8_t*)&replayWHh41, SIZE_BUFF_WH41);
 		fUart2Usb = 0;
 	}
 }

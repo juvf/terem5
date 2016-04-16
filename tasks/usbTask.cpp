@@ -68,6 +68,7 @@ void usbTask(void *context)
                       rfd_count = 0;
 			USART_ClearITPendingBit(USART2, USART_IT_TC);
 					USART_ITConfig(USART2, USART_IT_TC, ENABLE); // По окончанию отправки
+					USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
 					USART_SendData(USART2, rfd_buffer[0]);
                                         while(endTransmit != 0) vTaskDelay(1);
 
