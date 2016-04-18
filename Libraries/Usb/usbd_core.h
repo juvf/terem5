@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    usbd_core.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    19-March-2012
+  * @version V1.2.0
+  * @date    09-November-2015
   * @brief   Header file for usbd_core.c
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -29,15 +29,15 @@
 #ifndef __USBD_CORE_H
 #define __USBD_CORE_H
 
-/* Includes ------------------------------------------------------------------*/
-#include "usb_dcd.h"
-#include "usbd_def.h"
-#include "usbd_conf.h"
-
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+/* Includes ------------------------------------------------------------------*/
+#include "usb_dcd.h"
+#include "usbd_def.h"
+#include "usbd_conf.h"
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
   * @{
@@ -105,13 +105,13 @@ USBD_Status USBD_ClrCfg(USB_OTG_CORE_HANDLE  *pdev, uint8_t cfgidx);
 
 USBD_Status USBD_SetCfg(USB_OTG_CORE_HANDLE  *pdev, uint8_t cfgidx);
 
-#ifdef __cplusplus
-}
-#endif
-
 /**
   * @}
   */ 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __USBD_CORE_H */
 

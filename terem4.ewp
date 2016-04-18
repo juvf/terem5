@@ -175,6 +175,7 @@
           <state>USE_STDPERIPH_DRIVER</state>
           <state>STM32F401xx</state>
           <state>USE_USB_OTG_FS</state>
+          <state>USB_DEBUG</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -311,6 +312,7 @@
           <state>$PROJ_DIR$\Libraries\CMSIS\Device\ST\STM32F4xx\Include</state>
           <state>$TOOLKIT_DIR$\CMSIS\Include\</state>
           <state>D:\Work\ip\terem5\github\terem5\Libraries\STM32F4xx_StdPeriph_Driver\inc</state>
+          <state>D:\Work\ip\terem5\teremSrc\Libraries\usb2</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -330,7 +332,7 @@
         </option>
         <option>
           <name>CCOptLevel</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>CCOptStrategy</name>
@@ -339,7 +341,7 @@
         </option>
         <option>
           <name>CCOptLevelSlave</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>CompilerMisraRules98</name>
@@ -2016,7 +2018,88 @@
       </file>
     </group>
     <group>
-      <name>Usb</name>
+      <name>usb</name>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usb_bsp.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usb_bsp.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usb_conf.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usb_core.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usb_core.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usb_dcd.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usb_dcd.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usb_dcd_int.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usb_dcd_int.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usb_defines.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usb_regs.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usbd_cdc_core.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usbd_cdc_core.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usbd_cdc_vcp.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usbd_cdc_vcp.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usbd_conf.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usbd_core.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usbd_core.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usbd_def.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usbd_desc.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usbd_desc.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usbd_ioreq.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usbd_ioreq.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usbd_req.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usbd_req.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usbd_usr.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Libraries\Usb\usbd_usr.h</name>
+      </file>
     </group>
     <file>
       <name>$PROJ_DIR$\stm32f4xx_conf.h</name>
@@ -2146,90 +2229,6 @@
     </file>
     <file>
       <name>$PROJ_DIR$\tasks\usbTask.h</name>
-    </file>
-  </group>
-  <group>
-    <name>USB</name>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usb_bsp.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usb_bsp.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usb_conf.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usb_core.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usb_core.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usb_dcd.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usb_dcd.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usb_dcd_int.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usb_dcd_int.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usb_defines.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usb_regs.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usbd_cdc_core.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usbd_cdc_core.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usbd_cdc_vcp.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usbd_cdc_vcp.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usbd_conf.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usbd_core.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usbd_core.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usbd_def.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usbd_desc.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usbd_desc.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usbd_ioreq.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usbd_ioreq.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usbd_req.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usbd_req.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usbd_usr.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Libraries\Usb\usbd_usr.h</name>
     </file>
   </group>
   <file>
