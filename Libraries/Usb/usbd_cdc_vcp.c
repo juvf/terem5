@@ -9,7 +9,8 @@
 #include  <string.h>
 
 extern uint8_t replayWHh41[SIZE_BUFF_WH41];
-extern uint8_t fUart2Usb;
+extern int itWh41;
+//extern uint8_t fUart2Usb;
 
 USART_InitTypeDef USART_InitStructure;
 
@@ -29,8 +30,6 @@ static uint16_t VCP_DataRx(uint8_t* Buf, uint32_t Len, void *pdev);
 CDC_IF_Prop_TypeDef VCP_fops = { VCP_DataTx, VCP_DataRx };
 static uint16_t VCP_DataTx(void)
 {
-	if(fUart2Usb == 1)
-		fUart2Usb = 0;
 	return USBD_OK;
 }
 
@@ -59,10 +58,10 @@ static uint16_t VCP_DataRx(uint8_t* buffer, uint32_t Len, void *pdev)
 	return USBD_OK;
 }
 
-const char *usb_txt[] = { "DCD_HandleOutEP_ISR", //0
+/*const char *usb_txt[] = { "DCD_HandleOutEP_ISR", //0
 		"DCD_HandleInEP_ISR", //1
 		"USB_OTG_WRITE_REG32" };
-
+*/
 static char mess[100];
 void usbSenMessToWT41(uint8_t *buf, uint32_t Len)
 {
@@ -77,14 +76,22 @@ void usbSenMessToWT41(uint8_t *buf, uint32_t Len)
 void usbReplayGetMessage(void *pdev)
 {
 	static char *cRxChar = "hello ";
-//	replayWHh41[0] = 'a';
-//	replayWHh41[1] = 'b';
-//	replayWHh41[2] = 0;
-	if( fUart2Usb == 1 )
+	static int count1 = 0;
+	static int count2 = 0;
+	count2 = itWh41;
+	if(count2 != count1)
 	{
+		int size = count2 - count1;
+		if(size < 0)
+			size += SIZE_BUFF_WH41;
+		if(size > 64)
+			size = 64;
+		count1 += size;
+		if(count1 > 1000)
+			count1 -= 1000;
 //		DCD_EP_Tx(pdev, 02, (uint8_t*)&cRxChar, 1);
-		DCD_EP_Tx(pdev, 02, (uint8_t*)&replayWHh41, SIZE_BUFF_WH41);
-		fUart2Usb = 0;
+		DCD_EP_Tx(pdev, 02, (uint8_t*)&replayWHh41, 64);
+
 	}
 }
 
