@@ -8,6 +8,7 @@
 #include "tasks/configTerem.h"
 #include "flashMx25.h"
 #include "tasks/Process.h"
+#include "tasks/usbTask.h"
 #include "adc.h"
 #include <string.h>
 
@@ -15,6 +16,8 @@ int main()
 {
 	pereferInit();
 	initRtc();
+
+	usbTask(0);
 
 	initOs();
 

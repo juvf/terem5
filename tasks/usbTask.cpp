@@ -34,7 +34,7 @@ void usbTask(void *context)
 
   NVIC_SetPriority(OTG_FS_IRQn, 13);
   static uint32_t aaa = NVIC_GetPriority(OTG_FS_IRQn);
-
+return;
 
 	while(1)
 	{
