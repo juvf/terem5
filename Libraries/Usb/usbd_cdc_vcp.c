@@ -75,23 +75,21 @@ void usbSenMessToWT41(uint8_t *buf, uint32_t Len)
 
 void usbReplayGetMessage(void *pdev)
 {
-	static char *cRxChar = "hello ";
-	static int count1 = 0;
+	static int count1 = 0;//сколько отправили
 	static int count2 = 0;
 	count2 = itWh41;
+
 	if(count2 != count1)
 	{
 		int size = count2 - count1;
 		if(size < 0)
-			size += SIZE_BUFF_WH41;
+			size = SIZE_BUFF_WH41 - count1;
 		if(size > 64)
 			size = 64;
+		DCD_EP_Tx(pdev, 02, ((uint8_t*)&replayWHh41) + count1, size);
 		count1 += size;
-		if(count1 > 1000)
-			count1 -= 1000;
-//		DCD_EP_Tx(pdev, 02, (uint8_t*)&cRxChar, 1);
-		DCD_EP_Tx(pdev, 02, (uint8_t*)&replayWHh41, 64);
-
+		if(count1 >= SIZE_BUFF_WH41)
+			count1 -= SIZE_BUFF_WH41;
 	}
 }
 

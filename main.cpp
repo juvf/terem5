@@ -17,8 +17,6 @@ int main()
 	pereferInit();
 	initRtc();
 
-	usbTask(0);
-
 	initOs();
 
 	NVIC_SetVectorTable( NVIC_VectTab_FLASH, 0x0);
