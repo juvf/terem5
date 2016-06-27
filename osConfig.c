@@ -30,8 +30,8 @@ void initOs(void)
 {
 	NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 );
 	cansolQueue = xQueueCreate(20, sizeof(char*));
-	uartRfd232Queue = xQueueCreate(10, 1);
-	//wt41AQueue = xQueueCreate(SIZE_BUFF_WH41, 20);
+	uartRfd232Queue = xQueueCreate(20, 1);
+	//wt41AQueue = xQueueCreate(SIZE_BUFF_WH41, 1);
 
 	xEventGroup = xEventGroupCreate();
 
@@ -50,8 +50,8 @@ void createTasks()
 			TASK_PRIORITY_MAIN, &handleMain);
 	pTask = xTaskCreate(taskMeasurement, "mesurTask", SIZE_STACK_MESUR, 0,
 			TASK_PRIORITY_MESUR, &handleMesur);
-//	pTask &= xTaskCreate(usbTask, "usbTask", SIZE_STACK_USB, 0,
-//			TASK_PRIORITY_USB, &handleUsb);
+	pTask &= xTaskCreate(usbTask, "usbTask", SIZE_STACK_USB, 0,
+			TASK_PRIORITY_USB, &handleUsb);
 	pTask &= xTaskCreate(taskUartRfd, "taskUartRfd", SIZE_STACK_RFD, 0,
 			TASK_PRIORITY_RFD, &handleRF);
 

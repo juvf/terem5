@@ -8,8 +8,10 @@
 
 #include  <string.h>
 
-extern uint8_t replayWHh41[SIZE_BUFF_WH41];
+//extern uint8_t replayWHh41[SIZE_BUFF_WH41];
 extern uint8_t fUart2Usb;
+extern uint8_t rfd_buffer;
+extern int itWh41;
 
 USART_InitTypeDef USART_InitStructure;
 
@@ -76,14 +78,14 @@ void usbSenMessToWT41(uint8_t *buf, uint32_t Len)
 
 void usbReplayGetMessage(void *pdev)
 {
-	static char *cRxChar = "hello ";
+//	static char *cRxChar = "hello ";
 //	replayWHh41[0] = 'a';
 //	replayWHh41[1] = 'b';
 //	replayWHh41[2] = 0;
 	if( fUart2Usb == 1 )
 	{
-//		DCD_EP_Tx(pdev, 02, (uint8_t*)&cRxChar, 1);
-		DCD_EP_Tx(pdev, 02, (uint8_t*)&replayWHh41, SIZE_BUFF_WH41);
+		DCD_EP_Tx(pdev, 02, (uint8_t*)&rfd_buffer, itWh41);
+		itWh41 = 0;
 		fUart2Usb = 0;
 	}
 }

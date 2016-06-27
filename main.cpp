@@ -17,7 +17,7 @@ int main()
 	pereferInit();
 	initRtc();
 
-	usbTask(0);
+	//usbTask(0);
 
 	initOs();
 
