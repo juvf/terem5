@@ -5,6 +5,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_cdc_vcp.h"
 #include "osConfig.h"
+#include "structCommon.h"
 
 #include  <string.h>
 
@@ -71,13 +72,13 @@ static uint16_t VCP_DataRx(uint8_t* buffer, uint32_t Len, void *pdev)
  * по сколько усб за 1 фрейм не может передать больше 64 байт,
  * то размер болжен быть меньше 64
  * buffer[6]-buffer[7] резев
- * buffer[8]-buffer[16] - адресс в памяти от куда читать
+ * buffer[8]-buffer[12] - адресс в памяти от куда читать
  *
  */
 void usbReadMemory(uint8_t* buffer, void *pdev)
 {
 	//static char replay[100];
-	uint64_t address = u64FromU8(&buffer[8]);
+	uint32_t address = u32FromU8(&buffer[8]);
 	if(buffer[5] > 64)
 		buffer[5] = 64;
 	switch(buffer[4])
