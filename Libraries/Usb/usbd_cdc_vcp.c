@@ -56,14 +56,49 @@ static uint16_t VCP_DataRx(uint8_t* buffer, uint32_t Len, void *pdev)
 		case COM_USB_GET_MESSAGE:
 			usbReplayGetMessage(pdev);
 			break;
+		case COM_USB_READ_MEM:
+			usbReadMemory(buffer, pdev);
+			break;
 	}
 
 	return USBD_OK;
 }
+/* Функция usbReadMemory читает память.
+ * первый 4 байта в буфере - это команда (5)
+ * buffer[4] - тип памятию 0 - ОЗУ
+ * 1 - Flas, 2 - SPI Flash, 3 - I2C EEPROM
+ * buffer[5] - размер в байтах вычитываемого блока.
+ * по сколько усб за 1 фрейм не может передать больше 64 байт,
+ * то размер болжен быть меньше 64
+ * buffer[6]-buffer[7] резев
+ * buffer[8]-buffer[16] - адресс в памяти от куда читать
+ *
+ */
+void usbReadMemory(uint8_t* buffer, void *pdev)
+{
+	//static char replay[100];
+	uint64_t address = u64FromU8(&buffer[8]);
+	if(buffer[5] > 64)
+		buffer[5] = 64;
+	switch(buffer[4])
+	{
+		case 0: //RAM
+			DCD_EP_Tx(pdev, 02, (uint8_t*)address, buffer[5]);
+			break;
+		case 1: //Flash
+			break;
+		case 2: //MX25L64 (SPI)
+			break;
+		case 3: //AT24C256 (I2C)
+			break;
+		default:
+			return;
+	}
+}
 
-const char *usb_txt[] = { "DCD_HandleOutEP_ISR", //0
-		"DCD_HandleInEP_ISR", //1
-		"USB_OTG_WRITE_REG32" };
+//const char *usb_txt[] = { "DCD_HandleOutEP_ISR", //0
+//		"DCD_HandleInEP_ISR", //1
+//		"USB_OTG_WRITE_REG32" };
 
 static char mess[100];
 void usbSenMessToWT41(uint8_t *buf, uint32_t Len)
@@ -78,10 +113,6 @@ void usbSenMessToWT41(uint8_t *buf, uint32_t Len)
 
 void usbReplayGetMessage(void *pdev)
 {
-//	static char *cRxChar = "hello ";
-//	replayWHh41[0] = 'a';
-//	replayWHh41[1] = 'b';
-//	replayWHh41[2] = 0;
 	if( fUart2Usb == 1 )
 	{
 		DCD_EP_Tx(pdev, 02, (uint8_t*)&rfd_buffer, itWh41);
