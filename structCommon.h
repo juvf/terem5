@@ -236,6 +236,13 @@ uint32_t u32FromU8(const uint8_t *buffer);
 uint64_t u64FromU8(const uint8_t *buffer);
 uint16_t u16FromU8(const uint8_t *buffer);
 
+//структура месаджа для чтения из памяти
+typedef struct
+{
+	uint32_t address;
+	uint8_t count;          //колво байт
+} MemCom;
+
 #ifdef __cplusplus
 }
 #endif

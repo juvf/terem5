@@ -54,6 +54,8 @@ void flashMx25Write(uint8_t *source, uint32_t adrDestination)
 	xSemaphoreGive(mutexFlash);
 }
 
+//эта функция читает из фрам через SPI в буфер flashBuffIn не более SIZE_BUF_FLASH байт
+//после чтения из буфера flashBuffIn копируется в destination
 void flashMx25Read(void *destination, uint32_t adrSource, uint16_t size)
 {
 	xSemaphoreTake(mutexFlash, portMAX_DELAY);
@@ -62,9 +64,9 @@ void flashMx25Read(void *destination, uint32_t adrSource, uint16_t size)
 	{
 		status = spiRDSR();
 	} while(status & 1);
-	if(size > SIZE_BUF_FLASH)
+	if( size > SIZE_BUF_FLASH )
 	{
-	xSemaphoreGive(mutexFlash);
+		xSemaphoreGive(mutexFlash);
 		return;
 	}
 	DMA_MemoryTargetConfig(DMA1_Stream3, (uint32_t)flashBuffIn, 0);
@@ -78,7 +80,9 @@ void flashMx25Read(void *destination, uint32_t adrSource, uint16_t size)
 	xSemaphoreGive(mutexFlash);
 }
 
-void flashMx25ReadData(uint8_t *destination, uint32_t adrSource, uint16_t size)
+//эта функция читает сразу из фрамки по SPI через DMA в destination
+void flashMx25ReadData(uint8_t *destination, uint32_t adrSource,
+		uint16_t size, bool fromISR)
 {
 	xSemaphoreTake(mutexFlash, portMAX_DELAY);
 	uint16_t status;
@@ -86,9 +90,9 @@ void flashMx25ReadData(uint8_t *destination, uint32_t adrSource, uint16_t size)
 	{
 		status = spiRDSR();
 	} while(status & 1);
-	if(size > 4096)
+	if( size > 4096 )
 	{
-	xSemaphoreGive(mutexFlash);
+		xSemaphoreGive(mutexFlash);
 		return;
 	}
 	DMA_MemoryTargetConfig(DMA1_Stream3, (uint32_t)destination, 0);
@@ -116,7 +120,7 @@ uint16_t spiRDSR()
 	return status;
 }
 
-void spiSector4kErase(uint16_t numSector)
+void spiSector4kErase(uint32_t numSector)
 {
 	xSemaphoreTake(mutexFlash, portMAX_DELAY);
 	uint16_t status;
@@ -256,13 +260,13 @@ void spiWait()
 
 void setSpiOut(uint16_t adr, uint8_t data)
 {
-	if(adr < SIZE_BUF_FLASH)
+	if( adr < SIZE_BUF_FLASH )
 		flashBuffOut[adr] = data;
 }
 
 extern "C" void DMA1_Stream3_IRQHandler() //RX
 {
-	if(DMA_GetITStatus(DMA1_Stream3, DMA_IT_TCIF3) == SET)
+	if( DMA_GetITStatus(DMA1_Stream3, DMA_IT_TCIF3) == SET )
 	{
 		DMA_ClearITPendingBit(DMA1_Stream3, DMA_IT_TCIF3);
 		csOff();
@@ -272,7 +276,7 @@ extern "C" void DMA1_Stream3_IRQHandler() //RX
 
 extern "C" void DMA1_Stream4_IRQHandler() //TX
 {
-	if(DMA_GetITStatus(DMA1_Stream4, DMA_IT_TCIF4) == SET)
+	if( DMA_GetITStatus(DMA1_Stream4, DMA_IT_TCIF4) == SET )
 	{
 		DMA_ClearITPendingBit(DMA1_Stream4, DMA_IT_TCIF4);
 	}
@@ -354,7 +358,7 @@ uint16_t countFreeSectors()
 	uint16_t count = 0;
 	for(int i = 0; i < MAX_SECTORS; i++)
 	{
-		if((flashMap[i][0] == 0xffff) && (flashMap[i][1] == 0xffff))
+		if( (flashMap[i][0] == 0xffff) && (flashMap[i][1] == 0xffff) )
 			count++;
 	}
 	return count;

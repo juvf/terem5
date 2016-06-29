@@ -36,6 +36,7 @@ extern SemaphoreHandle_t mutexFlash; //мьютикс для доступа к флешпамяти
 
 extern xQueueHandle cansolQueue;
 extern xQueueHandle uartRfd232Queue;
+extern xQueueHandle memComUsbQueue;
 //extern xQueueHandle wt41AQueue;
 extern EventGroupHandle_t xEventGroup;
 

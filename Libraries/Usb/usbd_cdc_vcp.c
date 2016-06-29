@@ -9,7 +9,6 @@
 
 #include  <string.h>
 
-//extern uint8_t replayWHh41[SIZE_BUFF_WH41];
 extern uint8_t fUart2Usb;
 extern uint8_t rfd_buffer;
 extern int itWh41;
@@ -77,18 +76,29 @@ static uint16_t VCP_DataRx(uint8_t* buffer, uint32_t Len, void *pdev)
  */
 void usbReadMemory(uint8_t* buffer, void *pdev)
 {
-	//static char replay[100];
+	//static uint8_t data[16];
 	uint32_t address = u32FromU8(&buffer[8]);
-	if(buffer[5] > 64)
-		buffer[5] = 64;
+	uint16_t size = buffer[5];
+	if(size > 64)
+		size = 64;
 	switch(buffer[4])
 	{
 		case 0: //RAM
-			DCD_EP_Tx(pdev, 02, (uint8_t*)address, buffer[5]);
+			DCD_EP_Tx(pdev, 02, (uint8_t*)address, size);
 			break;
 		case 1: //Flash
 			break;
 		case 2: //MX25L64 (SPI)
+		{//проверим, чтоб адрес был допустимый
+			if(address < 8388608)
+			{
+				MemCom com;
+				com.address = address;
+				com.count = size;
+				xQueueSendFromISR(memComUsbQueue, &com, 0);
+				//DCD_EP_Tx(pdev, 02, data, size);
+			}
+		}
 			break;
 		case 3: //AT24C256 (I2C)
 			break;

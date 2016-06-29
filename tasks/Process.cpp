@@ -107,28 +107,6 @@ int commandGetHeaderProc(uint8_t *buffer)
 	*buffer++ = addrInFlash >> 16;
 	*buffer++ = addrInFlash >> 24;
 
-//	uint32_t countSectords = calcCountSectors(header.header);
-//
-//	//найдем цепочку секторов
-//	buffer[0] = header.preNext[0];
-//	buffer[1] = header.preNext[0] >> 8;
-//	if(countSectords > 1)
-//	{
-//		buffer[2] = header.preNext[1];
-//		buffer[3] = header.preNext[1] >> 8;
-//	}
-//	if(countSectords > 2)
-//	{
-//		for(int i = 2; i < countSectords; i++)
-//		{
-//			flashMx25Read((void*)&header, header.preNext[1], 4);
-//			if(header.preNext[1] == 0xffff)
-//				break;
-//			buffer[i * 2] = header.preNext[1];
-//			buffer[i * 2 + 1] = header.preNext[1] >> 8;
-//		}
-//	}
-
 	return 6 + /*countSectords * 2*/+sizeof(HeaderProcess) + 4;
 }
 
@@ -189,7 +167,7 @@ int commandDeleteProc(uint8_t *buffer)
 
 	uint32_t countSectords = calcCountSectors(header.header);
 	//сотрём цепочку секторов
-	spiSector4kErase(headerList[number]);
+	spiSector4kErase(headerList[number] * 4096);
 	if(countSectords > 1)
 	{
 		for(int i = 1; i < countSectords; i++)
