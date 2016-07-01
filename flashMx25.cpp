@@ -35,7 +35,7 @@ uint8_t spi2Work = 0;
 
 uint32_t currentAddress = 0; //текущий адрес, куда можно записать новый процесс
 
-void flashMx25Write(uint8_t *source, uint32_t adrDestination)
+void flashMx25Write(uint8_t *source, uint32_t adrDestination)//пишет во флешку 256 байт
 {
 	xSemaphoreTake(mutexFlash, portMAX_DELAY);
 	uint16_t status;

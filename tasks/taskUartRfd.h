@@ -40,6 +40,7 @@ bool reciveByte(uint8_t byte);
 void parser();
 void setRxMode();
 void checkMsgForUsb();
+void replayWait(int sec);
 
 extern "C"
 {

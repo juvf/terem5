@@ -82,7 +82,7 @@ void taskUartRfd(void *context)
 
 void checkMsgForUsb()
 {
-	if(itWh41 > 0)
+	if( itWh41 > 0 )
 	{
 		fUart2Usb = 1;
 	}
@@ -184,6 +184,7 @@ void parser()
 			rfd_sizeOfFrame = getConfigTerem(rfd_buffer);
 			break;
 		case 0x17: //Start_Proc
+			//replayWait(10);
 			rfd_sizeOfFrame = commandStartProc(rfd_buffer + 6);
 			break;
 		case 0x18: //Get_ProcConf
@@ -213,7 +214,7 @@ void parser()
 		case UART_State:
 			rfd_sizeOfFrame = commandGetState(rfd_buffer);
 			break;
-		case UART_RemoveProcess://удалить процесс
+		case UART_RemoveProcess: //удалить процесс
 			rfd_sizeOfFrame = commandDeleteProc(rfd_buffer);
 			break;
 		default:
@@ -234,6 +235,23 @@ void parser()
 		USART_ITConfig(USART2, USART_IT_TC, ENABLE); // По окончанию отправки
 		USART_SendData(USART2, rfd_buffer[0]);
 	}
+}
+
+//ответ на ожидание
+void replayWait(int msec)
+{
+	rfd_buffer[1] = 12;
+	rfd_buffer[2] = rfd_buffer[3];
+	rfd_buffer[3] = ADRRESS;
+
+	uint16_t crc = Checksum::crc16(rfd_buffer, 10);
+	rfd_buffer[10] = (uint8_t)crc;
+	rfd_buffer[11] = (uint8_t)(crc >> 8);
+
+	rfd_count = 0;
+	USART_ClearITPendingBit(USART2, USART_IT_TC);
+	USART_ITConfig(USART2, USART_IT_TC, ENABLE); // По окончанию отправки
+	USART_SendData(USART2, rfd_buffer[0]);
 }
 
 void deinitUartRfd()
@@ -306,8 +324,10 @@ extern "C" void USART2_IRQHandler(void)
 		// Флаг данного прерывания сбрасыывается прочтением данных
 		static uint8_t byte;
 		byte = USART_ReceiveData(USART2);
-		if(  xQueueSendFromISR(uartRfd232Queue, &byte, &xHigherPriorityTaskWoken) != pdTRUE )
-			xQueueSendFromISR(uartRfd232Queue, &byte, &xHigherPriorityTaskWoken);
+		if( xQueueSendFromISR(uartRfd232Queue, &byte,
+				&xHigherPriorityTaskWoken) != pdTRUE )
+			xQueueSendFromISR(uartRfd232Queue, &byte,
+					&xHigherPriorityTaskWoken);
 		//xQueueSendFromISR(wt41AQueue, &byte, &xHigherPriorityTaskWoken);
 		//replayWHh41[0] = 'f';
 //		replayWHh41[itWh41] = byte;
