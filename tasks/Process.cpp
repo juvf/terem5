@@ -404,13 +404,17 @@ bool allocMemForNewProc(const HeaderProcess &header)
 
 					uint16_t allSize = 4 + sizeof(HeaderProcess);
 					void *p = (void*)&tempBuf[allSize];
-					allSize += countSectors * sizeof(uint16_t);
+					uint32_t addInFlash = coilSectors[n] * 4096;
+					allSize = countSectors * sizeof(uint16_t);
 					do
-					{
-						uint16_t tempSize = allSize > (256 - ((uint8_t*)p - tempBuf)) ? 256 - ((uint8_t*)p - tempBuf) : allSize;
-						allSize -= tempSize + ((uint8_t*)p - tempBuf);
+					{//вычислим оставшияся размер блока
+						uint16_t tempSize = 256 - ((uint8_t*)p - tempBuf);
+						if(allSize < tempSize)
+							tempSize = allSize;
+						allSize -= tempSize;
 						memcpy(p, (void*)coilSectors, tempSize);
-						flashMx25Write((uint8_t*)tempBuf, coilSectors[n] * 4096);
+						flashMx25Write((uint8_t*)tempBuf, addInFlash );
+						addInFlash += 256;
 						memset((void*)tempBuf, 0xff, 256);
 						p = (void*)tempBuf;
 					} while(allSize > 0);

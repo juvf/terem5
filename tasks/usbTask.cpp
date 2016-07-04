@@ -75,6 +75,7 @@ void usbTask(void *context)
 		{
 			flashMx25Read(data, com.address, com.count);
 			DCD_EP_Tx(&USB_OTG_dev, 02, data, com.count);
+			vTaskDelay(1);
 		}
 		/*
 		 //		GPIO_SetBits(GPIOA, GPIO_Pin_10);

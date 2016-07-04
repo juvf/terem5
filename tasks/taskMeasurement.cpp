@@ -75,6 +75,9 @@ void musuring()
 	//освободим симафор АЦП
 	xSemaphoreGive(semaphAdc);
 
+	if((valueSens[0] > 50) || (valueSens[0] < 19))
+		asm("nop");
+
 	//записываем результат
 	saveResult(valueSens, j);
 }
