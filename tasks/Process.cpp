@@ -112,12 +112,7 @@ int commandGetHeaderProc(uint8_t *buffer)
 
 uint32_t calcCountSectors(const HeaderProcess &header)
 {
-	uint16_t countSenser = 0;
-	for(int i = 0; i < 8; i++)
-	{
-		if( header.config.sensorType[i] < GT_Absent )
-			countSenser++;
-	}
+	uint16_t countSenser = countSensor(header);
 	uint32_t sizeOfProcessData = 4 * header.count * countSenser;
 //рассчитаем кол-во секторов
 	uint32_t remainder = sizeOfProcessData % 4096;
