@@ -177,6 +177,9 @@ void parser()
 			getRtcTime(rfd_buffer + 6);
 			rfd_sizeOfFrame = 12;
 			break;
+		case 0x02: //контроль готовности UART_ReadyCheck
+			rfd_sizeOfFrame = commandReadyCheck(rfd_buffer);
+			break;
 		case 0x07: //запись конфигурации
 			rfd_sizeOfFrame = setConfigTerem(rfd_buffer);
 			break;

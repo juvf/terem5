@@ -59,6 +59,7 @@ void musuring()
 	int j = 0;
 	//захватим симафор АЦП
 	xSemaphoreTake(semaphAdc, portMAX_DELAY);
+	//выставим флаг готовности новых данных
 	tempOfDs1820 = readtemp();
 	ep1_On();
 	epa_On();
@@ -73,6 +74,7 @@ void musuring()
 	epa_Off();
 	ep1_Off();
 	//освободим симафор АЦП
+	xEventGroupSetBits(xEventGroup, FLAG_IS_READY_MES);
 	xSemaphoreGive(semaphAdc);
 
 	if((valueSens[0] > 50) || (valueSens[0] < 19))

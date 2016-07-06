@@ -89,7 +89,7 @@ uint8_t initAdc()
 
 	//Чтение регистра идентификации (д.б. 0xXA)
 	uint8_t regId = AD7792Rd(ID);
-	if((regId & 0x0F) != 0x0A)
+	if( (regId & 0x0F) != 0x0A )
 	{              //Ошибка, не тот ответ
 		csOff();
 		return regId;
@@ -180,14 +180,14 @@ uint16_t AD7792RdW(unsigned char Register)
 float getU_Ad7792(unsigned char numChanel)
 {
 	uint8_t *CurRange = &adcRange[numChanel];
-	uint16_t CurCode;               //Текущее значение в кодах
-	float curU;                 //Текущее значение напряжения в вольтах
+	static uint16_t CurCode;               //Текущее значение в кодах
+	static float curU;                 //Текущее значение напряжения в вольтах
 
 	//скомутировать ключ и включить ключ
 	switchOn(numChanel);
 
 	//Для HEL700
-	if(configTerem.sensorType[numChanel] == GT_HEL700)
+	if( configTerem.sensorType[numChanel] == GT_HEL700 )
 	{
 		csOn();  //Подача Chip Select
 		IO_420();     //Источники тока 2*210 мкА на IOUT2
@@ -213,7 +213,7 @@ float getU_Ad7792(unsigned char numChanel)
 		CurCode = AD7792Measure();
 		IO_Off(); //Источники тока отключить
 		csOff();
-		if((CurCode == 0) || (CurCode == 0xFFFF))
+		if( (CurCode == 0) || (CurCode == 0xFFFF) )
 			//gFlags.BadResult = 1;
 			;
 		else //           Код   2кОм 16 бит
@@ -265,10 +265,10 @@ float getU_Ad7792(unsigned char numChanel)
 							(CON0_CH_3 * 0)         //Канал AIN1 (0)
 							);
 			//Калибровка канала 1
-			if(CurRangeADC != *CurRange)
+			if( CurRangeADC != *CurRange )
 			{
 				CurRangeADC = *CurRange;
-				if(*CurRange != 7)
+				if( *CurRange != 7 )
 					AD7792Calibr();
 				else
 					AD7792Calibr7();
@@ -283,16 +283,16 @@ float getU_Ad7792(unsigned char numChanel)
 //				vTaskDelay(1000);
 			}
 			//Перегрузка (+), уменьшить коэффициент усиления PGA
-			if(CurCode == 0xFFFF)
+			if( CurCode == 0xFFFF )
 			{
-				if(*CurRange)
+				if( *CurRange )
 				{
-					if(--(*CurRange))
+					if( --(*CurRange) )
 						(*CurRange)--;
 					//gFlags.RangeChanged = 1;
 				}
-				else if((configTerem.sensorType[numChanel] >= GT_MM10)
-						&& (configTerem.sensorType[numChanel] <= GT_Rel_Ind))
+				else if( (configTerem.sensorType[numChanel] >= GT_MM10)
+						&& (configTerem.sensorType[numChanel] <= GT_Rel_Ind) )
 				{
 					//gFlags.BadResult = 0;
 					break;
@@ -304,11 +304,11 @@ float getU_Ad7792(unsigned char numChanel)
 				}
 				//Перегрузка (-), уменьшить коэффициент усиления
 			}
-			else if(!CurCode)
+			else if( !CurCode )
 			{
-				if(*CurRange)
+				if( *CurRange )
 				{
-					if(--(*CurRange))
+					if( --(*CurRange) )
 						(*CurRange)--;
 					//gFlags.RangeChanged = 1;
 				}
@@ -319,7 +319,8 @@ float getU_Ad7792(unsigned char numChanel)
 				}
 				//Недостаточное использование разрядности
 			}
-			else if((CurCode < 0x8800) && (CurCode > 0x7800) && (*CurRange < 7))
+			else if( (CurCode < 0x8800) && (CurCode > 0x7800)
+					&& (*CurRange < 7) )
 			{
 				//Увеличить коэффициент усиления PGA для увеличения точности
 				while((CurCode < 0x8800) && (CurCode > 0x7800)

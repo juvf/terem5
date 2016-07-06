@@ -183,7 +183,7 @@ float Polinom3(float x, const float *A)
 //
 ResultMes readSenser(uint8_t numChanel)
 {
-	ResultMes result;
+	static ResultMes result;
 	switch(configTerem.sensorType[numChanel])
 	{
 		//Датчики перемещения

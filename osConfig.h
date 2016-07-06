@@ -16,6 +16,7 @@ extern "C"
 #define FLAG_MESUR			( 1 << 0 )
 #define FLAG_SLEEP_MESUR	( 1 << 1 )
 #define FLAG_SLEEP_UART		( 1 << 2 )
+#define FLAG_IS_READY_MES	( 1 << 3 )
   
 #define TASK_PRIORITY_MAIN		0
 #define TASK_PRIORITY_MESUR		1
