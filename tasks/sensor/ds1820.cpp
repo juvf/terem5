@@ -163,6 +163,49 @@ void mksDelay(uint16_t time)
 		asm("nop");
 	}
 }
+
+//(15:21:39) есть спец таймер на стм32 пейздатый для мектосекунд
+//(15:21:53) тема на электрониксе в топе висела нираз
+//(15:22:59) приерна так
+//(15:23:01) void THardwareSTM32F401::delayUs(UNSIGNED32 delay)
+//{
+//   startDWT();
+//   DWT_Delay(delay);
+//}
+//
+//
+////////////////////////////////////////////////////////////////////////////////////
+//#define    DWT_CYCCNT    *(volatile uint32_t *)0xE0001004
+//#define    DWT_CONTROL   *(volatile uint32_t *)0xE0001000
+//#define    SCB_DEMCR     *(volatile uint32_t *)0xE000EDFC
+//
+//static void startDWT(void)
+//{
+//   if (!(DWT_CONTROL & 1))
+//   {
+//       SCB_DEMCR  |= 0x01000000;
+//       DWT_CYCCNT  = 0;
+//       DWT_CONTROL|= 1; // enable the counter
+//   }
+//}
+//
+//static UNSIGNED32 DWT_Get(void)
+//{
+//   return DWT_CYCCNT;
+//}
+//
+//static inline UNSIGNED8 DWT_Compare(SIGNED32 tp)
+//{
+//   return (((SIGNED32)DWT_Get() - tp) < 0);
+//}
+//extern UNSIGNED32 SystemCoreClock;
+//
+//static void DWT_Delay(UNSIGNED32 us) // microseconds
+//{
+//   SIGNED32 tp = DWT_Get() + us * (SystemCoreClock/1000000);
+//   while (DWT_Compare(tp));
+//}
+
 //----------------------------------------------------------------
 // Read a byte from the sensor
 uint8_t readbyte()
@@ -210,13 +253,13 @@ void writecommand(uint8_t data)
 // Read value from the sensor
 float readtemp()
 {
-	uint16_t L, H, ds;
+	static uint16_t L, H, ds;
 
 	init_ds18b20();
 	// Convert
 	writecommand(0xCC);
 	writecommand(0x44);
-	vTaskDelay(770);//пауза для преобразования температуры в код ds-кой (для 12-ти бит надо 750 мс)
+	vTaskDelay(1000);//пауза для преобразования температуры в код ds-кой (для 12-ти бит надо 750 мс)
 
 	init_ds18b20();
 //   // Read Scratch memory area

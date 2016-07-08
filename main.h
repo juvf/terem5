@@ -10,8 +10,8 @@
 
 #define ledGreenOn()	GPIO_SetBits(GPIOC, GPIO_Pin_0)
 #define ledGreenOff()	GPIO_ResetBits(GPIOC, GPIO_Pin_0)
-#define ledRedOn()		GPIO_SetBits(GPIOA, GPIO_Pin_10);
-#define ledRedOff()		GPIO_ResetBits(GPIOA, GPIO_Pin_10);
+#define ledRedOn()		GPIO_SetBits(GPIOA, GPIO_Pin_10)
+#define ledRedOff()		GPIO_ResetBits(GPIOA, GPIO_Pin_10)
 
 void pereferInit();
 void pereferDeInit();
