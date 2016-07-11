@@ -29,10 +29,10 @@ void taskMeasurement(void *context)
 	while(1)
 	{
 
-		ledRedOn();
+		//ledRedOn();
 		musuring();
 		//vTaskDelay(100);
-		ledRedOff();
+		//ledRedOff();
 		vTaskDelay(200);
 		continue;
 
@@ -66,7 +66,7 @@ void timerMeasurement(xTimerHandle xTimer)
 void musuring()
 {
 
-	static ResultMes result1;
+	//static ResultMes result1;
 	//int j = 0;
 	//захватим симафор АЦП
 	xSemaphoreTake(semaphAdc, portMAX_DELAY);
@@ -74,7 +74,11 @@ void musuring()
 	tempOfDs1820 = readtemp();
 
 	if( (tempOfDs1820 > 30) || (tempOfDs1820 < 19) )
+	{
+		ledRedOn();
+		while(1)
 		asm("nop");
+	}
 	goto exit33;
 
 	ep1_On();
@@ -89,7 +93,7 @@ void musuring()
 	ep1_Off();
 
 
-	xEventGroupSetBits(xEventGroup, FLAG_IS_READY_MES);
+	//xEventGroupSetBits(xEventGroup, FLAG_IS_READY_MES);
 exit33:
 	//освободим симафор АЦП
 	xSemaphoreGive(semaphAdc);
