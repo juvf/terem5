@@ -52,6 +52,7 @@ int commandClearFlash(uint8_t *buffer)
 
 int commandReadyCheck(uint8_t *buffer)
 {
+	buffer[5] = 0x0d;
 	if( xSemaphoreTake(semaphAdc, 0) == pdTRUE )
 	{
 		EventBits_t uxBits = xEventGroupGetBits(xEventGroup);
