@@ -1,4 +1,5 @@
 #include "osConfig.h"
+#include "structCommon.h"
 #include "tasks/mainTask.h"
 #include "tasks/usbTask.h"
 #include "tasks/taskUartRfd.h"
@@ -19,6 +20,7 @@ SemaphoreHandle_t mutexFlash;
 
 xQueueHandle cansolQueue;//очередь для сообщений дебага в кансоль
 xQueueHandle uartRfd232Queue;
+xQueueHandle memComUsbQueue; //очередь для чтения памяти по усб
 //xQueueHandle wt41AQueue;
 
 #define SIZE_STACK_MESUR (configMINIMAL_STACK_SIZE*2)
@@ -30,8 +32,9 @@ void initOs(void)
 {
 	NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 );
 	cansolQueue = xQueueCreate(20, sizeof(char*));
-	uartRfd232Queue = xQueueCreate(10, 1);
-	//wt41AQueue = xQueueCreate(SIZE_BUFF_WH41, 20);
+	uartRfd232Queue = xQueueCreate(20, 1);
+	memComUsbQueue = xQueueCreate(3, sizeof(MemCom));
+	//wt41AQueue = xQueueCreate(SIZE_BUFF_WH41, 1);
 
 	xEventGroup = xEventGroupCreate();
 

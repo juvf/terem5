@@ -15,7 +15,6 @@
 #include "sensor/ds1820.h"
 #include "adc.h"
 
-
 #include <string.h>
 
 int commandTestConnect(uint8_t *buffer)
@@ -39,7 +38,7 @@ int commandGetState(uint8_t *buffer)
 int commandClearFlash(uint8_t *buffer)
 {
 	uint8_t state = getProcessStatus();
-	if((state == 1) || (state == 3))
+	if( (state == 1) || (state == 3) )
 		*buffer = 0x0E;
 	else
 	{
@@ -51,10 +50,28 @@ int commandClearFlash(uint8_t *buffer)
 	return 6;
 }
 
+int commandReadyCheck(uint8_t *buffer)
+{
+	buffer[5] = 0x0d;
+	if( xSemaphoreTake(semaphAdc, 0) == pdTRUE )
+	{
+		EventBits_t uxBits = xEventGroupGetBits(xEventGroup);
+		if( (uxBits & FLAG_IS_READY_MES) == FLAG_IS_READY_MES )
+			buffer[6] = 3; //Устройство не занято, есть данные
+		else
+			buffer[6] = 2; //Устройство не занято, нет данных или нет процесса
+		xSemaphoreGive(semaphAdc);
+	}
+	else
+	{
+		buffer[6] = 1;
+	}
+	return 7;
+}
+
 int commandGetCurAdc(uint8_t *buffer)
 {
-	//захватим симафор АЦП
-	if(buffer[6] > 7)
+	if( buffer[6] > 7 )
 	{
 		buffer[5] = 0x0e;
 		return 6;
@@ -62,6 +79,7 @@ int commandGetCurAdc(uint8_t *buffer)
 	else
 	{
 		int numChanel = buffer[6];
+	//захватим симафор АЦП
 		xSemaphoreTake(semaphAdc, portMAX_DELAY);
 		tempOfDs1820 = readtemp();
 		ep1_On();
@@ -108,7 +126,7 @@ int commandReadFlash(uint8_t *buffer)
 	uint8_t ttBuf[200];
 	uint32_t adrInFlash = buffer[6] | (buffer[7] << 8) | (buffer[8] << 16);
 	uint16_t size = buffer[9];
-	if((size > 248) || (adrInFlash > (8 * 1024 * 1024 - size)))
+	if( (size > 248) || (adrInFlash > (8 * 1024 * 1024 - size)) )
 	{
 		buffer[11] = 0x0E;
 		return 6;
@@ -123,9 +141,9 @@ int commandReadFlash(uint8_t *buffer)
 
 int commandT48(uint8_t *buffer)
 {
-	if((buffer[7] > 7) || (buffer[6] > 1))
+	if( (buffer[7] > 7) || (buffer[6] > 1) )
 		return commandError(buffer);
-	if(buffer[6] == 0)
+	if( buffer[6] == 0 )
 	{ //чтение
 		int numChanel = buffer[7];
 		buffer[6] = configTerem.sensorType[numChanel];

@@ -16,13 +16,18 @@ extern "C"
 #define FLAG_MESUR			( 1 << 0 )
 #define FLAG_SLEEP_MESUR	( 1 << 1 )
 #define FLAG_SLEEP_UART		( 1 << 2 )
+#define FLAG_IS_READY_MES	( 1 << 3 )
   
 #define TASK_PRIORITY_MAIN		0
 #define TASK_PRIORITY_MESUR		1
 #define TASK_PRIORITY_RFD		2
 #define TASK_PRIORITY_USB		3
 
+<<<<<<< HEAD
 #define SIZE_BUFF_WH41	1000
+=======
+#define SIZE_BUFF_WH41	128
+>>>>>>> 86d32411d2a039939808d87e72e74849c2a07816
   
 extern xTaskHandle handleMain;
 extern xTaskHandle handleMesur;
@@ -36,6 +41,7 @@ extern SemaphoreHandle_t mutexFlash; //мьютикс для доступа к флешпамяти
 
 extern xQueueHandle cansolQueue;
 extern xQueueHandle uartRfd232Queue;
+extern xQueueHandle memComUsbQueue;
 //extern xQueueHandle wt41AQueue;
 extern EventGroupHandle_t xEventGroup;
 

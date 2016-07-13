@@ -20,5 +20,6 @@ int commandReadFlash(uint8_t *buffer);
 int commandGetCurAdc(uint8_t *buffer);
 int commandT48(uint8_t *buffer);
 int commandGetState(uint8_t *buffer);
+int commandReadyCheck(uint8_t *buffer);
 
 #endif /* TASKS_COMMANDSRFD_H_ */

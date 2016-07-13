@@ -228,11 +228,20 @@ typedef struct
 	RTC_TimeTypeDef startTime;          //время старта
 	RTC_DateTypeDef startDate;          //дата старта
 	uint32_t period;          //интервал в сек
+	//uint32_t id;	//id процесса
 	TeremConfig config;          //конфигурация прибора во время процесса
 } HeaderProcess;
 
 uint32_t u32FromU8(const uint8_t *buffer);
+uint64_t u64FromU8(const uint8_t *buffer);
 uint16_t u16FromU8(const uint8_t *buffer);
+
+//структура месаджа для чтения из памяти
+typedef struct
+{
+	uint32_t address;
+	uint8_t count;          //колво байт
+} MemCom;
 
 #ifdef __cplusplus
 }

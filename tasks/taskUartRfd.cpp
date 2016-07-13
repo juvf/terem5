@@ -14,10 +14,9 @@
 #include "configTerem.h"
 #include "main.h"
 
-
 #include <string.h>
 
-#define BUFFER_SIZE	256
+#define BUFFER_SIZE	1024
 #define ADRRESS		0x01
 uint8_t rfd_buffer[4120];
 uint16_t rfd_count;	//счетчик принятых/отправленных байт
@@ -30,6 +29,9 @@ uint16_t crc;
 uint8_t fUart2Usb;
 bool rfd_isReadReady;
 int endTransmit = 0;
+
+//char replayWHh41[SIZE_BUFF_WH41];
+int itWh41 = 0;
 
 void taskUartRfd(void *context)
 {
@@ -50,21 +52,22 @@ void taskUartRfd(void *context)
 
 	for(;;)
 	{
-		if( xQueueReceive(uartRfd232Queue, &byte, 15000) == pdTRUE)
+		if( xQueueReceive(uartRfd232Queue, &byte, 15000) == pdTRUE )
 		{
-			if(1) //byte == 0x80 )
+			if( 1 ) //byte == 0x80 )
 			{
 				reciveByte(byte);
 				while(1)
 				{
 					if( xQueueReceive(uartRfd232Queue, &byte,
-							100) == pdPASS)
+							100) == pdPASS )
 					{
-						if(reciveByte(byte) == false)
+						if( reciveByte(byte) == false )
 							break;
 					}
 					else
 					{
+						checkMsgForUsb();
 						setRxMode();
 						break;
 					}
@@ -77,39 +80,60 @@ void taskUartRfd(void *context)
 	}
 }
 
+void checkMsgForUsb()
+{
+	if( itWh41 > 0 )
+	{
+		fUart2Usb = 1;
+	}
+//	int size = SIZE_BUFF_WH41 - uxQueueSpacesAvailable(wt41AQueue);
+//	if( size == 0 )
+//		return;
+//	else
+//	{
+//
+//		xQueueReset(wt41AQueue);
+//	}
+}
+
 bool reciveByte(uint8_t byte)
 {
 	static int flagRing;
 	rfd_buffer[rfd_count++] = byte;
-	if(rfd_count >= BUFFER_SIZE)
+	if( ++itWh41 >= BUFFER_SIZE )
+		itWh41--;
+
+	if( rfd_count >= BUFFER_SIZE )
 		--rfd_count;
-	if(rfd_count == 2)
+	if( rfd_count == 2 )
 		rfd_sizeOfFrame = byte;
-	if(rfd_count == 4)
+	if( rfd_count == 4 )
 	{
-		if(strncmp((char*)rfd_buffer, "RING", 4) == 0)
+		if( strncmp((char*)rfd_buffer, "RING", 4) == 0 )
 		{
 			flagRing = RING;
 			ledGreenOn();
 		}
-		else if(strncmp((char*)rfd_buffer, "NO C", 4) == 0)
+		else if( strncmp((char*)rfd_buffer, "NO C", 4) == 0 )
 		{
 			flagRing = NO_CARRIER;
 			ledGreenOff();
 		}
-		else if(rfd_buffer[0] == 0x80)
+		else if( rfd_buffer[0] == 0x80 )
 			flagRing = COMMAND;
 	}
 
-	if(flagRing == COMMAND)
+	if( flagRing == COMMAND )
 	{
-		if(rfd_count >= rfd_sizeOfFrame)
+		if( rfd_count >= rfd_sizeOfFrame )
 		{ //приняли весь пакет
 		  //запретить прерывания по приему компорта
 			USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
 			//rfd_isReadReady = true;
-			if(Checksum::crc16(rfd_buffer, rfd_sizeOfFrame) == 0)
+			if( Checksum::crc16(rfd_buffer, rfd_sizeOfFrame) == 0 )
+			{
 				parser();
+			}
 			else
 				setRxMode();
 			return false;
@@ -133,7 +157,7 @@ void parser()
 	rfd_addresMaster = rfd_buffer[3];
 	rfd_IdFrame = rfd_buffer[4];
 	rfd_command = rfd_buffer[5];
-	if(rfd_addresSlave != ADRRESS)
+	if( rfd_addresSlave != ADRRESS )
 	{
 		setRxMode();
 		return;
@@ -144,7 +168,7 @@ void parser()
 			rfd_sizeOfFrame = commandTestConnect(rfd_buffer);
 			break;
 		case UART_SetTime:
-			if(setRtcTime(rfd_buffer + 6))
+			if( setRtcTime(rfd_buffer + 6) )
 				rfd_sizeOfFrame = 6;
 			else
 				rfd_sizeOfFrame = commandError(rfd_buffer);
@@ -153,6 +177,9 @@ void parser()
 			getRtcTime(rfd_buffer + 6);
 			rfd_sizeOfFrame = 12;
 			break;
+		case 0x02: //контроль готовности UART_ReadyCheck
+			rfd_sizeOfFrame = commandReadyCheck(rfd_buffer);
+			break;
 		case 0x07: //запись конфигурации
 			rfd_sizeOfFrame = setConfigTerem(rfd_buffer);
 			break;
@@ -160,6 +187,7 @@ void parser()
 			rfd_sizeOfFrame = getConfigTerem(rfd_buffer);
 			break;
 		case 0x17: //Start_Proc
+			//replayWait(10);
 			rfd_sizeOfFrame = commandStartProc(rfd_buffer + 6);
 			break;
 		case 0x18: //Get_ProcConf
@@ -189,14 +217,14 @@ void parser()
 		case UART_State:
 			rfd_sizeOfFrame = commandGetState(rfd_buffer);
 			break;
-		case UART_RemoveProcess:
+		case UART_RemoveProcess: //удалить процесс
 			rfd_sizeOfFrame = commandDeleteProc(rfd_buffer);
 			break;
 		default:
 			rfd_sizeOfFrame = commandError(rfd_buffer);
 			break;
 	}
-	if(rfd_sizeOfFrame > 0)
+	if( rfd_sizeOfFrame > 0 )
 	{
 		rfd_buffer[1] = rfd_sizeOfFrame + 2;
 		rfd_buffer[2] = rfd_buffer[3];
@@ -210,6 +238,23 @@ void parser()
 		USART_ITConfig(USART2, USART_IT_TC, ENABLE); // По окончанию отправки
 		USART_SendData(USART2, rfd_buffer[0]);
 	}
+}
+
+//ответ на ожидание
+void replayWait(int msec)
+{
+	rfd_buffer[1] = 12;
+	rfd_buffer[2] = rfd_buffer[3];
+	rfd_buffer[3] = ADRRESS;
+
+	uint16_t crc = Checksum::crc16(rfd_buffer, 10);
+	rfd_buffer[10] = (uint8_t)crc;
+	rfd_buffer[11] = (uint8_t)(crc >> 8);
+
+	rfd_count = 0;
+	USART_ClearITPendingBit(USART2, USART_IT_TC);
+	USART_ITConfig(USART2, USART_IT_TC, ENABLE); // По окончанию отправки
+	USART_SendData(USART2, rfd_buffer[0]);
 }
 
 void deinitUartRfd()
@@ -257,18 +302,16 @@ void initUartRfd()
 	//USART_ITConfig(USART3, USART_IT_TC, ENABLE); // По окончанию отправки
 	//USART_ITConfig(USART6, USART_IT_RXNE, ENABLE); // При получении
 }
-char replayWHh41[SIZE_BUFF_WH41];
-int itWh41 = 0;
 
 extern "C" void USART2_IRQHandler(void)
 {
 	static portBASE_TYPE xHigherPriorityTaskWoken;
 	xHigherPriorityTaskWoken = pdFALSE;
-	if(USART_GetITStatus(USART2, USART_IT_TC) != RESET) // Если отпавка завершена
+	if( USART_GetITStatus(USART2, USART_IT_TC) != RESET ) // Если отпавка завершена
 	{
 		// Очищаем флаг прерывания, если этого не сделать, оно будет вызываться постоянно.
 		USART_ClearITPendingBit(USART2, USART_IT_TC);
-		if(++rfd_count == rfd_sizeOfFrame)
+		if( ++rfd_count == rfd_sizeOfFrame )
 		{ //передали весь пакет
 			endTransmit = 0;
 			setRxMode();
@@ -279,15 +322,32 @@ extern "C" void USART2_IRQHandler(void)
 		}
 	}
 
-	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET) // Если приием завершен (регистр приема не пуст)
+	if( USART_GetITStatus(USART2, USART_IT_RXNE) != RESET ) // Если приием завершен (регистр приема не пуст)
 	{
 		// Флаг данного прерывания сбрасыывается прочтением данных
 		static uint8_t byte;
 		byte = USART_ReceiveData(USART2);
-		xQueueSendFromISR(uartRfd232Queue, &byte, &xHigherPriorityTaskWoken);
-		replayWHh41[itWh41++] = byte;
-		if( itWh41 == SIZE_BUFF_WH41)
-			itWh41 = 0;
+		if( xQueueSendFromISR(uartRfd232Queue, &byte,
+				&xHigherPriorityTaskWoken) != pdTRUE )
+			xQueueSendFromISR(uartRfd232Queue, &byte,
+					&xHigherPriorityTaskWoken);
+		//xQueueSendFromISR(wt41AQueue, &byte, &xHigherPriorityTaskWoken);
+		//replayWHh41[0] = 'f';
+//		replayWHh41[itWh41] = byte;
+//		if(replayWHh41[itWh41] == '\n')
+//		{
+//			replayWHh41[itWh41 + 1] = 0;
+//			fUart2Usb = 1;
+//			//xEventGroupSetBitsFromISR(xEventGroup, FLAG_UART_USB, &xHigherPriorityTaskWoken);
+//			//itWh41 = 0;
+//		}
+//		else if(++itWh41 == (SIZE_BUFF_WH41 - 1))
+//		{
+//			replayWHh41[itWh41] = 0;
+//			fUart2Usb = 1;
+//			//xEventGroupSetBitsFromISR(xEventGroup, FLAG_UART_USB, &xHigherPriorityTaskWoken);
+//			itWh41 = 0;
+//		}
 	}
 	portEND_SWITCHING_ISR(xHigherPriorityTaskWoken == pdTRUE);
 }
