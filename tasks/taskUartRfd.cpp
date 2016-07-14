@@ -187,7 +187,6 @@ void parser()
 			rfd_sizeOfFrame = getConfigTerem(rfd_buffer);
 			break;
 		case 0x17: //Start_Proc
-			//replayWait(10);
 			rfd_sizeOfFrame = commandStartProc(rfd_buffer + 6);
 			break;
 		case 0x18: //Get_ProcConf
