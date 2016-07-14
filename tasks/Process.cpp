@@ -20,7 +20,7 @@
 uint16_t numProc = 0xffff; //номер текущего процесса в headerList[]
 HeaderProcess currProcessHeader; //заголовок текущего процесса
 uint32_t currProcessCount; //кол-во записанных точек
-uint8_t stateProcess; //текущее состояние процесса 0-нет процесса, 1-едёт процесс, 2-закончился, 3-ждет старта
+uint8_t stateProcess; //текущее состояние процесса 0-нет процесса, 1-идёт процесс, 2-закончился, 3-ждет старта
 
 uint16_t headerList[MAX_SECTORS];
 //

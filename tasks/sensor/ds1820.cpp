@@ -7,6 +7,7 @@
 #include "ds1820.h"
 #include "osConfig.h"
 #include "stm32f4xx.h"
+#include "../CritSect.h"
 
 float tempOfDs1820;
 
@@ -64,17 +65,21 @@ float tempOfDs1820;
 // Start transaction with 1-wire line.
 void init_ds18b20()
 {
+	enterCritSect();
 	DQ_OUT();
 	C_DQ();
 	mksDelay(550);
 	S_DQ();
 	DQ_IN();
 	mksDelay(50);
+	exitCritSect();
 	while(DQ() != 0)
 		; //wait for DQ low
 	mksDelay(240);
+	enterCritSect();
 	DQ_OUT();
 	S_DQ();
+	exitCritSect();
 	mksDelay(300);
 }
 
@@ -210,6 +215,7 @@ void mksDelay(uint16_t time)
 // Read a byte from the sensor
 uint8_t readbyte()
 {
+	enterCritSect();
 	uint8_t i = 0, data = 0;
 	DQ_OUT();
 	for(i = 0; i < 8; i++)
@@ -227,12 +233,14 @@ uint8_t readbyte()
 		mksDelay(45);
 		mksDelay(5);
 	}
+	exitCritSect();
 	return (data);
 }
 //----------------------------------------------------------------
 // Write a command to the sensor
 void writecommand(uint8_t data)
 {
+	enterCritSect();
 	uint8_t i;
 	for(i = 0; i < 8; i++)
 	{
@@ -247,6 +255,7 @@ void writecommand(uint8_t data)
 		S_DQ();
 		mksDelay(2);
 	}
+	exitCritSect();
 }
 
 //----------------------------------------------------------------
