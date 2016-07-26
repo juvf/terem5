@@ -183,11 +183,11 @@ float Polinom3(float x, const float *A)
 //
 ResultMes readSenser(uint8_t numChanel)
 {
-	static ResultMes result;
+	ResultMes result;
 	switch(configTerem.sensorType[numChanel])
 	{
 		//Датчики перемещения
-	/*	case GT_MM10:
+		case GT_MM10:
 			result.u = readAnalogSensor(numChanel);
 			result.p = MM10_Length(result.u, configTerem.a[numChanel][0]);
 			//				valP = valU * 2.0 / 1.17;
@@ -208,13 +208,13 @@ ResultMes readSenser(uint8_t numChanel)
 			result.p = HEL700_Termo(result.u, numChanel);
 			powerDa17_16(P_OFF);
 			powerDa12_15(100);
-			break;*/
+			break;
 		case GT_TermoHK:			//Термопара ХК -> в градусах
 		case GT_TermoHKcom:
 			result.u = getU_Ad7792(numChanel);
 			result.p = HK_Termo(result.u, tempOfDs1820);
 			break;
-	/*	case GT_TermoHA:			//Термопара ХА -> в градусах
+		case GT_TermoHA:			//Термопара ХА -> в градусах
 		case GT_TermoHAcom:
 			result.u = getU_Ad7792(numChanel);
 			result.p = HA_Termo(result.u, tempOfDs1820);
@@ -297,7 +297,7 @@ ResultMes readSenser(uint8_t numChanel)
 		case GT_U2V:
 			result.u = getU_Ad7792(numChanel);
 			result.p = koeffsAB.koef[numChanel].a[0] + result.u*koeffsAB.koef[numChanel].a[1];
-			break;*/
+			break;
 		default:
 			result.u = NAN;
 			result.p = NAN;
