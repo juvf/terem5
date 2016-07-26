@@ -20,7 +20,7 @@
 uint16_t numProc = 0xffff; //номер текущего процесса в headerList[]
 HeaderProcess currProcessHeader; //заголовок текущего процесса
 uint32_t currProcessCount; //кол-во записанных точек
-uint8_t stateProcess; //текущее состо€ние процесса 0-нет процесса, 1-едЄт процесс, 2-закончилс€, 3-ждет старта
+uint8_t stateProcess; //текущее состо€ние процесса 0-нет процесса, 1-идЄт процесс, 2-закончилс€, 3-ждет старта
 
 uint16_t headerList[MAX_SECTORS];
 //
@@ -110,22 +110,37 @@ int commandGetHeaderProc(uint8_t *buffer)
 	return 6 + /*countSectords * 2*/+sizeof(HeaderProcess) + 4;
 }
 
+//uint32_t calcCountSectors(const HeaderProcess &header)
+//{
+//	uint16_t countSenser = countSensor(header);
+//	uint32_t sizeOfProcessData = 4 * header.count * countSenser;
+////рассчитаем кол-во секторов
+//	uint32_t remainder = sizeOfProcessData % 4096;
+//	uint32_t countSectords = 1 + (sizeOfProcessData / 4096);
+//	uint16_t sizeOfHeader = sizeof(Header) + 4 + (countSectords * 2); //зармер заголовка и цепочки адресов секторов
+//	if( (4096 - sizeOfHeader) < remainder )
+//		countSectords++;
+//	return countSectords;
+//}
 uint32_t calcCountSectors(const HeaderProcess &header)
 {
-	uint16_t countSenser = 0;
-	for(int i = 0; i < 8; i++)
+	uint32_t headerSize = sizeof(HeaderProcess);
+	uint16_t countSenser = countSensor(header);
+	uint32_t allDataSize = header.count * countSenser * sizeof(float);
+	allDataSize += headerSize;
+	uint16_t sec = allDataSize / 4092;
+	uint32_t remainder = allDataSize % 4092;
+	sec += (remainder > 0) ? 1 : 0;
+	allDataSize += sec * 2;
+	uint16_t newSec = allDataSize / 4092;
+	newSec += allDataSize % 4092 > 0 ? 1 : 0;
+	if( newSec > sec )
 	{
-		if( header.config.sensorType[i] < GT_Absent )
-			countSenser++;
+		allDataSize += 2;
+		sec = allDataSize / 4092;
+		sec += allDataSize % 4092 > 0 ? 1 : 0;
 	}
-	uint32_t sizeOfProcessData = 4 * header.count * countSenser;
-//рассчитаем кол-во секторов
-	uint32_t remainder = sizeOfProcessData % 4096;
-	uint32_t countSectords = 1 + (sizeOfProcessData / 4096);
-	uint16_t sizeOfHeader = sizeof(Header) + 4 + (countSectords * 2); //зармер заголовка и цепочки адресов секторов
-	if( (4096 - sizeOfHeader) < remainder )
-		countSectords++;
-	return countSectords;
+	return sec;
 }
 
 /* находит в headerList[] процесс с адресом заголовка address и возвращ€ет индекс массива headerList[]
@@ -404,13 +419,17 @@ bool allocMemForNewProc(const HeaderProcess &header)
 
 					uint16_t allSize = 4 + sizeof(HeaderProcess);
 					void *p = (void*)&tempBuf[allSize];
-					allSize += countSectors * sizeof(uint16_t);
+					uint32_t addInFlash = coilSectors[n] * 4096;
+					allSize = countSectors * sizeof(uint16_t);
 					do
-					{
-						uint16_t tempSize = allSize > (256 - ((uint8_t*)p - tempBuf)) ? 256 - ((uint8_t*)p - tempBuf) : allSize;
-						allSize -= tempSize + ((uint8_t*)p - tempBuf);
+					{ //вычислим оставши€с€ размер блока
+						uint16_t tempSize = 256 - ((uint8_t*)p - tempBuf);
+						if( allSize < tempSize )
+							tempSize = allSize;
+						allSize -= tempSize;
 						memcpy(p, (void*)coilSectors, tempSize);
-						flashMx25Write((uint8_t*)tempBuf, coilSectors[n] * 4096);
+						flashMx25Write((uint8_t*)tempBuf, addInFlash);
+						addInFlash += 256;
 						memset((void*)tempBuf, 0xff, 256);
 						p = (void*)tempBuf;
 					} while(allSize > 0);

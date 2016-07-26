@@ -7,6 +7,7 @@
 #include "ds1820.h"
 #include "osConfig.h"
 #include "stm32f4xx.h"
+#include "../CritSect.h"
 
 float tempOfDs1820;
 
@@ -64,17 +65,21 @@ float tempOfDs1820;
 // Start transaction with 1-wire line.
 void init_ds18b20()
 {
+	enterCritSect();
 	DQ_OUT();
 	C_DQ();
 	mksDelay(550);
 	S_DQ();
 	DQ_IN();
 	mksDelay(50);
+	exitCritSect();
 	while(DQ() != 0)
 		; //wait for DQ low
 	mksDelay(240);
+	enterCritSect();
 	DQ_OUT();
 	S_DQ();
+	exitCritSect();
 	mksDelay(300);
 }
 
@@ -163,10 +168,54 @@ void mksDelay(uint16_t time)
 		asm("nop");
 	}
 }
+
+//(15:21:39) есть спец таймер на стм32 пейздатый для мектосекунд
+//(15:21:53) тема на электрониксе в топе висела нираз
+//(15:22:59) приерна так
+//(15:23:01) void THardwareSTM32F401::delayUs(UNSIGNED32 delay)
+//{
+//   startDWT();
+//   DWT_Delay(delay);
+//}
+//
+//
+////////////////////////////////////////////////////////////////////////////////////
+//#define    DWT_CYCCNT    *(volatile uint32_t *)0xE0001004
+//#define    DWT_CONTROL   *(volatile uint32_t *)0xE0001000
+//#define    SCB_DEMCR     *(volatile uint32_t *)0xE000EDFC
+//
+//static void startDWT(void)
+//{
+//   if (!(DWT_CONTROL & 1))
+//   {
+//       SCB_DEMCR  |= 0x01000000;
+//       DWT_CYCCNT  = 0;
+//       DWT_CONTROL|= 1; // enable the counter
+//   }
+//}
+//
+//static UNSIGNED32 DWT_Get(void)
+//{
+//   return DWT_CYCCNT;
+//}
+//
+//static inline UNSIGNED8 DWT_Compare(SIGNED32 tp)
+//{
+//   return (((SIGNED32)DWT_Get() - tp) < 0);
+//}
+//extern UNSIGNED32 SystemCoreClock;
+//
+//static void DWT_Delay(UNSIGNED32 us) // microseconds
+//{
+//   SIGNED32 tp = DWT_Get() + us * (SystemCoreClock/1000000);
+//   while (DWT_Compare(tp));
+//}
+
 //----------------------------------------------------------------
 // Read a byte from the sensor
 uint8_t readbyte()
 {
+	enterCritSect();
 	uint8_t i = 0, data = 0;
 	DQ_OUT();
 	for(i = 0; i < 8; i++)
@@ -184,12 +233,14 @@ uint8_t readbyte()
 		mksDelay(45);
 		mksDelay(5);
 	}
+	exitCritSect();
 	return (data);
 }
 //----------------------------------------------------------------
 // Write a command to the sensor
 void writecommand(uint8_t data)
 {
+	enterCritSect();
 	uint8_t i;
 	for(i = 0; i < 8; i++)
 	{
@@ -204,13 +255,14 @@ void writecommand(uint8_t data)
 		S_DQ();
 		mksDelay(2);
 	}
+	exitCritSect();
 }
 
 //----------------------------------------------------------------
 // Read value from the sensor
 float readtemp()
 {
-	uint16_t L, H, ds;
+	static uint16_t L, H, ds;
 
 	init_ds18b20();
 	// Convert

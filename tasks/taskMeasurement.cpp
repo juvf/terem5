@@ -25,18 +25,12 @@ void taskMeasurement(void *context)
 //имеем массив датчиков.... у каждого датчика есть настройка - включен он или блять не включен и его тип
 //проверяем енто
 	vTaskDelay(1000);
-	vTaskDelay(6000);
-	ledRedOff();
 	while(1)
 	{
 
-		musuring();
-		vTaskDelay(600);
-		continue;
-
 		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup, FLAG_MESUR,
 		pdTRUE, pdTRUE, 3000);
-		if((uxBits & FLAG_MESUR) == FLAG_MESUR)
+		if( (uxBits & FLAG_MESUR) == FLAG_MESUR )
 		{
 			ledRedOn();
 			setNewAlarmRTC(getProcessPeriod()); 		//перезапустим таймер
@@ -63,27 +57,33 @@ void timerMeasurement(xTimerHandle xTimer)
 
 void musuring()
 {
-	tempOfDs1820 = readtemp();
-	if((tempOfDs1820 < 20) || (tempOfDs1820 > 40))
-	{
-		ledRedOn();
-		asm("nop");
-	}
-return;
+
+	static ResultMes result1;
 	int j = 0;
 	//захватим симафор АЦП
 	xSemaphoreTake(semaphAdc, portMAX_DELAY);
+	//выставим флаг готовности новых данных
 	tempOfDs1820 = readtemp();
+
+	if( (tempOfDs1820 > 30) || (tempOfDs1820 < 19) )
+	{
+		ledRedOn();
+		while(1)
+			asm("nop");
+	}
+
 	ep1_On();
 	epa_On();
 	for(int i = 0; i < 8; i++)
 	{	//опрос всех каналы
-		ResultMes result = readSenser(i);
-		if( isnan(result.u) == 0)
-			valueSens[j++] = result.p;
+		result1 = readSenser(0);
+		if( isnan(result1.u) == 0 )
+			valueSens[j++] = result1.p;
 	}
 	epa_Off();
 	ep1_Off();
+
+	xEventGroupSetBits(xEventGroup, FLAG_IS_READY_MES);
 	//освободим симафор АЦП
 	xSemaphoreGive(semaphAdc);
 
