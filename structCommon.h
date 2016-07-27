@@ -212,6 +212,13 @@ typedef struct
 
 typedef struct
 {
+	uint8_t address;
+	uint8_t reserv;
+	uint16_t crc[2];          // онтроль целостности
+} TeremParam;
+
+typedef struct
+{
 	float u; //измеренное знаечение в вольтах
 	float p; //измеренное значение в еденицах измерени€ параметра
 } ResultMes;
@@ -219,6 +226,8 @@ typedef struct
 extern KoeffsAB koeffsAB;
 
 extern uint8_t adcRange[8];
+
+extern TeremParam teremParam;
 
 //заголовок процесса
 typedef struct

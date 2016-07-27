@@ -23,11 +23,14 @@ void mainTask(void *context)
 	{
 		//ledGreenOn();
 		//ждем флагов чтобы уйти в режим микропотребления, в Stop Mode
-		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP,
+		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP | FLAG_WRITE_PARAM,
 		pdTRUE, pdTRUE, 1000);
 		//ledGreenOff();
 		if( (uxBits & FLAG_SLEEP) == FLAG_SLEEP )
 			sleepJ();
+		if( (uxBits & FLAG_WRITE_PARAM) == FLAG_WRITE_PARAM )
+			saveParam();
+
 
 //		xEventGroupWaitBits(xEventGroup, FLAG_MESUR,
 //		pdTRUE, pdTRUE, 1000);

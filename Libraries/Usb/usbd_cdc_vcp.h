@@ -37,12 +37,16 @@
 #define COM_USB_SEND_MESSAGE	3 //от компа
 #define COM_USB_GET_MESSAGE		4 //получить компу
 #define COM_USB_READ_MEM		5 //чтение памяти
+#define COM_USB_READ_ADDRESS	6 //чтение адреса
+#define COM_USB_WRITE_ADDRESS	7 //запись адреса
 
 
 
 void usbReplayGetMessage(void *pdev);
 void usbSenMessToWT41(uint8_t *buf, uint32_t Len);
 void usbReadMemory(uint8_t* buffer, void *pdev);
+void usbReadAddress(uint8_t* buffer, void *pdev);
+void usbWriteAddress(uint8_t* buffer, void *pdev);
 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

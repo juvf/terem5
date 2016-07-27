@@ -6,6 +6,7 @@
 #include "usbd_cdc_vcp.h"
 #include "osConfig.h"
 #include "structCommon.h"
+#include "../../tasks/configTerem.h"
 
 #include  <string.h>
 
@@ -59,12 +60,38 @@ static uint16_t VCP_DataRx(uint8_t* buffer, uint32_t Len, void *pdev)
 		case COM_USB_READ_MEM:
 			usbReadMemory(buffer, pdev);
 			break;
+		case COM_USB_READ_ADDRESS:
+			usbReadAddress(buffer, pdev);
+			break;
+		case COM_USB_WRITE_ADDRESS:
+			usbWriteAddress(buffer, pdev);
+			break;
 	}
 
 	return USBD_OK;
 }
+
+void usbReadAddress(uint8_t* buffer, void *pdev)
+{
+	buffer[0] = teremParam.address;
+	DCD_EP_Tx(pdev, 02, (uint8_t*)&teremParam.address, 1);
+}
+
+/* Функция usbWriteAddress записывет адрес.
+ * первые 4 байта в буфере - это команда (7)
+ * buffer[5] - адрес
+ * в ответ будет записанный адрес
+ */
+void usbWriteAddress(uint8_t* buffer, void *pdev)
+{
+	teremParam.address = buffer[4];
+	xEventGroupSetBitsFromISR(xEventGroup, FLAG_WRITE_PARAM, 0);
+	DCD_EP_Tx(pdev, 02, (uint8_t*)&teremParam.address, 1);
+}
+
+
 /* Функция usbReadMemory читает память.
- * первый 4 байта в буфере - это команда (5)
+ * первые 4 байта в буфере - это команда (5)
  * buffer[4] - тип памятию 0 - ОЗУ
  * 1 - Flas, 2 - SPI Flash, 3 - I2C EEPROM
  * buffer[5] - размер в байтах вычитываемого блока.
