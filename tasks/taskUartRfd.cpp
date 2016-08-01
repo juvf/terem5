@@ -52,17 +52,17 @@ void taskUartRfd(void *context)
 
 	for(;;)
 	{
-		if( xQueueReceive(uartRfd232Queue, &byte, 15000) == pdTRUE )
+		if( xQueueReceive(uartRfd232Queue, &byte, 15000) == pdTRUE)
 		{
-			if( 1 ) //byte == 0x80 )
+			if(1) //byte == 0x80 )
 			{
 				reciveByte(byte);
 				while(1)
 				{
 					if( xQueueReceive(uartRfd232Queue, &byte,
-							100) == pdPASS )
+							100) == pdPASS)
 					{
-						if( reciveByte(byte) == false )
+						if(reciveByte(byte) == false)
 							break;
 					}
 					else
@@ -82,7 +82,7 @@ void taskUartRfd(void *context)
 
 void checkMsgForUsb()
 {
-	if( itWh41 > 0 )
+	if(itWh41 > 0)
 	{
 		fUart2Usb = 1;
 	}
@@ -100,39 +100,39 @@ bool reciveByte(uint8_t byte)
 {
 	static int flagRing;
 	rfd_buffer[rfd_count++] = byte;
-	if( ++itWh41 >= BUFFER_SIZE )
+	if(++itWh41 >= BUFFER_SIZE)
 		itWh41--;
 
-	if( rfd_count >= BUFFER_SIZE )
+	if(rfd_count >= BUFFER_SIZE)
 		--rfd_count;
-	if( rfd_count == 2 )
+	if(rfd_count == 2)
 		rfd_sizeOfFrame = byte;
-	if( rfd_count == 4 )
+	if(rfd_count == 4)
 	{
-		if( strncmp((char*)rfd_buffer, "RING", 4) == 0 )
+		if(strncmp((char*)rfd_buffer, "RING", 4) == 0)
 		{
 			flagRing = RING;
 			ledGreenOn();
 		}
-		else if( strncmp((char*)rfd_buffer, "NO C", 4) == 0 )
+		else if(strncmp((char*)rfd_buffer, "NO C", 4) == 0)
 		{
 			flagRing = NO_CARRIER;
 			ledGreenOff();
 		}
-		else if( rfd_buffer[0] == 0x80 )
+		else if(rfd_buffer[0] == 0x80)
 			flagRing = COMMAND;
 	}
 
-	if( flagRing == COMMAND )
+	if(flagRing == COMMAND)
 	{
-		if( rfd_count >= rfd_sizeOfFrame )
+		if(rfd_count >= rfd_sizeOfFrame)
 		{ //приняли весь пакет
 		  //запретить прерывания по приему компорта
 			USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
 			//rfd_isReadReady = true;
-			if( Checksum::crc16(rfd_buffer, rfd_sizeOfFrame) == 0 )
+			if(Checksum::crc16(rfd_buffer, rfd_sizeOfFrame) == 0)
 			{
-				parser();
+				parser(rfd_buffer, true);
 			}
 			else
 				setRxMode();
@@ -150,14 +150,14 @@ void setRxMode()
 	USART_ITConfig(USART2, USART_IT_TC, DISABLE);
 }
 
-void parser()
+void parser(uint8_t *buf, uint8_t isRf)
 {
-	rfd_sizeOfFrame = rfd_buffer[1];
-	rfd_addresSlave = rfd_buffer[2];
-	rfd_addresMaster = rfd_buffer[3];
-	rfd_IdFrame = rfd_buffer[4];
-	rfd_command = rfd_buffer[5];
-	if( rfd_addresSlave != ADRRESS )
+	rfd_sizeOfFrame = buf[1];
+	rfd_addresSlave = buf[2];
+	rfd_addresMaster = buf[3];
+	rfd_IdFrame = buf[4];
+	rfd_command = buf[5];
+	if(rfd_addresSlave != teremParam.address)
 	{
 		setRxMode();
 		return;
@@ -165,77 +165,86 @@ void parser()
 	switch(rfd_command)
 	{
 		case UART_TestConnect:
-			rfd_sizeOfFrame = commandTestConnect(rfd_buffer);
+			rfd_sizeOfFrame = commandTestConnect(buf);
 			break;
 		case UART_SetTime:
-			if( setRtcTime(rfd_buffer + 6) )
+			if(setRtcTime(buf + 6))
 				rfd_sizeOfFrame = 6;
 			else
-				rfd_sizeOfFrame = commandError(rfd_buffer);
+				rfd_sizeOfFrame = commandError(buf);
 			break;
 		case UART_GetTime:
-			getRtcTime(rfd_buffer + 6);
+			getRtcTime(buf + 6);
 			rfd_sizeOfFrame = 12;
 			break;
 		case 0x02: //контроль готовности UART_ReadyCheck
-			rfd_sizeOfFrame = commandReadyCheck(rfd_buffer);
+			rfd_sizeOfFrame = commandReadyCheck(buf);
 			break;
 		case 0x07: //запись конфигурации
-			rfd_sizeOfFrame = setConfigTerem(rfd_buffer);
+			rfd_sizeOfFrame = setConfigTerem(buf);
 			break;
 		case 0x06: //чтение конфигурации
-			rfd_sizeOfFrame = getConfigTerem(rfd_buffer);
+			rfd_sizeOfFrame = getConfigTerem(buf);
 			break;
 		case 0x17: //Start_Proc
-			rfd_sizeOfFrame = commandStartProc(rfd_buffer + 6);
+			rfd_sizeOfFrame = commandStartProc(buf + 6);
 			break;
 		case 0x18: //Get_ProcConf
-			rfd_sizeOfFrame = commandGetProcConf(rfd_buffer + 6);
+			rfd_sizeOfFrame = commandGetProcConf(buf + 6);
 			break;
 		case 0x19: //Get_CurrentVal
-			rfd_sizeOfFrame = commandGetCurAdc(rfd_buffer);
+			rfd_sizeOfFrame = commandGetCurAdc(buf);
 			break;
 		case 0x21: //UART_ClearFlash
-			rfd_sizeOfFrame = commandClearFlash(rfd_buffer);
+			rfd_sizeOfFrame = commandClearFlash(buf);
 			break;
 		case 0x23: //UART_GetCountProcess
-			rfd_sizeOfFrame = commandGetCountProc(rfd_buffer);
+			rfd_sizeOfFrame = commandGetCountProc(buf);
 			break;
 		case 0x24: //UART_GetHeaderProcess
-			rfd_sizeOfFrame = commandGetHeaderProc(rfd_buffer);
+			rfd_sizeOfFrame = commandGetHeaderProc(buf);
 			break;
 		case 0x22: //UART_ReadFlash
-			rfd_sizeOfFrame = commandReadFlash(rfd_buffer);
+			rfd_sizeOfFrame = commandReadFlash(buf);
 			break;
 		case 0x09: //UART_Cmd48
-			rfd_sizeOfFrame = commandT48(rfd_buffer);
+			rfd_sizeOfFrame = commandT48(buf);
 			break;
 		case 0x20: //Stop_Proc+
 			rfd_sizeOfFrame = commandStopProc();
 			break;
 		case UART_State:
-			rfd_sizeOfFrame = commandGetState(rfd_buffer);
+			rfd_sizeOfFrame = commandGetState(buf);
 			break;
 		case UART_RemoveProcess: //удалить процесс
-			rfd_sizeOfFrame = commandDeleteProc(rfd_buffer);
+			rfd_sizeOfFrame = commandDeleteProc(buf);
 			break;
 		default:
-			rfd_sizeOfFrame = commandError(rfd_buffer);
+			rfd_sizeOfFrame = commandError(buf);
 			break;
 	}
-	if( rfd_sizeOfFrame > 0 )
-	{
-		rfd_buffer[1] = rfd_sizeOfFrame + 2;
-		rfd_buffer[2] = rfd_buffer[3];
-		rfd_buffer[3] = ADRRESS;
-		uint16_t crc = Checksum::crc16(rfd_buffer, rfd_sizeOfFrame);
-		rfd_buffer[rfd_sizeOfFrame++] = (uint8_t)crc;
-		rfd_buffer[rfd_sizeOfFrame++] = (uint8_t)(crc >> 8);
-
-		rfd_count = 0;
-		USART_ClearITPendingBit(USART2, USART_IT_TC);
-		USART_ITConfig(USART2, USART_IT_TC, ENABLE); // По окончанию отправки
-		USART_SendData(USART2, rfd_buffer[0]);
+	if(isRf)
+	{ //ответ по БТ
+		if(rfd_sizeOfFrame > 0)
+		{
+			buf[1] = rfd_sizeOfFrame + 2;
+			buf[2] = buf[3];
+			buf[3] = ADRRESS;
+			uint16_t crc = Checksum::crc16(buf, rfd_sizeOfFrame);
+			buf[rfd_sizeOfFrame++] = (uint8_t)crc;
+			buf[rfd_sizeOfFrame++] = (uint8_t)(crc >> 8);
+			rfd_count = 0;
+			USART_ClearITPendingBit(USART2, USART_IT_TC);
+			USART_ITConfig(USART2, USART_IT_TC, ENABLE); // По окончанию отправки
+			USART_SendData(USART2, buf[0]);
+		}
+	}
+	else
+	{ //ответ по USB
+		buf[1] = rfd_sizeOfFrame + 2;
+		buf[2] = buf[3];
+		buf[3] = ADRRESS;
+		uint16_t crc = Checksum::crc16(buf, rfd_sizeOfFrame);
 	}
 }
 
@@ -306,11 +315,11 @@ extern "C" void USART2_IRQHandler(void)
 {
 	static portBASE_TYPE xHigherPriorityTaskWoken;
 	xHigherPriorityTaskWoken = pdFALSE;
-	if( USART_GetITStatus(USART2, USART_IT_TC) != RESET ) // Если отпавка завершена
+	if(USART_GetITStatus(USART2, USART_IT_TC) != RESET) // Если отпавка завершена
 	{
 		// Очищаем флаг прерывания, если этого не сделать, оно будет вызываться постоянно.
 		USART_ClearITPendingBit(USART2, USART_IT_TC);
-		if( ++rfd_count == rfd_sizeOfFrame )
+		if(++rfd_count == rfd_sizeOfFrame)
 		{ //передали весь пакет
 			endTransmit = 0;
 			setRxMode();
@@ -321,13 +330,13 @@ extern "C" void USART2_IRQHandler(void)
 		}
 	}
 
-	if( USART_GetITStatus(USART2, USART_IT_RXNE) != RESET ) // Если приием завершен (регистр приема не пуст)
+	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET) // Если приием завершен (регистр приема не пуст)
 	{
 		// Флаг данного прерывания сбрасыывается прочтением данных
 		static uint8_t byte;
 		byte = USART_ReceiveData(USART2);
 		if( xQueueSendFromISR(uartRfd232Queue, &byte,
-				&xHigherPriorityTaskWoken) != pdTRUE )
+				&xHigherPriorityTaskWoken) != pdTRUE)
 			xQueueSendFromISR(uartRfd232Queue, &byte,
 					&xHigherPriorityTaskWoken);
 		//xQueueSendFromISR(wt41AQueue, &byte, &xHigherPriorityTaskWoken);

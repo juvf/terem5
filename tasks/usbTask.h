@@ -12,6 +12,9 @@
 extern "C"
 {
 #endif
+#include <stdint.h>
+
+extern uint8_t usbBuffer[280];
 
 void usbTask(void *context);
 

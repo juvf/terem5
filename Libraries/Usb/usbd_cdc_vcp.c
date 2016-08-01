@@ -42,6 +42,7 @@ uint32_t sizeNextPaket = 0;
 static uint16_t VCP_DataRx(uint8_t* buffer, uint32_t Len, void *pdev)
 {
 	uint32_t command = *(uint32_t*)buffer;
+	command &= 0xff;
 	char *mess;
 	switch(command)
 	{
@@ -66,9 +67,26 @@ static uint16_t VCP_DataRx(uint8_t* buffer, uint32_t Len, void *pdev)
 		case COM_USB_WRITE_ADDRESS:
 			usbWriteAddress(buffer, pdev);
 			break;
+		case COM_USB_RF_COM:
+			usbRfComand(buffer, pdev, Len);
+			break;
 	}
 
 	return USBD_OK;
+}
+
+void usbRfComand(uint8_t* buffer, void *pdev, uint32_t Len)
+{
+	uint8_t numFrame = (command >> 16) &0xff;//номер кадра
+	uint8_t countFrame = (command >> 24) &0xff;//всего кол-во кадров
+
+	memcpy((void*)&usbBuffer[numFrame * 60], buffer+4, Len);
+
+	if(numFrame == countFrame)
+	{//весь пакет приняли
+		xEventGroupSetBitsFromISR(xEventGroup, FLAG_COM_USB, 0);
+	}
+
 }
 
 void usbReadAddress(uint8_t* buffer, void *pdev)
