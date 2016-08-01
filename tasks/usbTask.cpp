@@ -80,20 +80,16 @@ void usbTask(void *context)
 			DCD_EP_Tx(&USB_OTG_dev, 02, usbBuffer, com.count);
 			vTaskDelay(1);
 		}
-		if(xEventGroupGetBits(xEventGroup) & FLAG_COM_USB == FLAG_COM_USB)
+
+		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup, FLAG_COM_USB, pdTRUE, pdFALSE, 10);
+		if( (uxBits & FLAG_COM_USB) == FLAG_COM_USB)
 		{ //пришла команда радиоканальная по УСБ. проверим ЦРЦ
 			uint8_t length = usbBuffer[1];
 			if(Checksum::crc16(usbBuffer, length) == 0)
 			{
 				parser(usbBuffer, false);
-				do
-				{
-					uint8_t size = length;
-					if(size > 60)
-						size = 60;
-					DCD_EP_Tx(&USB_OTG_dev, 02, usbBuffer + (usbBuffer[1] - length), size);
-					length -= size;
-				} while(length > 0);
+				DCD_EP_Tx(&USB_OTG_dev, 02, usbBuffer, usbBuffer[1]);
+				vTaskDelay(1);
 			}
 		}
 	}

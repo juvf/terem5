@@ -6,6 +6,7 @@
 #include "usbd_cdc_vcp.h"
 #include "osConfig.h"
 #include "structCommon.h"
+#include "../../tasks/usbTask.h"
 #include "../../tasks/configTerem.h"
 
 #include  <string.h>
@@ -77,16 +78,16 @@ static uint16_t VCP_DataRx(uint8_t* buffer, uint32_t Len, void *pdev)
 
 void usbRfComand(uint8_t* buffer, void *pdev, uint32_t Len)
 {
+	uint32_t command = *(uint32_t*)buffer;
 	uint8_t numFrame = (command >> 16) &0xff;//номер кадра
 	uint8_t countFrame = (command >> 24) &0xff;//всего кол-во кадров
 
-	memcpy((void*)&usbBuffer[numFrame * 60], buffer+4, Len);
+	memcpy((void*)&usbBuffer[numFrame * 60], buffer+4, Len - 4);
 
 	if(numFrame == countFrame)
 	{//весь пакет приняли
 		xEventGroupSetBitsFromISR(xEventGroup, FLAG_COM_USB, 0);
 	}
-
 }
 
 void usbReadAddress(uint8_t* buffer, void *pdev)

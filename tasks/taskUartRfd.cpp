@@ -159,7 +159,8 @@ void parser(uint8_t *buf, uint8_t isRf)
 	rfd_command = buf[5];
 	if(rfd_addresSlave != teremParam.address)
 	{
-		setRxMode();
+		if(isRf)
+			setRxMode();
 		return;
 	}
 	switch(rfd_command)
@@ -245,6 +246,8 @@ void parser(uint8_t *buf, uint8_t isRf)
 		buf[2] = buf[3];
 		buf[3] = ADRRESS;
 		uint16_t crc = Checksum::crc16(buf, rfd_sizeOfFrame);
+		buf[rfd_sizeOfFrame++] = crc & 0xff;
+		buf[rfd_sizeOfFrame] = (crc>>8) & 0xff;
 	}
 }
 
