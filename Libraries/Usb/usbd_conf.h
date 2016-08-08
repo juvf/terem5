@@ -64,7 +64,7 @@ extern "C"
                                                 APP_RX_DATA_SIZE*8/MAX_BAUDARATE*1000 should be > CDC_IN_FRAME_INTERVAL*8 */
 #else
  #define CDC_DATA_MAX_PACKET_SIZE       64   /* Endpoint IN & OUT Packet size */
- #define CDC_CMD_PACKET_SZE             8    /* Control Endpoint Packet size */
+ #define CDC_CMD_PACKET_SZE             64    /* Control Endpoint Packet size */
 
  #define CDC_IN_FRAME_INTERVAL          5    /* Number of frames between IN transfers */
  #define APP_RX_DATA_SIZE               2048 /* Total size of IN buffer: 

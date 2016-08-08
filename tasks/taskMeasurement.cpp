@@ -63,7 +63,7 @@ void musuring()
 	//захватим симафор АЦП
 	xSemaphoreTake(semaphAdc, portMAX_DELAY);
 	//выставим флаг готовности новых данных
-	tempOfDs1820 = 27;//readtemp();
+	tempOfDs1820 = readtemp();
 
 //	if( (tempOfDs1820 > 30) || (tempOfDs1820 < 19) )
 //	{
@@ -76,9 +76,9 @@ void musuring()
 	epa_On();
 	for(int i = 0; i < 8; i++)
 	{	//опрос всех каналы
-		//result1 = readSenser(0);
-		//if( isnan(result1.u) == 0 )
-			valueSens[j++] = 28.5;//result1.p;
+		result1 = readSenser(i);
+		if( isnan(result1.u) == 0 )
+			valueSens[j++] = result1.p;
 	}
 	epa_Off();
 	ep1_Off();

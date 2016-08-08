@@ -47,7 +47,6 @@ int commandClearFlash(uint8_t *buffer)
 		countProc = 0;
 		spiChipErase();
 	}
-	return 6;
 }
 
 int commandReadyCheck(uint8_t *buffer)

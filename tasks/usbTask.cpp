@@ -81,13 +81,17 @@ void usbTask(void *context)
 			vTaskDelay(1);
 		}
 
-		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup, FLAG_COM_USB, pdTRUE, pdFALSE, 10);
-		if( (uxBits & FLAG_COM_USB) == FLAG_COM_USB)
+		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup, FLAG_COM_USB,
+				pdTRUE, pdFALSE, 10);
+		if((uxBits & FLAG_COM_USB) == FLAG_COM_USB)
 		{ //пришла команда радиоканальная по УСБ. проверим ЦРЦ
 			uint8_t length = usbBuffer[1];
 			if(Checksum::crc16(usbBuffer, length) == 0)
 			{
 				parser(usbBuffer, false);
+				bool isNeedNuulFrame = (usbBuffer[1] % 64) == 0;
+				if(isNeedNuulFrame)
+					usbBuffer[1]++;
 				DCD_EP_Tx(&USB_OTG_dev, 02, usbBuffer, usbBuffer[1]);
 				vTaskDelay(1);
 			}
