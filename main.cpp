@@ -102,7 +102,7 @@ void pereferInit()
 	initDmaSpi2();
 
 	initSpi1();
-	if( initAdc() != 0 )
+	if(initAdc() != 0)
 		while(1)
 			;
 	initIntAdc();

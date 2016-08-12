@@ -12,8 +12,12 @@
 #include "usbd_desc.h"
 #include "../structCommon.h"
 #include "../flashMx25.h"
+#include "Checksum.h"
+#include "taskUartRfd.h"
 
 #include <string.h>
+
+TickType_t tick[10];
 
 extern uint8_t rfd_buffer[4120];
 extern int endTransmit;
@@ -27,6 +31,8 @@ extern uint8_t rfd_sizeOfFrame; //длинна пакета;
 #endif /* USB_OTG_HS_INTERNAL_DMA_ENABLED */
 
 __ALIGN_BEGIN USB_OTG_CORE_HANDLE USB_OTG_dev __ALIGN_END;
+
+uint8_t usbBuffer[280];
 
 void usbTask(void *context)
 {
@@ -51,11 +57,10 @@ void usbTask(void *context)
 
 	char *message;
 	MemCom com;
-	uint8_t data[16];
 	while(1)
 	{
 
-		if( xQueueReceive(cansolQueue, &message, (TickType_t ) 10) )
+		if(xQueueReceive(cansolQueue, &message, (TickType_t ) 10))
 		{
 			//выдадим сообщение
 			strcpy((char*)rfd_buffer, message);
@@ -71,11 +76,33 @@ void usbTask(void *context)
 				vTaskDelay(1);
 
 		}
-		if( xQueueReceive(memComUsbQueue, &com, 5) )
+		if(xQueueReceive(memComUsbQueue, &com, 5))
 		{
-			flashMx25Read(data, com.address, com.count);
-			DCD_EP_Tx(&USB_OTG_dev, 02, data, com.count);
+			flashMx25Read(usbBuffer, com.address, com.count);
+			DCD_EP_Tx(&USB_OTG_dev, 02, usbBuffer, com.count);
 			vTaskDelay(1);
+		}
+
+		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup, FLAG_COM_USB,
+		pdTRUE, pdFALSE, 10);
+		if((uxBits & FLAG_COM_USB) == FLAG_COM_USB)
+		{ //пришла команда радиоканальная по УСБ. проверим ЦРЦ
+			uint8_t length = usbBuffer[1];
+			if(Checksum::crc16(usbBuffer, length) == 0)
+			{
+				tick[0] = xTaskGetTickCount();
+				parser(usbBuffer, false);
+				tick[1] = xTaskGetTickCount();
+				if(usbBuffer[1] > 0)
+				{
+					bool isNeedNuulFrame = (usbBuffer[1] % 64) == 0;
+					if(isNeedNuulFrame)
+						usbBuffer[1]++;
+					DCD_EP_Tx(&USB_OTG_dev, 02, usbBuffer, usbBuffer[1]);
+				}
+					vTaskDelay(100);
+					vTaskDelay(1);
+			}
 		}
 	}
 }

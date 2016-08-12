@@ -65,18 +65,18 @@ void musuring()
 	//выставим флаг готовности новых данных
 	tempOfDs1820 = readtemp();
 
-	if( (tempOfDs1820 > 30) || (tempOfDs1820 < 19) )
-	{
-		ledRedOn();
-		while(1)
-			asm("nop");
-	}
+//	if( (tempOfDs1820 > 30) || (tempOfDs1820 < 19) )
+//	{
+//		ledRedOn();
+//		while(1)
+//			asm("nop");
+//	}
 
 	ep1_On();
 	epa_On();
 	for(int i = 0; i < 8; i++)
 	{	//опрос всех каналы
-		result1 = readSenser(0);
+		result1 = readSenser(i);
 		if( isnan(result1.u) == 0 )
 			valueSens[j++] = result1.p;
 	}

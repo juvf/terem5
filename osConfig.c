@@ -13,6 +13,7 @@ xTaskHandle handleUsb;
 xTaskHandle handleRF;
 
 xTimerHandle timerMesuring;
+xTimerHandle timerClearFlash;
 
 EventGroupHandle_t xEventGroup;
 SemaphoreHandle_t semaphAdc;
@@ -25,7 +26,7 @@ xQueueHandle memComUsbQueue; //очередь для чтения памяти по усб
 
 #define SIZE_STACK_MESUR (configMINIMAL_STACK_SIZE*2)
 #define SIZE_STACK_MAIN (configMINIMAL_STACK_SIZE)
-#define SIZE_STACK_USB (configMINIMAL_STACK_SIZE)
+#define SIZE_STACK_USB (configMINIMAL_STACK_SIZE * 2)
 #define SIZE_STACK_RFD (configMINIMAL_STACK_SIZE * 2)
 
 void initOs(void)
@@ -39,8 +40,9 @@ void initOs(void)
 	xEventGroup = xEventGroupCreate();
 
 	timerMesuring = xTimerCreate("mesuring", 1000, pdTRUE, 0, timerMeasurement);
-	semaphAdc = xSemaphoreCreateMutex();
+	timerClearFlash = xTimerCreate("clearFlash", 22000, pdFALSE, 0, callbackClearFlash);
 
+	semaphAdc = xSemaphoreCreateMutex();
 	mutexFlash = xSemaphoreCreateMutex();
 
 	createTasks();
@@ -83,4 +85,9 @@ void vApplicationMallocFailedHook(void)
 	;
 	for(;;)
 		;
+}
+
+void callbackClearFlash(xTimerHandle timer)
+{
+	xEventGroupClearBits(xEventGroup, FLAG_FLASH_CLEARING);
 }

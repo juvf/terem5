@@ -10,9 +10,12 @@
 
 #include <string.h>
 
+#define ADR_OF_PARAM	(sizeof(TeremConfig) + sizeof(KoeffsAB) )
+
 TeremConfig configTerem;
 uint8_t adcRange[8];
 KoeffsAB koeffsAB;
+TeremParam teremParam;
 
 void intiDefaultConfig()
 {
@@ -46,6 +49,17 @@ void initConfigTerem()
 		i2cWrite(0xa0, sizeof(TeremConfig), (uint8_t*)&koeffsAB,
 				sizeof(KoeffsAB));
 
+	}
+
+	//читаем параметры терема (пока тока адрес)
+	i2cRead(0xa0, ADR_OF_PARAM, (uint8_t*)&teremParam, sizeof(TeremParam));
+	if(Checksum::crc16((uint8_t*)&teremParam, sizeof(teremParam)) != 0)
+	{
+		teremParam.address = 0xff;
+		configTerem.crc[1] = Checksum::crc16((uint8_t*)&teremParam,
+					sizeof(TeremParam) - 2);
+		i2cWrite(0xa0, ADR_OF_PARAM, (uint8_t*)&teremParam,
+				sizeof(TeremParam));
 	}
 
 	for(int i = 0; i < 8; i++)
@@ -109,6 +123,13 @@ void saveConfig()
 			sizeof(configTerem) - 2);
 
 	i2cWrite(0xa0, 0, (uint8_t*)&configTerem, sizeof(TeremConfig));
+}
+
+void saveParam()
+{
+	teremParam.crc[1] = Checksum::crc16((uint8_t*)&teremParam,
+				sizeof(TeremParam) - 2);
+		i2cWrite(0xa0, ADR_OF_PARAM, (uint8_t*)&teremParam, sizeof(TeremParam));
 }
 
 void saveKoeffAB()

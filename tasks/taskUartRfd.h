@@ -37,7 +37,7 @@ enum { RING, NO_CARRIER, COMMAND };
 void initUartRfd();
 void deinitUartRfd();
 bool reciveByte(uint8_t byte);
-void parser();
+void parser(uint8_t *buf, uint8_t isRf);
 void setRxMode();
 void checkMsgForUsb();
 void replayWait(int sec);
