@@ -10,6 +10,9 @@
 #include "tasks/Process.h"
 #include  "osConfig.h"
 #include <string.h>
+
+extern TickType_t tick[10];
+
 // etaoinsrhldcumfpgwybvkxjqz1234567890! @.?# brust
 
 #define csOn()	GPIO_ResetBits(GPIOC, GPIO_Pin_5)
@@ -37,13 +40,17 @@ uint32_t currentAddress = 0; //текущий адрес, куда можно записать новый процесс
 
 void flashMx25Write(uint8_t *source, uint32_t adrDestination)//пишет во флешку 256 байт
 {
+	tick[2] = xTaskGetTickCount();
 	xSemaphoreTake(mutexFlash, portMAX_DELAY);
+	tick[3] = xTaskGetTickCount();
 	uint16_t status;
 	do
 	{
 		status = spiRDSR();
 	} while(status & 1);
+	tick[4] = xTaskGetTickCount();
 	spiWREN();
+	tick[5] = xTaskGetTickCount();
 	flashBuffOut[0] = 2; //Command Page Programm
 	flashBuffOut[1] = adrDestination >> 16;
 	flashBuffOut[2] = adrDestination >> 8;

@@ -19,6 +19,7 @@ extern "C"
 #define FLAG_IS_READY_MES	( 1 << 3 )
 #define FLAG_WRITE_PARAM	( 1 << 4 )
 #define FLAG_COM_USB		( 1 << 5 )
+#define FLAG_FLASH_CLEARING	( 1 << 6 )
   
 #define TASK_PRIORITY_MAIN		0
 #define TASK_PRIORITY_MESUR		1
@@ -33,6 +34,7 @@ extern xTaskHandle handleUsb;
 extern xTaskHandle handleRfd;
 
 extern xTimerHandle timerMesuring;
+extern xTimerHandle timerClearFlash;
 
 extern SemaphoreHandle_t semaphAdc; //симафор для измерений
 extern SemaphoreHandle_t mutexFlash; //мьютикс для доступа к флешпамяти
@@ -47,6 +49,7 @@ extern EventGroupHandle_t xEventGroup;
 
 void initOs(void);
 void createTasks(void);
+void callbackClearFlash(xTimerHandle timer);
 
 #ifdef __cplusplus
 }

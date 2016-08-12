@@ -161,6 +161,7 @@ void parser(uint8_t *buf, uint8_t isRf)
 	{
 		if(isRf)
 			setRxMode();
+		buf[1] = 0;
 		return;
 	}
 	switch(rfd_command)
