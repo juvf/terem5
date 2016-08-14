@@ -17,7 +17,6 @@
 
 #include <string.h>
 
-TickType_t tick[10];
 
 extern uint8_t rfd_buffer[4120];
 extern int endTransmit;
@@ -87,18 +86,17 @@ void usbTask(void *context)
 		pdTRUE, pdFALSE, 10);
 		if((uxBits & FLAG_COM_USB) == FLAG_COM_USB)
 		{ //пришла команда радиоканальная по УСБ. проверим ЦРЦ
-			uint8_t length = usbBuffer[1];
-			if(Checksum::crc16(usbBuffer, length) == 0)
+			uint8_t *pBuf = usbBuffer + 4;
+			uint8_t length = pBuf[1];
+			if(Checksum::crc16(pBuf, length) == 0)
 			{
-				tick[0] = xTaskGetTickCount();
-				parser(usbBuffer, false);
-				tick[1] = xTaskGetTickCount();
-				if(usbBuffer[1] > 0)
+				parser(pBuf, false);
+				if(pBuf[1] > 0)
 				{
-					bool isNeedNuulFrame = (usbBuffer[1] % 64) == 0;
+					bool isNeedNuulFrame = (pBuf[1] % 64) == 0;
 					if(isNeedNuulFrame)
-						usbBuffer[1]++;
-					DCD_EP_Tx(&USB_OTG_dev, 02, usbBuffer, usbBuffer[1]);
+						pBuf[1]++;
+					DCD_EP_Tx(&USB_OTG_dev, 02, pBuf, pBuf[1]);
 				}
 					vTaskDelay(100);
 					vTaskDelay(1);

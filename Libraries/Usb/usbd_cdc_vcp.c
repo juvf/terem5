@@ -42,7 +42,17 @@ uint32_t sizeNextPaket = 0;
 
 static uint16_t VCP_DataRx(uint8_t* buffer, uint32_t Len, void *pdev)
 {
-	uint32_t command = *(uint32_t*)buffer;
+	static int itUsbBuf = 0;
+	memcpy((void*)&usbBuffer[itUsbBuf], buffer, Len);
+	if(Len == 64 )
+	{
+		itUsbBuf += 64;
+		return USBD_OK;
+	}
+	else
+		itUsbBuf += Len;
+
+	uint32_t command = *(uint32_t*)usbBuffer;
 	command &= 0xff;
 	char *mess;
 	switch(command)
@@ -54,24 +64,25 @@ static uint16_t VCP_DataRx(uint8_t* buffer, uint32_t Len, void *pdev)
 			DCD_EP_Tx(pdev, 02, "Hello", 6);
 			break;
 		case COM_USB_SEND_MESSAGE:
-			usbSenMessToWT41(&buffer[4], Len - 4);
+			usbSenMessToWT41(&usbBuffer[4], itUsbBuf - 4);
 			break;
 		case COM_USB_GET_MESSAGE:
 			usbReplayGetMessage(pdev);
 			break;
 		case COM_USB_READ_MEM:
-			usbReadMemory(buffer, pdev);
+			usbReadMemory(usbBuffer, pdev);
 			break;
 		case COM_USB_READ_ADDRESS:
 			usbReadAddress(buffer, pdev);
 			break;
 		case COM_USB_WRITE_ADDRESS:
-			usbWriteAddress(buffer, pdev);
+			usbWriteAddress(usbBuffer, pdev);
 			break;
 		case COM_USB_RF_COM:
-			usbRfComand(buffer, pdev, Len);
+			usbRfComand(usbBuffer, pdev, itUsbBuf);
 			break;
 	}
+	itUsbBuf = 0;
 
 	return USBD_OK;
 }
@@ -80,9 +91,9 @@ void usbRfComand(uint8_t* buffer, void *pdev, uint32_t Len)
 {
 	uint32_t command = *(uint32_t*)buffer;
 	uint8_t numFrame = (command >> 16) &0xff;//номер кадра
-	uint8_t countFrame = (command >> 24) &0xff;//всего кол-во кадров
+	uint8_t countFrame = (command >> 24) &0xff;//всегpо кол-во кадров
 
-	memcpy((void*)&usbBuffer[numFrame * 60], buffer+4, Len - 4);
+	//memcpy((void*)&usbBuffer[numFrame * 60], buffer+4, Len - 4);
 
 	if(numFrame == countFrame)
 	{//весь пакет приняли

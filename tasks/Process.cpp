@@ -15,8 +15,6 @@
 #include "osConfig.h"
 //#include "../structCommon.h"
 
-extern TickType_t tick[10];
-
 #include  <string.h>
 
 uint16_t numProc = 0xffff; //номер текущего процесса в headerList[]
@@ -372,8 +370,6 @@ bool allocMemForNewProc(const HeaderProcess &header)
 //находим цепочку секторов и записываем в начало каждого сектора предывцщий и следующий сектор
 //	uint8_t sensors = countSensor(header);
 
-	tick[7] = xTaskGetTickCount();
-
 	if(countSectors == 1)
 	{
 		for(int i = 0; i < MAX_SECTORS; i++)
@@ -389,10 +385,8 @@ bool allocMemForNewProc(const HeaderProcess &header)
 						sizeof(HeaderProcess));
 				tempBuf[4 + sizeof(HeaderProcess)] = i;
 				tempBuf[4 + sizeof(HeaderProcess) + 1] = i >> 8;
-				tick[8] = xTaskGetTickCount();
 				flashMx25Write((uint8_t*)tempBuf, i * 4096);
 
-				tick[9] = xTaskGetTickCount();
 				//flashMx25Read((void*)tempBuf, i * 4096, 256);
 
 				flashMap[i][0] = 0xfffe;
