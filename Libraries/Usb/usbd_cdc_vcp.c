@@ -181,29 +181,28 @@ void usbSenMessToWT41(uint8_t *buf, uint32_t Len)
 
 void usbReplayGetMessage(void *pdev)
 {
-<<<<<<< HEAD
-	static int count1 = 0;//сколько отправили
-	static int count2 = 0;
-	count2 = itWh41;
-
-	if(count2 != count1)
-	{
-		int size = count2 - count1;
-		if(size < 0)
-			size = SIZE_BUFF_WH41 - count1;
-		if(size > 64)
-			size = 64;
-		DCD_EP_Tx(pdev, 02, ((uint8_t*)&replayWHh41) + count1, size);
-		count1 += size;
-		if(count1 >= SIZE_BUFF_WH41)
-			count1 -= SIZE_BUFF_WH41;
-=======
+//	static int count1 = 0;//сколько отправили
+//	static int count2 = 0;
+//	count2 = itWh41;
+//
+//	if(count2 != count1)
+//	{
+//		int size = count2 - count1;
+//		if(size < 0)
+//			size = SIZE_BUFF_WH41 - count1;
+//		if(size > 64)
+//			size = 64;
+//		DCD_EP_Tx(pdev, 02, ((uint8_t*)&replayWHh41) + count1, size);
+//		count1 += size;
+//		if(count1 >= SIZE_BUFF_WH41)
+//			count1 -= SIZE_BUFF_WH41;
+//=======
 	if( fUart2Usb == 1 )
 	{
 		DCD_EP_Tx(pdev, 02, (uint8_t*)&rfd_buffer, itWh41);
 		itWh41 = 0;
 		fUart2Usb = 0;
->>>>>>> 86d32411d2a039939808d87e72e74849c2a07816
+//>>>>>>> 86d32411d2a039939808d87e72e74849c2a07816
 	}
 }
 

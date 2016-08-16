@@ -26,11 +26,7 @@ extern "C"
 #define TASK_PRIORITY_RFD		2
 #define TASK_PRIORITY_USB		3
 
-<<<<<<< HEAD
-#define SIZE_BUFF_WH41	1000
-=======
 #define SIZE_BUFF_WH41	128
->>>>>>> 86d32411d2a039939808d87e72e74849c2a07816
   
 extern xTaskHandle handleMain;
 extern xTaskHandle handleMesur;
