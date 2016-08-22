@@ -97,7 +97,8 @@ int commandGetCurAdc(uint8_t *buffer)
 		tempOfDs1820 = readtemp();
 		ep1_On();
 		epa_On();
-		ResultMes result = readSenser(numChanel);
+		uint16_t curN;
+		ResultMes result = readSenser(numChanel, &curN);
 //		float valU;
 //		switch(configTerem.sensorType[numChanel])
 //		{
@@ -130,7 +131,8 @@ int commandGetCurAdc(uint8_t *buffer)
 		xSemaphoreGive(semaphAdc);
 		memcpy((void*)&buffer[7], (void*)&result.u, 4);
 		memcpy((void*)&buffer[11], (void*)&result.p, 4);
-		return 15;
+		memcpy((void*)&buffer[15], (void*)&curN, 2);
+		return 17;
 	}
 }
 

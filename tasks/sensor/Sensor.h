@@ -20,8 +20,8 @@ void switchOn(uint8_t numChanel);
 void powerDa17_16(uint8_t val);
 void powerDa12_15(uint8_t numChanel);
 float readSensorM(uint8_t numChanel);
-float readAnalogSensor(uint8_t numChanel);
-ResultMes readSenser(uint8_t numChanel);
+float readAnalogSensor(uint8_t numChanel, uint16_t *codeN = 0);
+ResultMes readSenser(uint8_t numChanel, uint16_t *codeN = 0);
 
 float Polinom4(float x, const float *A);
 float Polinom3(float x, const float *A);

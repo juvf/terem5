@@ -24,7 +24,7 @@
 //#define  TEMP_HS	22
 
 //канал от 0 до 7
-float readAnalogSensor(uint8_t numChanel)
+float readAnalogSensor(uint8_t numChanel, uint16_t *codeN)
 {
 	if(numChanel > 7)
 		return -1;
@@ -36,7 +36,7 @@ float readAnalogSensor(uint8_t numChanel)
 //	//скомутировать ключ и включить ключ
 //	switchOn(numChanel);
 	//измерить
-	float curU = getU_Ad7792(numChanel);
+	float curU = getU_Ad7792(numChanel, codeN);
 //	//выключить ключ
 //	switchOn(100);
 	//выключить 1,67 В
@@ -181,64 +181,64 @@ float Polinom3(float x, const float *A)
 }
 
 //
-ResultMes readSenser(uint8_t numChanel)
+ResultMes readSenser(uint8_t numChanel, uint16_t *codeN)
 {
 	static ResultMes result;
 	switch(configTerem.sensorType[numChanel])
 	{
 		//Датчики перемещения
 		case GT_MM10:
-			result.u = readAnalogSensor(numChanel);
+			result.u = readAnalogSensor(numChanel, codeN);
 			result.p = MM10_Length(result.u, configTerem.a[numChanel][0]);
 			//				valP = valU * 2.0 / 1.17;
 			//				valP = (valP - configTerem.a[buffer[6]][0]) * 5.5; //Результат в мм
 			break;
 		case GT_MM20:
-			result.u = readAnalogSensor(numChanel);
+			result.u = readAnalogSensor(numChanel, codeN);
 			result.p = MM20_Length(result.u, configTerem.a[numChanel][0]);
 			break;
 		case GT_MM50:
-			result.u = readAnalogSensor(numChanel);
+			result.u = readAnalogSensor(numChanel, codeN);
 			result.p = MM50_Length(result.u, configTerem.a[numChanel][0]);
 			break;
 		case GT_HEL700:			//Платиновый ТСП -> в градусах
 			powerDa17_16(P_ADC_REF);
 			powerDa12_15(numChanel);
-			result.u = getU_Ad7792(numChanel);
+			result.u = getU_Ad7792(numChanel, codeN);
 			result.p = HEL700_Termo(result.u, numChanel);
 			powerDa17_16(P_OFF);
 			powerDa12_15(100);
 			break;
 		case GT_TermoHK:			//Термопара ХК -> в градусах
 		case GT_TermoHKcom:
-			result.u = getU_Ad7792(numChanel);
+			result.u = getU_Ad7792(numChanel, codeN);
 			result.p = HK_Termo(result.u, tempOfDs1820);
 			break;
 		case GT_TermoHA:			//Термопара ХА -> в градусах
 		case GT_TermoHAcom:
-			result.u = getU_Ad7792(numChanel);
+			result.u = getU_Ad7792(numChanel, codeN);
 			result.p = HA_Termo(result.u, tempOfDs1820);
 			break;
 		case GT_Termo48:			//D Универсальный термопарный вход
-			result.u = getU_Ad7792(numChanel);
+			result.u = getU_Ad7792(numChanel, codeN);
 			result.p = T48_Termo(result.u, tempOfDs1820, numChanel);
 			break;
 		case GT_HeatFlowPeltje:
-			result.u = getU_Ad7792(numChanel);
+			result.u = getU_Ad7792(numChanel, codeN);
 			result.p = HF_Flow(result.u, koeffsAB.koef[numChanel].a);
 			break;
 		case GT_HeatFlowPeltje48:
-			result.u = getU_Ad7792(numChanel);
+			result.u = getU_Ad7792(numChanel, codeN);
 			result.p = HF_Flow48(result.u, numChanel);
 			break;
 		case GT_Relocate:
-			result.u = readAnalogSensor(numChanel);
+			result.u = readAnalogSensor(numChanel, codeN);
 			result.p = Relocate_Length(result.u, koeffsAB.koef[numChanel].a);
 			break;
 		case GT_HIH3610: //DA17 на 3.0 В
 			powerDa17_16(P_3_0);
 			powerDa12_15(numChanel);
-			result.u = getU_Ad7792(numChanel);
+			result.u = getU_Ad7792(numChanel, codeN);
 			result.p = HIH3610_Rh(result.u, tempOfDs1820,
 					koeffsAB.koef[numChanel].a);
 			powerDa12_15(100);
@@ -283,7 +283,7 @@ ResultMes readSenser(uint8_t numChanel)
 		case GT_Tenso_uE2:             //7E, Тензо, относительное удлинение
 			powerDa17_16(P_3_0);
 			powerDa12_15(numChanel);
-			result.u = getU_Ad7792(numChanel);
+			result.u = getU_Ad7792(numChanel, codeN);
 			powerDa12_15(100);
 			powerDa17_16(P_OFF);
 			result.p = Tenso_3(result.u, numChanel, tempOfDs1820);
@@ -291,11 +291,11 @@ ResultMes readSenser(uint8_t numChanel)
 
 			//Напряжение, мВ
 		case GT_U:
-			result.u = getU_Ad7792(numChanel);
+			result.u = getU_Ad7792(numChanel, codeN);
 			result.p = result.u*1000.0;
 			break;
 		case GT_U2V:
-			result.u = getU_Ad7792(numChanel);
+			result.u = getU_Ad7792(numChanel, codeN);
 			result.p = koeffsAB.koef[numChanel].a[0] + result.u*koeffsAB.koef[numChanel].a[1];
 			break;
 		default:

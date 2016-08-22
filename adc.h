@@ -147,7 +147,7 @@ uint16_t AD7792RdW(unsigned char Register);
 void AD7792Wr(unsigned char Register, unsigned char Data);
 uint16_t AD7792Measure();
 //float getU_Ad7792(unsigned char *curRange, unsigned char type);
-float getU_Ad7792(unsigned char numChanel);
+float getU_Ad7792(unsigned char numChanel, uint16_t *code = 0);
 void IO_420();
 void AD7792Calibr();
 void AD7792Calibr7();
