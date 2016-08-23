@@ -155,14 +155,14 @@ void parser(uint8_t *buf, uint8_t isRf)
 	uint8_t sizeOfFrame = buf[1];
 	uint8_t	addresSlave = buf[2];
 	uint8_t	addresMaster = buf[3];
-	uint8_t	IdFrame = buf[4];
+//	uint8_t	IdFrame = buf[4];
 	uint8_t	command = buf[5];
-
-		rfd_sizeOfFrame = buf[1];
-				rfd_addresSlave = buf[2];
-				rfd_addresMaster = buf[3];
-				rfd_IdFrame = buf[4];
-				rfd_command = buf[5];
+//
+//		rfd_sizeOfFrame = buf[1];
+//				rfd_addresSlave = buf[2];
+//				rfd_addresMaster = buf[3];
+//				rfd_IdFrame = buf[4];
+//				rfd_command = buf[5];
 
 	if( addresSlave != teremParam.address )
 	{
@@ -232,7 +232,6 @@ void parser(uint8_t *buf, uint8_t isRf)
 			sizeOfFrame = commandError(buf);
 			break;
 	}
-			rfd_sizeOfFrame = sizeOfFrame;
 	if( isRf )
 	{ //ответ по БТ
 		if( rfd_sizeOfFrame > 0 )
