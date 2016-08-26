@@ -63,14 +63,7 @@ void musuring()
 	//захватим симафор АЦП
 	xSemaphoreTake(semaphAdc, portMAX_DELAY);
 	//выставим флаг готовности новых данных
-	tempOfDs1820 = readtemp();
-
-//	if( (tempOfDs1820 > 30) || (tempOfDs1820 < 19) )
-//	{
-//		ledRedOn();
-//		while(1)
-//			asm("nop");
-//	}
+	tempOfDs1820 = readtemp() + configTerem.deltaT;
 
 	ep1_On();
 	epa_On();

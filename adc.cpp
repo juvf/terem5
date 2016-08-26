@@ -185,7 +185,7 @@ float getU_Ad7792(unsigned char numChanel, uint16_t *code)
 
 	//скомутировать ключ и включить ключ
 	switchOn(numChanel);
-
+	vTaskDelay(20);
 	//Для HEL700
 	if(configTerem.sensorType[numChanel] == GT_HEL700)
 	{
