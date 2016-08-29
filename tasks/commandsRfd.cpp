@@ -113,7 +113,11 @@ int commandGetCurAdc(uint8_t *buffer)
 		memcpy((void*)&buffer[7], (void*)&result.u, 4);
 		memcpy((void*)&buffer[11], (void*)&result.p, 4);
 		memcpy((void*)&buffer[15], (void*)&curN, 2);
-		return 17;
+		if(numChanel == 57)
+			buffer[17] = GT_TermoHK;
+		else
+			buffer[17] = configTerem.sensorType[numChanel];
+		return 18;
 	}
 }
 
