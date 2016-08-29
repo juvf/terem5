@@ -62,5 +62,6 @@ float RelInd_Length(float curU, float *a0)
 	float *a1 = a0 - 1;
 	curU *= 2.0 / 1.17;
 	//Результат в мм          2В шкала
+
 	return curU * *a1 + *a0;
 }
