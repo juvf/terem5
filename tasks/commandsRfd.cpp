@@ -84,47 +84,28 @@ int commandReadyCheck(uint8_t *buffer)
 
 int commandGetCurAdc(uint8_t *buffer)
 {
-	if(buffer[6] > 7)
-	{
+	int numChanel = buffer[6];
+	if((numChanel > 7) && (numChanel != 57))
+	{ //недопустимый адресс
 		buffer[5] = 0x0e;
 		return 6;
 	}
 	else
 	{
-		int numChanel = buffer[6];
 		//захватим симафор АЦП
 		xSemaphoreTake(semaphAdc, portMAX_DELAY);
 		tempOfDs1820 = readtemp();
 		ep1_On();
 		epa_On();
 		uint16_t curN;
-		ResultMes result = readSenser(numChanel, &curN);
-//		float valU;
-//		switch(configTerem.sensorType[numChanel])
-//		{
-//			//Датчики перемещения
-//			case GT_MM10:
-//				valU = readAnalogSensor(numChanel);
-//				valP = MM10_Length(valU, configTerem.a[numChanel][0]);
-////				valP = valU * 2.0 / 1.17;
-////				valP = (valP - configTerem.a[buffer[6]][0]) * 5.5; //Результат в мм
-//				break;
-//			case GT_MM20:
-//				valU = readAnalogSensor(numChanel);
-//				valP = MM20_Length(valU, configTerem.a[numChanel][0]);
-//				break;
-//			case GT_MM50:
-//				valU = readAnalogSensor(numChanel);
-//				valP = MM50_Length(valU, configTerem.a[numChanel][0]);
-//				break;
-//			case GT_HEL700:
-//				valU = getU_Ad7792(numChanel);
-//				valP = HEL700_Termo(valU, numChanel);
-//				break;
-//			default:
-//				valP = 0;
-//				break;
-//		}
+		ResultMes result;
+		if(numChanel < 8)
+		{
+			tempOfDs1820 += configTerem.deltaT;
+			result = readSenser(numChanel, &curN);
+		}
+		else
+			result.p = tempOfDs1820;
 		epa_Off();
 		ep1_Off();
 		//освободим симафор АЦП
@@ -132,7 +113,11 @@ int commandGetCurAdc(uint8_t *buffer)
 		memcpy((void*)&buffer[7], (void*)&result.u, 4);
 		memcpy((void*)&buffer[11], (void*)&result.p, 4);
 		memcpy((void*)&buffer[15], (void*)&curN, 2);
-		return 17;
+		if(numChanel == 57)
+			buffer[17] = GT_TermoHK;
+		else
+			buffer[17] = configTerem.sensorType[numChanel];
+		return 18;
 	}
 }
 

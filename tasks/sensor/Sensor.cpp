@@ -18,6 +18,7 @@
 #include "GaugeHeatFlow.h"
 #include "GaugeHIH3610.h"
 #include "GaugeTenso.h"
+#include "../osConfig.h"
 #include <math.h>
 
 //температура холодного спая
