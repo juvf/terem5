@@ -185,6 +185,7 @@ float Polinom3(float x, const float *A)
 ResultMes readSenser(uint8_t numChanel, uint16_t *codeN)
 {
 	static ResultMes result;
+	result.uClear = 0;
 	switch(configTerem.sensorType[numChanel])
 	{
 		//Датчики перемещения
@@ -212,7 +213,8 @@ ResultMes readSenser(uint8_t numChanel, uint16_t *codeN)
 			break;
 		case GT_TermoHK:			//Термопара ХК -> в градусах
 		case GT_TermoHKcom:
-			result.u = getU_Ad7792(numChanel, codeN);
+			result.uClear = getU_Ad7792(numChanel, codeN);
+			result.u = result.uClear*configTerem.a[numChanel][0] + configTerem.a[numChanel][1];
 			result.p = HK_Termo(result.u, tempOfDs1820);
 			break;
 		case GT_TermoHA:			//Термопара ХА -> в градусах
