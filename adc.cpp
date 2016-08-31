@@ -265,6 +265,7 @@ float getU_Ad7792(unsigned char numChanel, uint16_t *code	)
 							(CON0_CH_3 * 0)         //Канал AIN1 (0)
 							);
 			//Калибровка канала 1
+			//AD7792Calibr();
 			if(CurRangeADC != *CurRange)
 			{
 				CurRangeADC = *CurRange;
@@ -274,13 +275,13 @@ float getU_Ad7792(unsigned char numChanel, uint16_t *code	)
 					AD7792Calibr7();
 				csOff();
 			}
-//			for(;;)
+			//for(;;)
 			{
 				//Измерение
 				csOn();
 				CurCode = AD7792Measure();
 				csOff();
-//				vTaskDelay(1000);
+				//vTaskDelay(1000);
 			}
 			//Перегрузка (+), уменьшить коэффициент усиления PGA
 			if(CurCode == 0xFFFF)
