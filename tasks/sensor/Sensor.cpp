@@ -31,15 +31,16 @@ float readAnalogSensor(uint8_t numChanel, uint16_t *codeN)
 		return -1;
 	//подать +500 мВ на 1 ногу
 	gnd500mVOn();
+//	gnd500mVOff();//подать +500 мВ на 1 ногу
 	//подать 1,67 В на 4 ногу
 	powerDa17_16(P_1_67);
 	powerDa12_15(numChanel);
 //	//скомутировать ключ и включить ключ
-//	switchOn(numChanel);
-	//измерить
+	switchOn(numChanel);
+	//измеритьx
 	float curU = getU_Ad7792(numChanel, codeN);
 //	//выключить ключ
-//	switchOn(100);
+	switchOn(100);
 	//выключить 1,67 В
 	powerDa17_16(P_OFF);
 	//выключить 500 мВ

@@ -32,6 +32,14 @@ float MM10_Length(float curU, float a0)
 	return (curU - a0) * 5.5;
 }
 
+////Преобразование напряжения в перемещение -------------------------------------
+//float MMхх_Length(float curU, float a0, float length)
+//{
+//	curU *= 2.0 / 1.17;
+//	//Результат в мм
+//	return (curU - a0) * length / 2;
+//}
+
 //Преобразование напряжения в перемещение -------------------------------------
 float MM20_Length(float curU, float a0)
 {
@@ -47,6 +55,7 @@ float MM50_Length(float curU, float a0)
 	//Результат в мм
 	return (curU - a0) * 25.0;
 }
+
 
 //Преобразование напряжения в перемещение, универсальный датчик ---------------
 float Relocate_Length(float curU, float *a)

@@ -82,8 +82,8 @@ enum
 	GT_MM50, //27, 28, 29
 	GT_Relocate,               //30 как ММ10 и ММ20
 	GT_Rel_Ind,                //31 эксклюзив
-	GT_R26,
-	GT_R27,
+	GT_MM100,
+	GT_MM500,
 	GT_R28,
 	GT_R29,
 	GT_R30,
