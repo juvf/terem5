@@ -192,17 +192,25 @@ ResultMes readSenser(uint8_t numChanel, uint16_t *codeN)
 		//Датчики перемещения
 		case GT_MM10:
 			result.u = readAnalogSensor(numChanel, codeN);
-			result.p = MM10_Length(result.u, configTerem.a[numChanel][0]);
+			result.p = MMxx_Length(result.u, configTerem.a[numChanel][0], 11);
 			//				valP = valU * 2.0 / 1.17;
 			//				valP = (valP - configTerem.a[buffer[6]][0]) * 5.5; //Результат в мм
 			break;
 		case GT_MM20:
 			result.u = readAnalogSensor(numChanel, codeN);
-			result.p = MM20_Length(result.u, configTerem.a[numChanel][0]);
+			result.p = MMxx_Length(result.u, configTerem.a[numChanel][0], 20);
 			break;
 		case GT_MM50:
 			result.u = readAnalogSensor(numChanel, codeN);
-			result.p = MM50_Length(result.u, configTerem.a[numChanel][0]);
+			result.p = MMxx_Length(result.u, configTerem.a[numChanel][0], 50);
+			break;
+		case GT_MM100:
+			result.u = readAnalogSensor(numChanel, codeN);
+			result.p = MMxx_Length(result.u, configTerem.a[numChanel][0], 100);
+			break;
+		case GT_MM200:
+			result.u = readAnalogSensor(numChanel, codeN);
+			result.p = MMxx_Length(result.u, configTerem.a[numChanel][0], 200);
 			break;
 		case GT_HEL700:			//Платиновый ТСП -> в градусах
 			powerDa17_16(P_ADC_REF);

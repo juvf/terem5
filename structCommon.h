@@ -83,7 +83,7 @@ enum
 	GT_Relocate,               //30 как ММ10 и ММ20
 	GT_Rel_Ind,                //31 эксклюзив
 	GT_MM100,
-	GT_MM500,
+	GT_MM200,
 	GT_R28,
 	GT_R29,
 	GT_R30,

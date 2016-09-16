@@ -11,10 +11,11 @@
 #include "Sensor.h"
 #include "stm32f4xx.h"
 
-float MM10_Length(float curU, float a0);
-float MM20_Length(float curU, float a0);
-float MM50_Length(float curU, float a0);
+//float MM10_Length(float curU, float a0);
+//float MM20_Length(float curU, float a0);
+//float MM50_Length(float curU, float a0);
 float Relocate_Length(float curU, float *a0);
+float MMxx_Length(float curU, float a0, float length);
 
 
 
