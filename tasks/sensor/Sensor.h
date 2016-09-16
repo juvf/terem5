@@ -14,7 +14,7 @@
 #define gnd500mVOn()	GPIO_ResetBits(GPIOC, GPIO_Pin_9)
 #define gnd500mVOff()	GPIO_SetBits(GPIOC, GPIO_Pin_9)
 
-enum { P_OFF = 0, P_1_67, P_ADC_REF, P_3_0, P_EP1};
+enum { P_OFF = 0, P_1_67, P_ADC_REF, P_3_0, P_EP1, P_1_67_V_REF};
 
 void switchOn(uint8_t numChanel);
 void powerDa17_16(uint8_t val);

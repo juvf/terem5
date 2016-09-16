@@ -27,11 +27,11 @@
 //канал от 0 до 7
 float readAnalogSensor(uint8_t numChanel, uint16_t *codeN)
 {
-	if(numChanel > 7)
+	if( numChanel > 7 )
 		return -1;
 	//подать +500 мВ на 1 ногу
-	gnd500mVOn();
-//	gnd500mVOff();//подать +500 мВ на 1 ногу
+	gnd500mVOn(); //подать +500 мВ на 1 ногу
+//	gnd500mVOff();
 	//подать 1,67 В на 4 ногу
 	powerDa17_16(P_1_67);
 	powerDa12_15(numChanel);
@@ -55,6 +55,9 @@ void powerDa17_16(uint8_t val)
 	{
 		case P_1_67:
 			GPIO_SetBits(GPIOD, GPIO_Pin_5);
+			break;
+		case P_1_67_V_REF:
+			GPIO_SetBits(GPIOD, GPIO_Pin_5 | GPIO_Pin_2);
 			break;
 		case P_ADC_REF:
 			GPIO_SetBits(GPIOD, GPIO_Pin_2);
@@ -223,7 +226,8 @@ ResultMes readSenser(uint8_t numChanel, uint16_t *codeN)
 		case GT_TermoHK:			//Термопара ХК -> в градусах
 		case GT_TermoHKcom:
 			result.uClear = getU_Ad7792(numChanel, codeN);
-			result.u = result.uClear*configTerem.a[numChanel][0] + configTerem.a[numChanel][1];
+			result.u = result.uClear * configTerem.a[numChanel][0]
+					+ configTerem.a[numChanel][1];
 			result.p = HK_Termo(result.u, tempOfDs1820);
 			break;
 		case GT_TermoHA:			//Термопара ХА -> в градусах
@@ -304,11 +308,12 @@ ResultMes readSenser(uint8_t numChanel, uint16_t *codeN)
 			//Напряжение, мВ
 		case GT_U:
 			result.u = getU_Ad7792(numChanel, codeN);
-			result.p = result.u*1000.0;
+			result.p = result.u * 1000.0;
 			break;
 		case GT_U2V:
 			result.u = getU_Ad7792(numChanel, codeN);
-			result.p = koeffsAB.koef[numChanel].a[0] + result.u*koeffsAB.koef[numChanel].a[1];
+			result.p = koeffsAB.koef[numChanel].a[0]
+					+ result.u * koeffsAB.koef[numChanel].a[1];
 			break;
 		default:
 			result.u = NAN;

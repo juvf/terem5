@@ -35,7 +35,7 @@
 //Преобразование напряжения в перемещение -------------------------------------
 float MMxx_Length(float curU, float a0, float length)
 {
-	curU *= 2.0 / 1.17;
+	curU *= 2.0 / 1.67;
 	//Результат в мм
 	return ((curU) * length / 2) - a0;
 }

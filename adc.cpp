@@ -89,7 +89,7 @@ uint8_t initAdc()
 
 	//Чтение регистра идентификации (д.б. 0xXA)
 	uint8_t regId = AD7792Rd(ID);
-	if((regId & 0x0F) != 0x0A)
+	if( (regId & 0x0F) != 0x0A )
 	{              //Ошибка, не тот ответ
 		csOff();
 		return regId;
@@ -177,7 +177,7 @@ uint16_t AD7792RdW(unsigned char Register)
 
 //=============================================================================
 //Измерение напряжения с автоопределением диапазона ---------------------------
-float getU_Ad7792(unsigned char numChanel, uint16_t *code	)
+float getU_Ad7792(unsigned char numChanel, uint16_t *code)
 {
 	uint8_t *CurRange = &adcRange[numChanel];
 	uint16_t CurCode;               //Текущее значение в кодах
@@ -187,163 +187,200 @@ float getU_Ad7792(unsigned char numChanel, uint16_t *code	)
 	switchOn(numChanel);
 	vTaskDelay(20);
 	//Для HEL700
-	if(configTerem.sensorType[numChanel] == GT_HEL700)
+	switch(configTerem.sensorType[numChanel])
 	{
-		csOn();  //Подача Chip Select
-		IO_420();     //Источники тока 2*210 мкА на IOUT2
-		//Диапазон измерений (-50..+270)°С соответствует опорному резистору 2 кОм
-		AD7792WrW(CON,            //Запись в регистр конфигурации
-				(CON14_VBIAS_2 * 0) |   //Напряжение смещения не подавать (0)
-						(CON13_B0 * 0) |   //Источник тока 100 нА выключен (0)
-						(CON12_UB * 1) |   //Однополярный режим (1)
-						(CON11_BOOST * 0) | //Умощнение источника напряжения смещения выключено (0)
-						(CON8_G_3 * 0) |   //Усиление 1 (0)
-						(CON7_REFSEL * 0) |   //Опорник внешний (0)
-						(CON4_BUF * 1) | //Буферирование входного сигнала включено (1)
-						(CON0_CH_3 * 0)         //Канал AIN1 (0)
-						);
-		//Калибровка канала 1 (всегда, т.к. могут быть обрывы и ограничение)
-		AD7792Calibr();
-		csOff(); //Убрать Chip Select
-		CurRangeADC = 0xFF;
-		//Если калибровочный регистр в ауте, не продолжать
-		//if(CalFull_1 <= 0x100) {U[Ad][Channel]=flErrorCode; continue;}
-		//Измерение
-		csOn();
-		CurCode = AD7792Measure();
-		IO_Off(); //Источники тока отключить
-		csOff();
-		if((CurCode == 0) || (CurCode == 0xFFFF))
-			//gFlags.BadResult = 1;
-			;
-		else //           Код   2кОм 16 бит
+		case GT_HEL700:
 		{
-			curU = CurCode * (2.0 / 0xFFFF);
-			//gFlags.BadResult = 0;
-		}
-		//Status=AD7792Rd(SR);
-
-		/*
-		 //Для тензодатчиков
-		 }else if((Type>=GT_TensoKg) && (Type<=GT_TensoMPa)) {
-		 IO_Off(); //Источники тока отключить
-		 AD7792WrW(CON,            //Запись в регистр конфигурации
-		 (CON14_VBIAS_2 * 0) |   //Напряжение смещения не подавать (0)
-		 (CON13_B0 * 0)      |   //Источник тока 100 нА выключен (0)
-		 (CON12_UB * 0)      |   //Двуполярный режим (0)
-		 (CON11_BOOST * 0)   |   //Умощнение источника напряжения смещения выключено (0)
-		 (CON8_G_3 * 7)      |   //Усиление 128
-		 (CON7_REFSEL * 1)   |   //Опорник внутренний (1)
-		 (CON4_BUF * 1)      |   //Буферирование входного сигнала включено (1)
-		 (CON0_CH_3 * 0)         //Канал AIN1 (0)
-		 );
-		 //Калибровка канала 1
-		 if(CurRangeADC != 7) {AD7792Calibr(); CurRangeADC=7;}
-		 //Измерение
-		 CurCode=AD7792Measure();
-		 //Текущее значение напряжения в вольтах (двуполярный режим)
-		 U[Ad][Channel] = (CurCode*(1.17/128/0x8000)-(1.17/128));
-		 */
-	}
-	else
-	{ //Для остальных типов датчиков
-		csOn();
-		IO_Off(); //Источники тока отключить
-		csOff();
-		//Цикл измерения с автоопределением диапазона
-		while(1)
-		{
-			csOn();
+			csOn();  //Подача Chip Select
+			IO_420();     //Источники тока 2*210 мкА на IOUT2
+			//Диапазон измерений (-50..+270)°С соответствует опорному резистору 2 кОм
 			AD7792WrW(CON,            //Запись в регистр конфигурации
 					(CON14_VBIAS_2 * 0) | //Напряжение смещения не подавать (0)
 							(CON13_B0 * 0) | //Источник тока 100 нА выключен (0)
-							(CON12_UB * 0) | //Двуполярный режим (0)
+							(CON12_UB * 1) |   //Однополярный режим (1)
 							(CON11_BOOST * 0) | //Умощнение источника напряжения смещения выключено (0)
-							(CON8_G_3 * *CurRange) | //Усиление
-							(CON7_REFSEL * 1) | //Опорник внутренний (1)
+							(CON8_G_3 * 0) |   //Усиление 1 (0)
+							(CON7_REFSEL * 0) |   //Опорник внешний (0)
 							(CON4_BUF * 1) | //Буферирование входного сигнала включено (1)
 							(CON0_CH_3 * 0)         //Канал AIN1 (0)
 							);
-			//Калибровка канала 1
-			//AD7792Calibr();
-			if(CurRangeADC != *CurRange)
+			//Калибровка канала 1 (всегда, т.к. могут быть обрывы и ограничение)
+			AD7792Calibr();
+			csOff(); //Убрать Chip Select
+			CurRangeADC = 0xFF;
+			//Если калибровочный регистр в ауте, не продолжать
+			//if(CalFull_1 <= 0x100) {U[Ad][Channel]=flErrorCode; continue;}
+			//Измерение
+			csOn();
+			CurCode = AD7792Measure();
+			IO_Off(); //Источники тока отключить
+			csOff();
+			if( (CurCode == 0) || (CurCode == 0xFFFF) )
+				//gFlags.BadResult = 1;
+				;
+			else //           Код   2кОм 16 бит
 			{
-				CurRangeADC = *CurRange;
-				if(*CurRange != 7)
-					AD7792Calibr();
-				else
-					AD7792Calibr7();
-				csOff();
+				curU = CurCode * (2.0 / 0xFFFF);
+				//gFlags.BadResult = 0;
 			}
-			//for(;;)
+			//Status=AD7792Rd(SR);
+
+			/*
+			 //Для тензодатчиков
+			 }else if((Type>=GT_TensoKg) && (Type<=GT_TensoMPa)) {
+			 IO_Off(); //Источники тока отключить
+			 AD7792WrW(CON,            //Запись в регистр конфигурации
+			 (CON14_VBIAS_2 * 0) |   //Напряжение смещения не подавать (0)
+			 (CON13_B0 * 0)      |   //Источник тока 100 нА выключен (0)
+			 (CON12_UB * 0)      |   //Двуполярный режим (0)
+			 (CON11_BOOST * 0)   |   //Умощнение источника напряжения смещения выключено (0)
+			 (CON8_G_3 * 7)      |   //Усиление 128
+			 (CON7_REFSEL * 1)   |   //Опорник внутренний (1)
+			 (CON4_BUF * 1)      |   //Буферирование входного сигнала включено (1)
+			 (CON0_CH_3 * 0)         //Канал AIN1 (0)
+			 );
+			 //Калибровка канала 1
+			 if(CurRangeADC != 7) {AD7792Calibr(); CurRangeADC=7;}
+			 //Измерение
+			 CurCode=AD7792Measure();
+			 //Текущее значение напряжения в вольтах (двуполярный режим)
+			 U[Ad][Channel] = (CurCode*(1.17/128/0x8000)-(1.17/128));
+			 */
+		}
+			break;
+		case GT_MM10:
+		case GT_MM20:
+		case GT_MM50:
+		case GT_MM100:
+		case GT_MM200:
+		{
+			gnd500mVOff();
+			csOn();  //Подача Chip Select
+			IO_Off();     //Источники тока отключить
+			GPIO_SetBits(GPIOD, GPIO_Pin_5 | GPIO_Pin_2); //подать на Vref внешние 1.67 В
+			AD7792WrW(CON,            //Запись в регистр конфигурации
+					(CON14_VBIAS_2 * 0) | //Напряжение смещения не подавать (0)
+							(CON13_B0 * 0) | //Источник тока 100 нА выключен (0)
+							(CON12_UB * 1) |   //Однополярный режим (1)
+							(CON11_BOOST * 0) | //Умощнение источника напряжения смещения выключено (0)
+							(CON8_G_3 * 0) |   //Усиление 1 (0)
+							(CON7_REFSEL * 0) |   //Опорник внешний (0)
+							(CON4_BUF * 1) | //Буферирование входного сигнала включено (1)
+							(CON0_CH_3 * 0)         //Канал AIN1 (0)
+							);
+			//Калибровка канала 1 (всегда, т.к. могут быть обрывы и ограничение)
+			AD7792Calibr();
+			csOff(); //Убрать Chip Select
+			CurRangeADC = 0xFF;
+			//Измерение
+			csOn();
+			CurCode = AD7792Measure();
+			csOff();
+			curU = CurCode * (1.67 / 0xFFFF);
+			adcRange[numChanel] = 0;
+		}
+			break;
+		default:
+		{ //Для остальных типов датчиков
+			csOn();
+			IO_Off(); //Источники тока отключить
+			csOff();
+			//Цикл измерения с автоопределением диапазона
+			while(1)
 			{
-				//Измерение
 				csOn();
-				CurCode = AD7792Measure();
-				csOff();
-				//vTaskDelay(1000);
-			}
-			//Перегрузка (+), уменьшить коэффициент усиления PGA
-			if(CurCode == 0xFFFF)
-			{
-				if(*CurRange)
+				AD7792WrW(CON,            //Запись в регистр конфигурации
+						(CON14_VBIAS_2 * 0) | //Напряжение смещения не подавать (0)
+								(CON13_B0 * 0) | //Источник тока 100 нА выключен (0)
+								(CON12_UB * 0) | //Двуполярный режим (0)
+								(CON11_BOOST * 0) | //Умощнение источника напряжения смещения выключено (0)
+								(CON8_G_3 * *CurRange) | //Усиление
+								(CON7_REFSEL * 1) | //Опорник внутренний (1)
+								(CON4_BUF * 1) | //Буферирование входного сигнала включено (1)
+								(CON0_CH_3 * 0)         //Канал AIN1 (0)
+								);
+				//Калибровка канала 1
+				//AD7792Calibr();
+				if( CurRangeADC != *CurRange )
 				{
-					if(--(*CurRange))
-						(*CurRange)--;
-					//gFlags.RangeChanged = 1;
+					CurRangeADC = *CurRange;
+					if( *CurRange != 7 )
+						AD7792Calibr();
+					else
+						AD7792Calibr7();
+					csOff();
 				}
-				else if((configTerem.sensorType[numChanel] >= GT_MM10)
-						&& (configTerem.sensorType[numChanel] <= GT_Rel_Ind))
+				//for(;;)
+				{
+					//Измерение
+					csOn();
+					CurCode = AD7792Measure();
+					csOff();
+					//vTaskDelay(1000);
+				}
+				//Перегрузка (+), уменьшить коэффициент усиления PGA
+				if( CurCode == 0xFFFF )
+				{
+					if( *CurRange )
+					{
+						if( --(*CurRange) )
+							(*CurRange)--;
+						//gFlags.RangeChanged = 1;
+					}
+					else if( (configTerem.sensorType[numChanel] >= GT_MM10)
+							&& (configTerem.sensorType[numChanel] <= GT_Rel_Ind) )
+					{
+						//gFlags.BadResult = 0;
+						break;
+					}
+					else
+					{
+						//gFlags.BadResult = 1;
+						break;
+					}
+					//Перегрузка (-), уменьшить коэффициент усиления
+				}
+				else if( !CurCode )
+				{
+					if( *CurRange )
+					{
+						if( --(*CurRange) )
+							(*CurRange)--;
+						//gFlags.RangeChanged = 1;
+					}
+					else
+					{
+						//gFlags.BadResult = 1;
+						break;
+					}
+					//Недостаточное использование разрядности
+				}
+				else if( (CurCode < 0x8800) && (CurCode > 0x7800)
+						&& (*CurRange < 7) )
+				{
+					//Увеличить коэффициент усиления PGA для увеличения точности
+					while((CurCode < 0x8800) && (CurCode > 0x7800)
+							&& (*CurRange < 7))
+					{
+						(*CurRange)++;
+						//gFlags.RangeChanged = 1;
+						CurCode = (((signed)(CurCode - 0x8000)) * 2) + 0x8000;
+					}
+					//Измерение полноценное
+				}
+				else
 				{
 					//gFlags.BadResult = 0;
 					break;
 				}
-				else
-				{
-					//gFlags.BadResult = 1;
-					break;
-				}
-				//Перегрузка (-), уменьшить коэффициент усиления
 			}
-			else if(!CurCode)
-			{
-				if(*CurRange)
-				{
-					if(--(*CurRange))
-						(*CurRange)--;
-					//gFlags.RangeChanged = 1;
-				}
-				else
-				{
-					//gFlags.BadResult = 1;
-					break;
-				}
-				//Недостаточное использование разрядности
-			}
-			else if((CurCode < 0x8800) && (CurCode > 0x7800) && (*CurRange < 7))
-			{
-				//Увеличить коэффициент усиления PGA для увеличения точности
-				while((CurCode < 0x8800) && (CurCode > 0x7800)
-						&& (*CurRange < 7))
-				{
-					(*CurRange)++;
-					//gFlags.RangeChanged = 1;
-					CurCode = (((signed)(CurCode - 0x8000)) * 2) + 0x8000;
-				}
-				//Измерение полноценное
-			}
-			else
-			{
-				//gFlags.BadResult = 0;
-				break;
-			}
+			curU = GainKoef(*CurRange) * (int16_t)(CurCode - 0x8000);
 		}
-		curU = GainKoef(*CurRange) * (int16_t)(CurCode - 0x8000);
 	}
 
 	//выключить ключ
 	switchOn(100);
-	if(code)
+	if( code )
 		*code = CurCode << *CurRange;
 	return curU;
 }
