@@ -220,7 +220,7 @@ float getU_Ad7792(unsigned char numChanel, uint16_t *code)
 				;
 			else //            од   2кќм 16 бит
 			{
-				curU = CurCode * (2.0 / 0xFFFF);
+				curU = CurCode * (2.0 / 0xFFFF); //CurU - уже сопротивление в кќм
 				//gFlags.BadResult = 0;
 			}
 			//Status=AD7792Rd(SR);
