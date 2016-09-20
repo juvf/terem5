@@ -79,8 +79,8 @@ void intiDefaultKoefAB()
 			koeffsAB.koef[j].a[i] = 0;
 			koeffsAB.koef[j].b[i] = 0;
 		}
-		koeffsAB.koef[j].a[1] = 1;
-		koeffsAB.koef[j].b[1] = 1;
+		koeffsAB.koef[j].a[3] = 1;
+		koeffsAB.koef[j].b[3] = 1;
 	}
 	koeffsAB.crc[1] = Checksum::crc16((uint8_t*)&koeffsAB,
 			sizeof(KoeffsAB) - 2);
