@@ -228,6 +228,9 @@ void parser(uint8_t *buf, uint8_t isRf)
 		case UART_RemoveProcess: //удалить процесс
 			sizeOfFrame = commandDeleteProc(buf);
 			break;
+		case UART_ReadVersion:
+			sizeOfFrame = commandReadVersion(buf);
+			break;
 		default:
 			sizeOfFrame = commandError(buf);
 			break;

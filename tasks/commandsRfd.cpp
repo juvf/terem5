@@ -163,3 +163,11 @@ int commandT48(uint8_t *buffer)
 	}
 }
 
+int commandReadVersion(uint8_t *buffer)
+{
+	char *p = __DATE__;
+	int size = strlen(p);
+	memcpy((void*)&buffer[6], (void*)p, size);
+	return 6 + size;
+}
+
