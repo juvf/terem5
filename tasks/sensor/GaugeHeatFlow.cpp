@@ -8,10 +8,9 @@
 #include "main.h"
 
 //Преобразование напряжения в тепловой поток ----------------------------------
-float HF_Flow(float curU, float *a0)
+float HF_Flow(float curU, float k)
 {
-	float *a1 = a0 - 1;
-	float Flow = *a1 * curU * 1000.0;
+	float Flow = k * curU * 1000.0;
 	if((Flow > 3000.0) || (Flow < -3000.0))
 		return flErrorCode; //Не в диапазоне, это ошибка измерения
 	return Flow;

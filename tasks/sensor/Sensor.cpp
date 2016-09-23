@@ -241,7 +241,8 @@ ResultMes readSenser(uint8_t numChanel, uint16_t *codeN)
 			break;
 		case GT_HeatFlowPeltje:
 			result.u = getU_Ad7792(numChanel, codeN);
-			result.p = HF_Flow(result.u, koeffsAB.koef[numChanel].a);
+			//result.p = HF_Flow(result.u, koeffsAB.koef[numChanel].a[0]);
+			result.p = HF_Flow(result.u, configTerem.a[numChanel][0]);
 			break;
 		case GT_HeatFlowPeltje48:
 			result.u = getU_Ad7792(numChanel, codeN);

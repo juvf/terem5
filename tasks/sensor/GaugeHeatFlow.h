@@ -10,7 +10,7 @@
 
 
 //Преобразование напряжения в тепловой поток ----------------------------------
-float HF_Flow(float curU, float *a0);
+float HF_Flow(float curU, float k);
 
 //Преобразование напряжения в тепловой поток, по варианту ВНИИМС --------------
 float HF_Flow48(float curU, unsigned char Channel);
