@@ -18,6 +18,7 @@
 #include "GaugeHeatFlow.h"
 #include "GaugeHIH3610.h"
 #include "GaugeTenso.h"
+#include "Dpg2.h"
 #include "../osConfig.h"
 #include <math.h>
 
@@ -285,6 +286,9 @@ ResultMes readSenser(uint8_t numChanel, uint16_t *codeN)
 //				GT_SHT1_H_7,
 //				GT_SHT1_T,                //48 SHT-10 (температура)
 //				GT_SHT1_DP,               //49 SHT-10 (точка росы)
+			break;
+		case GT_SHT21:
+			result.u = dpg2_readValue();
 			break;
 
 		case GT_R:                     //56 //—опротивление, кќм

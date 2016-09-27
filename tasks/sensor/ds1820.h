@@ -22,8 +22,8 @@ extern float tempOfDs1820;
 //#define uLAN0()         PORT_uLAN &=~DQ_uLAN; DIR_uLAN |= DQ_uLAN;  //Обнуление сигнальной линии и переключение ее на выход
 
 //void initDS1820();
-//void uLAN_SkipROM();
-//void uLAN_WrBYTE(uint8_t byte);
+//void uLAN_SkipROM();by
+//void uLAN_WrBYTE(uint8_t te);
 //uint8_t uLAN_Reset();
 
 void init_ds18b20();
