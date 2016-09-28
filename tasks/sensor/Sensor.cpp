@@ -288,7 +288,7 @@ ResultMes readSenser(uint8_t numChanel, uint16_t *codeN)
 //				GT_SHT1_DP,               //49 SHT-10 (точка росы)
 			break;
 		case GT_SHT21:
-			result.u = dpg2_readValue();
+			result.u = dpg2_readValue(numChanel);
 			break;
 
 		case GT_R:                     //56 //—опротивление, кќм

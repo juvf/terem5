@@ -59,7 +59,8 @@ void pereferInit()
 	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOCEN, ENABLE);
 	GPIO_StructInit(&port);
 	port.GPIO_Pin = GPIO_Pin_9 | GPIO_Pin_11 | GPIO_Pin_10 | GPIO_Pin_12
-			| GPIO_Pin_8 | GPIO_Pin_2 | GPIO_Pin_0;
+			| GPIO_Pin_8 | GPIO_Pin_2 | GPIO_Pin_0
+			| GPIO_Pin_4 ;//пин для цыфрового входа/выхода на 8 каналов датчиков
 	port.GPIO_Mode = GPIO_Mode_OUT;
 	port.GPIO_OType = GPIO_OType_PP;
 	port.GPIO_PuPd = GPIO_PuPd_UP;
