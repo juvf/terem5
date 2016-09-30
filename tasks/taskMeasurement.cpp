@@ -37,7 +37,6 @@ void taskMeasurement(void *context)
 			musuring();
 			vTaskDelay(300);
 			ledRedOff();
-
 		}
 		else
 		{
@@ -68,10 +67,15 @@ void musuring()
 	ep1_On();
 	epa_On();
 	for(int i = 0; i < 8; i++)
-	{	//опрос всех каналы
+	{	//опрос всех каналов
 		result1 = readSenser(i);
 		if( isnan(result1.u) == 0 )
-			valueSens[j++] = result1.p;
+		{
+			if( configTerem.sensorType[i] == GT_SHT21 )
+				valueSens[j++] = result1.uClear;
+			else
+				valueSens[j++] = result1.p;
+		}
 	}
 	epa_Off();
 	ep1_Off();

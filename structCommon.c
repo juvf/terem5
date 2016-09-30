@@ -34,4 +34,3 @@ uint16_t u16FromU8(const uint8_t *buffer)
 	result |= (((uint32_t)buffer[1] & 0xff) << 8);
 	return result;
 }
-

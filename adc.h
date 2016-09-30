@@ -153,6 +153,8 @@ void AD7792Calibr();
 void AD7792Calibr7();
 void IO_Off();
 float GainKoef(unsigned char Range);
+void spiPortAdcOn();
+void spiPortAdcOff();
 
 
 //--- функции по работе с внетренним АЦП

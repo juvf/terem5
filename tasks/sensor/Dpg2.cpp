@@ -32,10 +32,11 @@ void dpg2_readValue(uint8_t numChanel, ResultMes *result)
 	powerDa12_15(numChanel);
 	//конфигурируем ногу PC4 для работы с 1-Wire
 	switchOn(numChanel);
-	vTaskDelay(300);
+	vTaskDelay(400);
 	init_Dtg2();
 	vTaskDelay(1);
 	uint32_t data = readDtg();
+	data = 0x05c10d34;
 	switchOn(100);
 	powerDa17_16(P_OFF);
 	int16_t wTemp = data & 0xffff;

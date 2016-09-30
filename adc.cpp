@@ -26,7 +26,7 @@
 unsigned char CurRangeADC = 0;
 uint16_t CalFull_1;  //Значения калибровочных коэффициентов
 
-void initSpi1()
+void spiPortAdcOn()
 {
 	GPIO_InitTypeDef gpio;
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
@@ -51,6 +51,23 @@ void initSpi1()
 
 	GPIO_Init(GPIOA, &gpio);
 	csOff();
+}
+
+void spiPortAdcOff()
+{
+	GPIO_InitTypeDef gpio;
+
+	gpio.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_4;
+	gpio.GPIO_Mode = GPIO_Mode_IN;
+	gpio.GPIO_Speed = GPIO_Speed_50MHz;
+	gpio.GPIO_PuPd = GPIO_PuPd_NOPULL;
+
+	GPIO_Init(GPIOA, &gpio);
+}
+
+void initSpi1()
+{
+	spiPortAdcOn();
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
 	SPI_InitTypeDef spiInit;

@@ -18,8 +18,8 @@ extern "C"
 
 #define ep1_On()	GPIO_SetBits(GPIOC, GPIO_Pin_8)
 #define ep1_Off()	GPIO_ResetBits(GPIOC, GPIO_Pin_8)
-#define epa_On()	GPIO_SetBits(GPIOC, GPIO_Pin_2)
-#define epa_Off()	GPIO_ResetBits(GPIOC, GPIO_Pin_2)
+#define epa_On()	GPIO_SetBits(GPIOC, GPIO_Pin_2)//; spiPortAdcOn()
+#define epa_Off()	GPIO_ResetBits(GPIOC, GPIO_Pin_2)//; spiPortAdcOff()
 
 //Типы тензодатчиков
 typedef enum {
