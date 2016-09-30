@@ -9,8 +9,9 @@
 #define TASKS_SENSOR_DPG2_H_
 
 #include <stdint.h>
+#include "../structCommon.h"
 
-float dpg2_readValue(uint8_t numChanel);
+void dpg2_readValue(uint8_t numChanel, ResultMes *result);
 void init_Dtg2();
 uint32_t readDtg();
 

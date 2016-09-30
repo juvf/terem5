@@ -38,12 +38,12 @@ int commandGetState(uint8_t *buffer)
 int commandClearFlash(uint8_t *buffer)
 {
 	uint8_t state = getProcessStatus();
-	if((state == 1) || (state == 3))
+	if( (state == 1) || (state == 3) )
 		*buffer = 0x0E;
 	else
 	{
 		EventBits_t flags = xEventGroupGetBits(xEventGroup);
-		if(flags & FLAG_FLASH_CLEARING)
+		if( flags & FLAG_FLASH_CLEARING )
 		{
 			*buffer++ = 0x0d; //устройство занято
 			*buffer = 0x04; //устройство зянято стиранием памяти
@@ -66,10 +66,10 @@ int commandClearFlash(uint8_t *buffer)
 int commandReadyCheck(uint8_t *buffer)
 {
 	buffer[5] = 0x0d;
-	if( xSemaphoreTake(semaphAdc, 0) == pdTRUE)
+	if( xSemaphoreTake(semaphAdc, 0) == pdTRUE )
 	{
 		EventBits_t uxBits = xEventGroupGetBits(xEventGroup);
-		if((uxBits & FLAG_IS_READY_MES) == FLAG_IS_READY_MES)
+		if( (uxBits & FLAG_IS_READY_MES) == FLAG_IS_READY_MES )
 			buffer[6] = 3; //Устройство не занято, есть данные
 		else
 			buffer[6] = 2; //Устройство не занято, нет данных или нет процесса
@@ -85,7 +85,7 @@ int commandReadyCheck(uint8_t *buffer)
 int commandGetCurAdc(uint8_t *buffer)
 {
 	int numChanel = buffer[6];
-	if((numChanel > 7) && (numChanel != 57))
+	if( (numChanel > 7) && (numChanel != 57) )
 	{ //недопустимый адресс
 		buffer[5] = 0x0e;
 		return 6;
@@ -94,12 +94,13 @@ int commandGetCurAdc(uint8_t *buffer)
 	{
 		//захватим симафор АЦП
 		xSemaphoreTake(semaphAdc, portMAX_DELAY);
-		tempOfDs1820 = readtemp();
+		if( configTerem.sensorType[numChanel] != GT_SHT21 )
+			tempOfDs1820 = readtemp();
 		ep1_On();
 		epa_On();
 		uint16_t curN;
 		ResultMes result;
-		if(numChanel < 8)
+		if( numChanel < 8 )
 		{
 			tempOfDs1820 += configTerem.deltaT;
 			result = readSenser(numChanel, &curN);
@@ -110,11 +111,23 @@ int commandGetCurAdc(uint8_t *buffer)
 		ep1_Off();
 		//освободим симафор АЦП
 		xSemaphoreGive(semaphAdc);
-		memcpy((void*)&buffer[7], (void*)&result.u, 4);
-		memcpy((void*)&buffer[11], (void*)&result.p, 4);
-		memcpy((void*)&buffer[15], (void*)&curN, 2);
-		memcpy((void*)&buffer[18], (void*)&result.uClear, 4);
-		if(numChanel == 57)
+
+		if( configTerem.sensorType[numChanel] == GT_SHT21 )
+		{
+			memcpy((void*)&buffer[7], (void*)&result.uClear, 4);
+			memcpy((void*)&buffer[11], (void*)&result.p, 4);
+			memcpy((void*)&buffer[15], (void*)&result.u, 4);
+			return 19;
+		}
+		else
+		{
+			memcpy((void*)&buffer[7], (void*)&result.u, 4);
+			memcpy((void*)&buffer[11], (void*)&result.p, 4);
+			memcpy((void*)&buffer[15], (void*)&curN, 2);
+			memcpy((void*)&buffer[18], (void*)&result.uClear, 4);
+		}
+
+		if( numChanel == 57 )
 			buffer[17] = GT_TermoHK;
 		else
 			buffer[17] = configTerem.sensorType[numChanel];
@@ -127,7 +140,7 @@ int commandReadFlash(uint8_t *buffer)
 	uint8_t ttBuf[200];
 	uint32_t adrInFlash = buffer[6] | (buffer[7] << 8) | (buffer[8] << 16);
 	uint16_t size = buffer[9];
-	if((size > 248) || (adrInFlash > (8 * 1024 * 1024 - size)))
+	if( (size > 248) || (adrInFlash > (8 * 1024 * 1024 - size)) )
 	{
 		buffer[11] = 0x0E;
 		return 6;
@@ -142,9 +155,9 @@ int commandReadFlash(uint8_t *buffer)
 
 int commandT48(uint8_t *buffer)
 {
-	if((buffer[7] > 7) || (buffer[6] > 1))
+	if( (buffer[7] > 7) || (buffer[6] > 1) )
 		return commandError(buffer);
-	if(buffer[6] == 0)
+	if( buffer[6] == 0 )
 	{ //чтение
 		int numChanel = buffer[7];
 		buffer[6] = configTerem.sensorType[numChanel];

@@ -11,6 +11,8 @@
 #include "../CritSect.h"
 #include "osConfig.h"
 
+#include <string.h>
+
 extern void mksDelay(uint16_t time);
 
 //установки для вывода термодатчика
@@ -20,7 +22,7 @@ extern void mksDelay(uint16_t time);
 #define C_DQ()   (GPIOC->BSRRH  = GPIO_Pin_4) //reset pin
 #define DQ()     (GPIOC->IDR & GPIO_Pin_4) //check pin
 
-float dpg2_readValue(uint8_t numChanel)
+void dpg2_readValue(uint8_t numChanel, ResultMes *result)
 {
 	S_DQ();
 	//подадим землю
@@ -30,16 +32,19 @@ float dpg2_readValue(uint8_t numChanel)
 	powerDa12_15(numChanel);
 	//конфигурируем ногу PC4 для работы с 1-Wire
 	switchOn(numChanel);
-	vTaskDelay(5);
+	vTaskDelay(300);
 	init_Dtg2();
-	vTaskDelay(8);
-	uint32_t data = 0;
-	data = readDtg();
+	vTaskDelay(1);
+	uint32_t data = readDtg();
 	switchOn(100);
 	powerDa17_16(P_OFF);
-	int16_t wTemp = data&0xffff;
+	int16_t wTemp = data & 0xffff;
+	int16_t wHumi = (data >> 16) & 0xffff;
 	float fTemp=(175.72/1024/16)*wTemp-46.85;
-	return fTemp;
+	float fHumi=(125.0/1024/4)*wHumi-6;
+	result->p = fTemp;
+	result->u = fHumi;
+	memcpy((void*)&result->uClear, (void*)&data, 4);
 }
 
 uint32_t readDtg()
@@ -53,12 +58,11 @@ uint32_t readDtg()
 		C_DQ();
 		data >>= 1;
 		mksDelay(100);
-		S_DQ();
 		DQ_IN();
-		mksDelay(100 + 75);
+		mksDelay(100+75);
 		if( DQ() != 0)
 			data |= 0x80000000;
-		mksDelay(100+75);
+		mksDelay(75 + 100);
 		DQ_OUT();
 		S_DQ();
 	}
