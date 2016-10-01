@@ -34,3 +34,53 @@ uint16_t u16FromU8(const uint8_t *buffer)
 	result |= (((uint32_t)buffer[1] & 0xff) << 8);
 	return result;
 }
+
+void ep1_Off()
+{
+	GPIO_ResetBits(GPIOC, GPIO_Pin_8); //выключим питание Ep1
+
+	//переведём ноги в 3-е состояние
+	GPIO_InitTypeDef port;
+	//порт С
+	GPIO_StructInit(&port);
+	port.GPIO_Pin = GPIO_Pin_11 | GPIO_Pin_10 | GPIO_Pin_12;
+	port.GPIO_Mode = GPIO_Mode_IN;
+	port.GPIO_OType = GPIO_OType_PP;
+	port.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	port.GPIO_Speed = GPIO_Speed_2MHz;
+	GPIO_Init(GPIOC, &port);
+
+	//порт D
+	port.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_0 | GPIO_Pin_6 |
+	GPIO_Pin_5 | GPIO_Pin_2 | GPIO_Pin_4 | GPIO_Pin_3;
+	GPIO_Init(GPIOD, &port);
+
+	//порт E
+	port.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_0;
+	GPIO_Init(GPIOE, &port);
+}
+
+void ep1_On()
+{
+	GPIO_SetBits(GPIOC, GPIO_Pin_8);
+
+	GPIO_InitTypeDef port;
+	//порт С
+	GPIO_StructInit(&port);
+	port.GPIO_Pin = GPIO_Pin_11 | GPIO_Pin_10 | GPIO_Pin_12;
+	port.GPIO_Mode = GPIO_Mode_OUT;
+	port.GPIO_OType = GPIO_OType_PP;
+	port.GPIO_PuPd = GPIO_PuPd_UP;
+	port.GPIO_Speed = GPIO_Speed_2MHz;
+	GPIO_Init(GPIOC, &port);
+
+	//порт D
+	port.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_0 | GPIO_Pin_6 |
+	GPIO_Pin_5 | GPIO_Pin_2 | GPIO_Pin_4 | GPIO_Pin_3;
+	GPIO_Init(GPIOD, &port);
+
+	//порт E
+	port.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_0;
+	GPIO_Init(GPIOE, &port);
+}
+
