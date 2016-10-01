@@ -10,6 +10,9 @@
 #include "stm32f4xx.h"
 #include <stdint.h>
 
+#ifdef __cplusplus
+
+
 /************************************************************
 * STANDARD BITS
 ************************************************************/
@@ -153,13 +156,21 @@ void AD7792Calibr();
 void AD7792Calibr7();
 void IO_Off();
 float GainKoef(unsigned char Range);
-void spiPortAdcOn();
-void spiPortAdcOff();
 
 
 //--- функции по работе с внетренним АЦП
 void initIntAdc();
 uint16_t getBatValue();
+
+extern "C"
+{
+#endif
+void spiPortAdcOn();
+void spiPortAdcOff();
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif /* ADC_H_ */

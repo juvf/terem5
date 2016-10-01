@@ -6,6 +6,9 @@
  */
 #include "structCommon.h"
 
+extern void spiPortAdcOn();
+extern void spiPortAdcOff();
+
 uint32_t u32FromU8(const uint8_t *buffer)
 {
 	uint32_t result = buffer[0];
@@ -82,5 +85,17 @@ void ep1_On()
 	//порт E
 	port.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_0;
 	GPIO_Init(GPIOE, &port);
+}
+
+void epa_On()
+{
+	GPIO_SetBits(GPIOC, GPIO_Pin_2);
+	spiPortAdcOn();
+}
+
+void epa_Off()
+{
+	GPIO_ResetBits(GPIOC, GPIO_Pin_2);
+	spiPortAdcOff();
 }
 
