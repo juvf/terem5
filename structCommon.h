@@ -44,7 +44,7 @@ enum
 	GT_DS1820_2,              //DS1820 на выводе 2
 	GT_DS1820_3,              //DS1820 на выводе 3
 	GT_HEL700,                //4 Платиновый ТСП 1000 Ом от Honeywell
-	GT_R1,
+	GT_HEL_85,
 	GT_R2,
 	GT_R3,
 	GT_R4,

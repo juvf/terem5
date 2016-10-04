@@ -217,12 +217,16 @@ ResultMes readSenser(uint8_t numChanel, uint16_t *codeN)
 			result.p = MMxx_Length(result.u, configTerem.a[numChanel][0], 200);
 			break;
 		case GT_HEL700:			//Платиновый ТСП -> в градусах
+		case GT_HEL_85:
 			powerDa17_16(P_ADC_REF);
 			powerDa12_15(numChanel);
 			result.u = getU_Ad7792(numChanel, codeN);
-			result.p = HEL700_Termo(result.u, numChanel);
 			powerDa17_16(P_OFF);
 			powerDa12_15(100);
+			if( configTerem.sensorType[numChanel] == GT_HEL700 )
+				result.p = HEL700_Termo(result.u, numChanel);
+			else
+				result.p = HEL700_Termo_85(result.u);
 			break;
 		case GT_TermoHK:			//Термопара ХК -> в градусах
 		case GT_TermoHKcom:

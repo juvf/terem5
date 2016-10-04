@@ -255,17 +255,6 @@ int commandStartProc(uint8_t *buffer)
 					//musuring();
 					xEventGroupSetBits(xEventGroup, FLAG_MESUR);
 					setNewAlarmRTC(currProcessHeader.period);
-//					setNewAlarmRTC(4);
-//
-//					if( xTimerChangePeriod(timerMesuring, per * 1000,
-//							100) == pdFAIL)
-//						buffer[0] = 4;
-//					else
-//					{
-//						xTimerReset(timerMesuring, 100);
-//						buffer[0] = 0;
-//						stateProcess = 1;
-//					}
 					buffer[0] = 0;
 					stateProcess = 1;
 				}
@@ -525,7 +514,6 @@ void saveResult(float *result, int countSensers)
 		RTC_AlarmCmd(RTC_Alarm_A, DISABLE);
 		closeProc();
 		stateProcess = 2;
-//		xTimerStop(timerMesuring, 100);
 	}
 }
 

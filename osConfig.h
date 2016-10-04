@@ -33,7 +33,6 @@ extern xTaskHandle handleMesur;
 extern xTaskHandle handleUsb;
 extern xTaskHandle handleRfd;
 
-extern xTimerHandle timerMesuring;
 extern xTimerHandle timerClearFlash;
 
 extern SemaphoreHandle_t semaphAdc; //симафор для измерений
