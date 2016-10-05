@@ -5,9 +5,11 @@
  *      Author: juvf
  */
 #include "structCommon.h"
+#include "adc.h"
 
 extern void spiPortAdcOn();
 extern void spiPortAdcOff();
+extern uint8_t initAdc();
 
 uint32_t u32FromU8(const uint8_t *buffer)
 {
@@ -89,13 +91,45 @@ void ep1_On()
 
 void epa_On()
 {
-	GPIO_SetBits(GPIOC, GPIO_Pin_2);
+	GPIO_SetBits(GPIOC, GPIO_Pin_2); //вкл епа
+	GPIO_InitTypeDef port;
+	GPIO_StructInit(&port);
+	port.GPIO_Pin = GPIO_Pin_12;
+	port.GPIO_Mode = GPIO_Mode_OUT;
+	port.GPIO_OType = GPIO_OType_PP;
+	port.GPIO_PuPd = GPIO_PuPd_UP;
+	port.GPIO_Speed = GPIO_Speed_2MHz;
+	GPIO_Init(GPIOC, &port);
+
+	port.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_7;
+	GPIO_Init(GPIOB, &port);
+
+	port.GPIO_Pin = GPIO_Pin_7;
+	GPIO_Init(GPIOD, &port);
+
 	spiPortAdcOn();
+	vTaskDelay(1000);
+	initAdc();
 }
 
 void epa_Off()
 {
 	GPIO_ResetBits(GPIOC, GPIO_Pin_2);
+	//перевести ноги с ключа в 3-е состояние
+	GPIO_InitTypeDef gpio;
+
+	gpio.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_7;
+	gpio.GPIO_Mode = GPIO_Mode_IN;
+	gpio.GPIO_Speed = GPIO_Speed_50MHz;
+	gpio.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_Init(GPIOB, &gpio);
+
+	gpio.GPIO_Pin = GPIO_Pin_12;
+	GPIO_Init(GPIOC, &gpio);
+
+	gpio.GPIO_Pin = GPIO_Pin_7;
+	GPIO_Init(GPIOD, &gpio);
+
 	spiPortAdcOff();
 }
 

@@ -10,6 +10,7 @@
 #include "osConfig.h"
 #include "tasks/sensor/Sensor.h"
 #include "stm32f4xx_adc.h"
+#include "main.h"
 
 #define csOn()	GPIO_ResetBits(GPIOA, GPIO_Pin_4)
 #define csOff()	GPIO_SetBits(GPIOA, GPIO_Pin_4)
@@ -50,7 +51,8 @@ void spiPortAdcOn()
 	gpio.GPIO_PuPd = GPIO_PuPd_NOPULL;
 
 	GPIO_Init(GPIOA, &gpio);
-	csOff();
+	GPIO_SetBits(GPIOA, GPIO_Pin_4);
+	//csOff();
 }
 
 void spiPortAdcOff()
@@ -60,14 +62,14 @@ void spiPortAdcOff()
 	gpio.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_4;
 	gpio.GPIO_Mode = GPIO_Mode_IN;
 	gpio.GPIO_Speed = GPIO_Speed_50MHz;
-	gpio.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	gpio.GPIO_PuPd = GPIO_PuPd_DOWN;
 
 	GPIO_Init(GPIOA, &gpio);
 }
 
 void initSpi1()
 {
-	spiPortAdcOn();
+	//spiPortAdcOn();
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
 	SPI_InitTypeDef spiInit;
@@ -109,6 +111,23 @@ uint8_t initAdc()
 	if( (regId & 0x0F) != 0x0A )
 	{              //Ошибка, не тот ответ
 		csOff();
+		//while(1)
+		{
+			ledRedOn();
+			vTaskDelay(300);
+			ledRedOff();
+			vTaskDelay(300);
+			ledRedOn();
+			vTaskDelay(300);
+			ledRedOff();
+			vTaskDelay(300);
+			ledRedOn();
+			vTaskDelay(300);
+			ledRedOff();
+			vTaskDelay(300);
+			vTaskDelay(1500);
+
+		}
 		return regId;
 	}
 
@@ -207,6 +226,7 @@ float getU_Ad7792(unsigned char numChanel, uint16_t *code)
 	switch(configTerem.sensorType[numChanel])
 	{
 		case GT_HEL700:
+		case GT_HEL_85:
 		{
 			csOn();  //Подача Chip Select
 			IO_420();     //Источники тока 2*210 мкА на IOUT2

@@ -6,8 +6,10 @@
 #include "taskMeasurement.h"
 #include "Process.h"
 #include "main.h"
+#include "adc.h"
 #include "CritSect.h"
 #include "sensor/ds1820.h"
+#include "sensor/Sensor.h"
 
 #define FLAG_SLEEP	(FLAG_SLEEP_UART | FLAG_SLEEP_MESUR)
 void mainTask(void *context)
@@ -34,8 +36,26 @@ void mainTask(void *context)
 
 //		xEventGroupWaitBits(xEventGroup, FLAG_MESUR,
 //		pdTRUE, pdTRUE, 1000);
-		vTaskDelay(3000);
-		//ledGreenOff();
+//		vTaskDelay(1000);
+//
+//		ledGreenOn();
+//		ep1_On();
+//		epa_On();
+//		vTaskDelay(1000);
+//		readSenser(2, 0);
+//		vTaskDelay(1000);
+//
+//		epa_Off();
+//		switchOn(100);
+//		ep1_Off();
+//		ledGreenOff();
+//
+//		//инитим заного ацп
+//		epa_On();
+//		if( initAdc() != 0 )
+//				while(1)
+//					;
+		vTaskDelay(1000);
 	}
 }
 

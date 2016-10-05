@@ -119,6 +119,10 @@ void switchOn(uint8_t numChanel)
 			GPIO_SetBits(GPIOD, GPIO_Pin_7);
 			GPIO_SetBits(GPIOB, GPIO_Pin_7);
 			break;
+		default:
+			GPIO_ResetBits(GPIOB, GPIO_Pin_5);
+			GPIO_ResetBits(GPIOD, GPIO_Pin_7);
+			break;
 	}
 }
 

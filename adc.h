@@ -143,7 +143,6 @@
 #define FULL        7
 
 void initSpi1();
-uint8_t initAdc();
 uint8_t AD7792Rd(uint8_t reg);
 void AD7792WrW(uint8_t reg, uint16_t data);
 uint16_t AD7792RdW(unsigned char Register);
@@ -165,6 +164,7 @@ uint16_t getBatValue();
 extern "C"
 {
 #endif
+uint8_t initAdc();
 void spiPortAdcOn();
 void spiPortAdcOff();
 
