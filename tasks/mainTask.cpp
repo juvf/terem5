@@ -33,28 +33,6 @@ void mainTask(void *context)
 		if( (uxBits & FLAG_WRITE_PARAM) == FLAG_WRITE_PARAM )
 			saveParam();
 
-
-//		xEventGroupWaitBits(xEventGroup, FLAG_MESUR,
-//		pdTRUE, pdTRUE, 1000);
-//		vTaskDelay(1000);
-//
-//		ledGreenOn();
-//		ep1_On();
-//		epa_On();
-//		vTaskDelay(1000);
-//		readSenser(2, 0);
-//		vTaskDelay(1000);
-//
-//		epa_Off();
-//		switchOn(100);
-//		ep1_Off();
-//		ledGreenOff();
-//
-//		//инитим заного ацп
-//		epa_On();
-//		if( initAdc() != 0 )
-//				while(1)
-//					;
 		vTaskDelay(1000);
 	}
 }
@@ -124,10 +102,11 @@ void deinitExti()
 void sleepJ()
 {
 	vTaskDelay(200);
-	return;
 	enterCritSect();
 	//ledGreenOff();
 	pereferDeInit();
+	exitCritSect();
+	return;
 	initExti();
 	vTaskDelay(300);
 	//PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);

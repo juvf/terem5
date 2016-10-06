@@ -17,7 +17,6 @@ void pereferInit();
 void pereferDeInit();
 void deinitGPIO();
 int main();
-void initUartForConsol();
 
 #define flErrorCode   1e38
 
