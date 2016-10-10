@@ -49,10 +49,9 @@ void spiPortAdcOn()
 	gpio.GPIO_Speed = GPIO_Speed_50MHz;
 	gpio.GPIO_OType = GPIO_OType_PP;
 	gpio.GPIO_PuPd = GPIO_PuPd_NOPULL;
-
 	GPIO_Init(GPIOA, &gpio);
-	GPIO_SetBits(GPIOA, GPIO_Pin_4);
-	//csOff();
+
+	csOff();
 }
 
 void spiPortAdcOff()
@@ -69,7 +68,7 @@ void spiPortAdcOff()
 
 void initSpi1()
 {
-	//spiPortAdcOn();
+	spiPortAdcOn();
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
 	SPI_InitTypeDef spiInit;

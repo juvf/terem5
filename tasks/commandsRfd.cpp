@@ -96,8 +96,8 @@ int commandGetCurAdc(uint8_t *buffer)
 		xSemaphoreTake(semaphAdc, portMAX_DELAY);
 		if( configTerem.sensorType[numChanel] != GT_SHT21 )
 			tempOfDs1820 = readtemp();
-		ep1_On();
-		epa_On();
+		//ep1_On();
+		//epa_On();
 
 		uint16_t curN;
 		ResultMes result;
@@ -108,8 +108,8 @@ int commandGetCurAdc(uint8_t *buffer)
 		}
 		else
 			result.p = tempOfDs1820;
-		epa_Off();
-		ep1_Off();
+		//epa_Off();
+		//ep1_Off();
 		//освободим симафор АЦП
 		xSemaphoreGive(semaphAdc);
 

@@ -224,7 +224,9 @@ ResultMes readSenser(uint8_t numChanel, uint16_t *codeN)
 		case GT_HEL_85:
 			powerDa17_16(P_ADC_REF);
 			powerDa12_15(numChanel);
-			result.u = getU_Ad7792(numChanel, codeN);
+			result.uClear = getU_Ad7792(numChanel, codeN);
+			result.u = result.uClear * configTerem.a[numChanel][0]
+					+ configTerem.a[numChanel][1];
 			powerDa17_16(P_OFF);
 			powerDa12_15(100);
 			if( configTerem.sensorType[numChanel] == GT_HEL700 )

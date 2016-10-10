@@ -97,6 +97,9 @@ void pereferInit()
 	port.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOE, &port);
 
+	ep1_On();
+	epa_On();
+
 	initUartRfd();
 
 	init_I2C1();

@@ -107,9 +107,9 @@ void epa_On()
 	port.GPIO_Pin = GPIO_Pin_7;
 	GPIO_Init(GPIOD, &port);
 
-	spiPortAdcOn();
-	vTaskDelay(1000);
-	initAdc();
+//	spiPortAdcOn();
+//	vTaskDelay(1000);
+//	initAdc();
 }
 
 void epa_Off()
