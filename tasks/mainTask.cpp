@@ -101,6 +101,7 @@ void deinitExti()
 
 void sleepJ()
 {
+	ledRedOn();
 	vTaskDelay(200);
 	return;
 	enterCritSect();
