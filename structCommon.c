@@ -6,7 +6,8 @@
  */
 #include "structCommon.h"
 #include "adc.h"
-#include "Sensor.h"
+#include "tasks/sensor/Sensor.h"
+#include "main.h"
 
 extern void spiPortAdcOn();
 extern void spiPortAdcOff();
@@ -110,9 +111,8 @@ void epa_On()
 
 	switchOn(100);
 
-//	spiPortAdcOn();
-//	vTaskDelay(1000);
-//	initAdc();
+	initSpi1();
+	initAdc();
 }
 
 void epa_Off()
@@ -133,6 +133,9 @@ void epa_Off()
 	gpio.GPIO_Pin = GPIO_Pin_7;
 	GPIO_Init(GPIOD, &gpio);
 
+	SPI_I2S_DeInit(SPI1);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, DISABLE);
 	spiPortAdcOff();
+
 }
 

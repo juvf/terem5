@@ -51,6 +51,8 @@ void spiPortAdcOn()
 	gpio.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIO_Init(GPIOA, &gpio);
 
+
+
 	csOff();
 }
 
