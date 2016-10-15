@@ -6,6 +6,7 @@
  */
 #include "structCommon.h"
 #include "adc.h"
+#include "Sensor.h"
 
 extern void spiPortAdcOn();
 extern void spiPortAdcOff();
@@ -106,6 +107,8 @@ void epa_On()
 
 	port.GPIO_Pin = GPIO_Pin_7;
 	GPIO_Init(GPIOD, &port);
+
+	switchOn(100);
 
 //	spiPortAdcOn();
 //	vTaskDelay(1000);

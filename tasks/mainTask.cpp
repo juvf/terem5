@@ -11,29 +11,50 @@
 #include "sensor/ds1820.h"
 #include "sensor/Sensor.h"
 
-#define FLAG_SLEEP	(FLAG_SLEEP_UART | FLAG_SLEEP_MESUR)
+#include <string.h>
+
+#define FLAG_STOP	(FLAG_BT_CONNECTED | FLAG_MESUR | FLAG_WRITE_PARAM)
 void mainTask(void *context)
 {
-	ledRedOn()
-	;
+	ledRedOn();
 	initConfigTerem();
 	initListProc();
-	ledRedOff()
-	;
+	ledRedOff();
+
+	if( (xEventGroupGetBits(xEventGroup) & FLAG_BT_CONNECTED) == 0 )
+		sleepBt();
 
 	while(1)
 	{
 		//ledGreenOn();
 		//ждем флагов чтобы уйти в режим микропотребления, в Stop Mode
-		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup, FLAG_SLEEP | FLAG_WRITE_PARAM,
-		pdTRUE, pdTRUE, 1000);
+		xEventGroupWaitBits(xEventGroup, FLAG_SLEEP_UART | FLAG_WRITE_PARAM,
+		pdFALSE, pdFALSE, 1000);
 		//ledGreenOff();
-		if( (uxBits & FLAG_SLEEP) == FLAG_SLEEP )
-			sleepJ();
-		if( (uxBits & FLAG_WRITE_PARAM) == FLAG_WRITE_PARAM )
-			saveParam();
+		EventBits_t uxBits = xEventGroupClearBits(xEventGroup, FLAG_SLEEP_UART);
+		if( uxBits == 0 )
+			;		//вышли по таймеру
+		else
+		{
+			if( (uxBits & FLAG_SLEEP_UART) == FLAG_SLEEP_UART )
+			{
+				sleepBt();
+				stopJ();
+			}
+			uxBits = xEventGroupGetBits(xEventGroup);
+			if( (uxBits & FLAG_WRITE_PARAM) == FLAG_WRITE_PARAM )
+			{
+				saveParam();
+				xEventGroupClearBits(xEventGroup, FLAG_WRITE_PARAM);
+				stopJ();
+			}
+			uxBits = xEventGroupClearBits(xEventGroup, FLAG_SLEEP_MESUR);
+			if( (uxBits & FLAG_WRITE_PARAM) == FLAG_SLEEP_MESUR )
+			{
+				stopJ();
+			}
 
-		vTaskDelay(1000);
+		}
 	}
 }
 
@@ -99,52 +120,87 @@ void deinitExti()
 	NVIC_Init(&nvic);
 }
 
-void sleepJ()
+extern bool rfd_isReadReady;
+extern int endTransmit;
+extern uint8_t rfd_buffer[];
+extern uint16_t *rfd_count;
+extern uint8_t rfd_sizeOfFrame; //длинна пакета
+
+void sleepBt()
 {
-	ledRedOn();
-	vTaskDelay(200);
-	return;
-	enterCritSect();
-	ledGreenOff();
-	pereferDeInit();
-	exitCritSect();
-	return;
-	initExti();
-	vTaskDelay(300);
-	//PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+	char *mes = "SLEEP\r\n";
+	rfd_sizeOfFrame = strlen(mes);
+	strcpy((char*)rfd_buffer, mes);
+	endTransmit = 1;
+	rfd_count = 0;
+	USART_ClearITPendingBit(USART2, USART_IT_TC);
+	USART_ITConfig(USART2, USART_IT_TC, ENABLE); // По окончанию отправки
+	USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
+	USART_SendData(USART2, rfd_buffer[0]);
+	while(endTransmit != 0)
+		vTaskDelay(1);
+}
+
+void stopJ()
+{
+	//проверим чтобы не было соединений по УСБ,БТ и не было измерения.
+	EventBits_t uxBits = xEventGroupGetBits(xEventGroup);
+	if( (uxBits & FLAG_STOP) == 0 )
+	{
+		enterCritSect();
+		ledRedOn();
+		pereferDeInit();
+		epa_Off();
+		ep1_Off();
+		exitCritSect();
+		vTaskDelay(500);
+		//ledRedOff();
+		vTaskDelay(500);
+		vTaskDelay(10000);
+		ledRedOff();
+		return;
+
+		pereferDeInit();
+		epa_Off();
+		ep1_Off();
+		vTaskDelay(3000);
+		return;
+		initExti();
+		PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
 //	while(flagExti)
 
-	/* Disable Wakeup Counter */
-	//	RTC_WakeUpCmd(DISABLE);
-	/* After wake-up from STOP reconfigure the system clock */
-	/* Enable HSE */
-	RCC_HSEConfig(RCC_HSE_ON);
+		/* Disable Wakeup Counter */
+		//	RTC_WakeUpCmd(DISABLE);
+		/* After wake-up from STOP reconfigure the system clock */
+		/* Enable HSE */
+		RCC_HSEConfig(RCC_HSE_ON);
 
-	/* Wait till HSE is ready */
-	while(RCC_GetFlagStatus(RCC_FLAG_HSERDY) == RESET)
-	{
-	}
+		/* Wait till HSE is ready */
+		while(RCC_GetFlagStatus(RCC_FLAG_HSERDY) == RESET)
+		{
+		}
 
-	/* Enable PLL */
-	RCC_PLLCmd(ENABLE);
+		/* Enable PLL */
+		RCC_PLLCmd(ENABLE);
 
-	/* Wait till PLL is ready */
-	while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET)
-	{
-	}
+		/* Wait till PLL is ready */
+		while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET)
+		{
+		}
 
-	/* Select PLL as system clock source */
-	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
+		/* Select PLL as system clock source */
+		RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
 
-	/* Wait till PLL is used as system clock source */
-	while(RCC_GetSYSCLKSource() != 0x08)
-	{
-	}
+		/* Wait till PLL is used as system clock source */
+		while(RCC_GetSYSCLKSource() != 0x08)
+		{
+		}
 //	EXTI_ClearFlag(EXTI_Line3);
 //	deinitExti();
-	pereferInit();
-	//ledGreenOn();
-	exitCritSect();
+		pereferInit();
+		//ledGreenOn();
+		exitCritSect();
+	}
 }
 
 //костин код

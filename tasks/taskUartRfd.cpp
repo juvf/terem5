@@ -35,6 +35,14 @@ int itWh41 = 0;
 
 void taskUartRfd(void *context)
 {
+	USART_ClearITPendingBit(USART2, USART_IT_TC);
+	USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
+	USART_SendData(USART2, 0x0d);
+	vTaskDelay(5);
+	USART_SendData(USART2, 0x0a);
+	vTaskDelay(100);
+
+
 	rfd_isReadReady = false;
 	rfd_count = 0;
 	rfd_sizeOfFrame = 6;
@@ -52,7 +60,7 @@ void taskUartRfd(void *context)
 
 	for(;;)
 	{
-		if( xQueueReceive(uartRfd232Queue, &byte, 15000) == pdTRUE )
+		if( xQueueReceive(uartRfd232Queue, &byte, 10000) == pdTRUE )
 		{
 			if( 1 ) //byte == 0x80 )
 			{
@@ -75,8 +83,6 @@ void taskUartRfd(void *context)
 			}
 			vTaskDelay(100);
 		}
-		else
-			xEventGroupSetBits(xEventGroup, FLAG_SLEEP_UART);
 	}
 }
 
@@ -113,11 +119,15 @@ bool reciveByte(uint8_t byte)
 		{
 			flagRing = RING;
 			ledGreenOn();
+			xEventGroupSetBits(xEventGroup, FLAG_BT_CONNECTED);
+
 		}
 		else if( strncmp((char*)rfd_buffer, "NO C", 4) == 0 )
 		{
 			flagRing = NO_CARRIER;
 			ledGreenOff();
+			xEventGroupClearBits(xEventGroup, FLAG_BT_CONNECTED);
+			xEventGroupSetBits(xEventGroup, FLAG_SLEEP_UART);
 		}
 		else if( rfd_buffer[0] == 0x80 )
 			flagRing = COMMAND;
@@ -153,10 +163,10 @@ void setRxMode()
 void parser(uint8_t *buf, uint8_t isRf)
 {
 	uint8_t sizeOfFrame = buf[1];
-	uint8_t	addresSlave = buf[2];
-	uint8_t	addresMaster = buf[3];
+	uint8_t addresSlave = buf[2];
+	uint8_t addresMaster = buf[3];
 //	uint8_t	IdFrame = buf[4];
-	uint8_t	command = buf[5];
+	uint8_t command = buf[5];
 //
 //		rfd_sizeOfFrame = buf[1];
 //				rfd_addresSlave = buf[2];

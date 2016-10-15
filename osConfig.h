@@ -20,6 +20,7 @@ extern "C"
 #define FLAG_WRITE_PARAM	( 1 << 4 )
 #define FLAG_COM_USB		( 1 << 5 )
 #define FLAG_FLASH_CLEARING	( 1 << 6 )
+#define FLAG_BT_CONNECTED	( 1 << 7 ) //флаг устанавливается при установлении соединения с компьютером через БТ
   
 #define TASK_PRIORITY_MAIN		0
 #define TASK_PRIORITY_MESUR		1

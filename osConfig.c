@@ -85,6 +85,14 @@ void vApplicationMallocFailedHook(void)
 		;
 }
 
+void vApplicationIdleHook(void)
+{
+	while(1)
+	{
+		__WFI();//Sleep
+	}
+}
+
 void callbackClearFlash(xTimerHandle timer)
 {
 	xEventGroupClearBits(xEventGroup, FLAG_FLASH_CLEARING);

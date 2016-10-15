@@ -18,7 +18,7 @@
 #include <string.h>
 
 
-extern uint8_t rfd_buffer[4120];
+extern uint8_t rfd_buffer[];
 extern int endTransmit;
 extern uint16_t rfd_count;	//счетчик принятых/отправленных байт
 extern uint8_t rfd_sizeOfFrame; //длинна пакета;
@@ -46,13 +46,6 @@ void usbTask(void *context)
 
 	NVIC_SetPriority(OTG_FS_IRQn, 13);
 	static uint32_t aaa = NVIC_GetPriority(OTG_FS_IRQn);
-
-	strcpy((char*)rfd_buffer, "Hello");
-	rfd_sizeOfFrame = 5;
-	rfd_count = 0;
-	USART_ClearITPendingBit(USART2, USART_IT_TC);
-	USART_ITConfig(USART2, USART_IT_TC, ENABLE); // По окончанию отправки
-	USART_SendData(USART2, rfd_buffer[0]);
 
 	char *message;
 	MemCom com;

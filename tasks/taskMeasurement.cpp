@@ -29,7 +29,7 @@ void taskMeasurement(void *context)
 	{
 
 		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup, FLAG_MESUR,
-		pdTRUE, pdTRUE, 3000);
+		pdFALSE, pdTRUE, 3000);
 		if( (uxBits & FLAG_MESUR) == FLAG_MESUR )
 		{
 			ledRedOn();
@@ -37,9 +37,7 @@ void taskMeasurement(void *context)
 			musuring();
 			vTaskDelay(300);
 			ledRedOff();
-		}
-		else
-		{
+			xEventGroupClearBits(xEventGroup, FLAG_MESUR);
 			xEventGroupSetBits(xEventGroup, FLAG_SLEEP_MESUR);
 		}
 	}
