@@ -8,46 +8,54 @@
 #include "stm32f4xx_conf.h"
 #include "osConfig.h"
 
+static bool isInitI2C = false;
+
 void init_I2C1()
 {
-	GPIO_InitTypeDef gpio;
-	I2C_InitTypeDef i2c;
-	// Включаем тактирование нужных модулей
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+	if( !isInitI2C )
+	{
+		GPIO_InitTypeDef gpio;
+		I2C_InitTypeDef i2c;
+		// Включаем тактирование нужных модулей
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 
-	// I2C использует две ноги микроконтроллера, их тоже нужно настроить
-	gpio.GPIO_Pin = GPIO_Pin_9 | GPIO_Pin_8;
-	gpio.GPIO_Mode = GPIO_Mode_AF;
-	gpio.GPIO_Speed = GPIO_Speed_50MHz;
-	gpio.GPIO_OType = GPIO_OType_OD;
-	gpio.GPIO_PuPd = GPIO_PuPd_UP;
-	GPIO_Init(GPIOB, &gpio);
+		// I2C использует две ноги микроконтроллера, их тоже нужно настроить
+		gpio.GPIO_Pin = GPIO_Pin_9 | GPIO_Pin_8;
+		gpio.GPIO_Mode = GPIO_Mode_AF;
+		gpio.GPIO_Speed = GPIO_Speed_50MHz;
+		gpio.GPIO_OType = GPIO_OType_OD;
+		gpio.GPIO_PuPd = GPIO_PuPd_UP;
+		GPIO_Init(GPIOB, &gpio);
 
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource9, GPIO_AF_I2C1);
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_I2C1);
+		GPIO_PinAFConfig(GPIOB, GPIO_PinSource9, GPIO_AF_I2C1);
+		GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_I2C1);
 
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
-	// А вот и настройка I2C
-	i2c.I2C_ClockSpeed = 100000;
-	i2c.I2C_Mode = I2C_Mode_I2C;
-	i2c.I2C_DutyCycle = I2C_DutyCycle_2;
-	// Адрес я тут взял первый пришедший в голову
-	i2c.I2C_OwnAddress1 = 0x01;
-	i2c.I2C_Ack = I2C_Ack_Enable;
-	i2c.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-	//Ну и включаем, собственно, модуль I2C1
-	I2C_Init(I2C1, &i2c);
-	I2C_Cmd(I2C1, ENABLE);
-	//I2C_AcknowledgeConfig(I2C1, ENABLE);
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
+		// А вот и настройка I2C
+		i2c.I2C_ClockSpeed = 100000;
+		i2c.I2C_Mode = I2C_Mode_I2C;
+		i2c.I2C_DutyCycle = I2C_DutyCycle_2;
+		// Адрес я тут взял первый пришедший в голову
+		i2c.I2C_OwnAddress1 = 0x01;
+		i2c.I2C_Ack = I2C_Ack_Enable;
+		i2c.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
+		//Ну и включаем, собственно, модуль I2C1
+		I2C_Init(I2C1, &i2c);
+		I2C_Cmd(I2C1, ENABLE);
+		//I2C_AcknowledgeConfig(I2C1, ENABLE);
+		isInitI2C = true;
+	}
 }
 
 void i2cWrite(int slaveAdr, int address, uint8_t *buffer, int size)
 {
+	if( !isInitI2C )
+		init_I2C1();
 	while(size > 0)
 	{
 		int adrNextPage = 64 + (address & 0xffc0);
 		int pageSize = adrNextPage - address;
-		if(size > pageSize)
+		if( size > pageSize )
 		{
 			i2cWritePage(slaveAdr, address, buffer, pageSize);
 			vTaskDelay(10);
@@ -67,6 +75,8 @@ void i2cWrite(int slaveAdr, int address, uint8_t *buffer, int size)
 //в этой функции запись должна идти до конца страницы, например до 64
 void i2cWritePage(int slaveAdr, int address, uint8_t *buffer, int size)
 {
+	if( !isInitI2C )
+		init_I2C1();
 	// Ждем пока шина освободится
 	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY))
 		;
@@ -105,6 +115,8 @@ void i2cWritePage(int slaveAdr, int address, uint8_t *buffer, int size)
 
 void i2cRead(int slaveAdr, int address, uint8_t *buffer, int size)
 {
+	if( !isInitI2C )
+		init_I2C1();
 	// Ждем пока шина освободится
 	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY))
 		;
@@ -140,7 +152,7 @@ void i2cRead(int slaveAdr, int address, uint8_t *buffer, int size)
 	I2C_AcknowledgeConfig(I2C1, ENABLE);
 	do
 	{
-		if((size - currentBytesValue) == 1)
+		if( (size - currentBytesValue) == 1 )
 			I2C_AcknowledgeConfig(I2C1, DISABLE);
 		while(!I2C_GetFlagStatus(I2C1, I2C_FLAG_RXNE))
 			;
@@ -148,4 +160,20 @@ void i2cRead(int slaveAdr, int address, uint8_t *buffer, int size)
 	} while(currentBytesValue < size);
 
 	I2C_GenerateSTOP(I2C1, ENABLE);
+}
+
+void deinit_I2C1()
+{
+	I2C_DeInit(I2C1);
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, DISABLE);
+
+	GPIO_InitTypeDef gpio;
+	gpio.GPIO_Pin = GPIO_Pin_9 | GPIO_Pin_8;
+	gpio.GPIO_Mode = GPIO_Mode_IN;
+	gpio.GPIO_Speed = GPIO_Speed_2MHz;
+	gpio.GPIO_OType = GPIO_OType_OD;
+	gpio.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_Init(GPIOB, &gpio);
+
+	isInitI2C = false;
 }

@@ -31,31 +31,29 @@ void mainTask(void *context)
 		xEventGroupWaitBits(xEventGroup, FLAG_SLEEP_UART | FLAG_WRITE_PARAM,
 		pdFALSE, pdFALSE, 1000);
 		//ledGreenOff();
-		EventBits_t uxBits = xEventGroupClearBits(xEventGroup, FLAG_SLEEP_UART);
-		if( uxBits == 0 )
+		EventBits_t uxBits = xEventGroupGetBits(xEventGroup);
+		if( (uxBits&FLAG_SLEEP_UART) == 0 )
 			;		//вышли по таймеру
 		else
 		{
 			if( (uxBits & FLAG_SLEEP_UART) == FLAG_SLEEP_UART )
 			{
-				ledRedOn();
-				vTaskDelay(100);
-				ledRedOff();
 				sleepBt();
 				stopJ();
+				//vTaskDelay(1000);
 			}
-			uxBits = xEventGroupGetBits(xEventGroup);
-			if( (uxBits & FLAG_WRITE_PARAM) == FLAG_WRITE_PARAM )
-			{
-				saveParam();
-				xEventGroupClearBits(xEventGroup, FLAG_WRITE_PARAM);
-				stopJ();
-			}
-			uxBits = xEventGroupClearBits(xEventGroup, FLAG_SLEEP_MESUR);
-			if( (uxBits & FLAG_WRITE_PARAM) == FLAG_SLEEP_MESUR )
-			{
-				stopJ();
-			}
+//			uxBits = xEventGroupGetBits(xEventGroup);
+//			if( (uxBits & FLAG_WRITE_PARAM) == FLAG_WRITE_PARAM )
+//			{
+//				saveParam();
+//				xEventGroupClearBits(xEventGroup, FLAG_WRITE_PARAM);
+//				stopJ();
+//			}
+//			uxBits = xEventGroupClearBits(xEventGroup, FLAG_SLEEP_MESUR);
+//			if( (uxBits & FLAG_SLEEP_MESUR) == FLAG_SLEEP_MESUR )
+//			{
+//				stopJ();
+//			}
 
 		}
 	}
@@ -66,7 +64,7 @@ extern "C" void EXTI3_IRQHandler()
 	EXTI_ClearFlag(EXTI_Line3);
 	//flagExti = 0;
 	deinitExti();
-	//ledGreenOn();
+	ledRedOff();
 }
 
 void initExti()
@@ -102,13 +100,15 @@ void initExti()
 void deinitExti()
 {
 	EXTI_ClearFlag(EXTI_Line3);
-//	GPIO_InitTypeDef gpio;
 	EXTI_InitTypeDef exti;
 	NVIC_InitTypeDef nvic;
-//	gpio.GPIO_Mode = GPIO_Mode_IN;
-//	gpio.GPIO_Pin = GPIO_Pin_3;
-//	gpio.GPIO_Speed = GPIO_Speed_50MHz;
-//	GPIO_Init(GPIOA, &gpio);
+
+	GPIO_InitTypeDef gpio;
+	gpio.GPIO_Mode = GPIO_Mode_AF;
+	gpio.GPIO_Pin = GPIO_Pin_3;
+	gpio.GPIO_OType = GPIO_OType_PP;
+	gpio.GPIO_Speed = GPIO_Speed_2MHz;
+	GPIO_Init(GPIOA, &gpio);
 
 	exti.EXTI_Line = EXTI_Line3;
 	exti.EXTI_Mode = EXTI_Mode_Interrupt;
@@ -123,7 +123,6 @@ void deinitExti()
 	NVIC_Init(&nvic);
 }
 
-extern bool rfd_isReadReady;
 extern int endTransmit;
 extern uint8_t rfd_buffer[];
 extern uint16_t *rfd_count;
@@ -131,17 +130,27 @@ extern uint8_t rfd_sizeOfFrame; //длинна пакета
 
 void sleepBt()
 {
-	char *mes = "SLEEP\r\n";
-	rfd_sizeOfFrame = strlen(mes);
-	strcpy((char*)rfd_buffer, mes);
-	endTransmit = 1;
-	rfd_count = 0;
-	USART_ClearITPendingBit(USART2, USART_IT_TC);
-	USART_ITConfig(USART2, USART_IT_TC, ENABLE); // По окончанию отправки
-	USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
-	USART_SendData(USART2, rfd_buffer[0]);
-	while(endTransmit != 0)
-		vTaskDelay(1);
+	//проверим, чтоб не было стирание флешки
+	EventBits_t flags = xEventGroupGetBits(xEventGroup);
+	if( flags & FLAG_FLASH_CLEARING )
+		return;
+	else
+	{
+		xEventGroupClearBits(xEventGroup, FLAG_SLEEP_UART);
+		vTaskDelay(100);
+		char *mes = "SLEEP\r\n";
+		rfd_sizeOfFrame = strlen(mes);
+		strcpy((char*)rfd_buffer, mes);
+		endTransmit = 1;
+		rfd_count = 0;
+		USART_ClearITPendingBit(USART2, USART_IT_TC);
+		USART_ITConfig(USART2, USART_IT_TC, ENABLE); // По окончанию отправки
+		USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
+		USART_SendData(USART2, rfd_buffer[0]);
+		while(endTransmit != 0)
+			vTaskDelay(1);
+		vTaskDelay(500);
+	}
 }
 
 void stopJ()
@@ -151,22 +160,16 @@ void stopJ()
 	if( (uxBits & FLAG_STOP) == 0 )
 	{
 		enterCritSect();
-//		ledRedOn();
+		ledRedOn();
 		pereferDeInit();
 		epa_Off();
 		ep1_Off();
-		exitCritSect();
-		vTaskDelay(1000);
-		//ledRedOff();
-		vTaskDelay(500);
-		vTaskDelay(10000);
-		return;
-
-		pereferDeInit();
-		epa_Off();
-		ep1_Off();
-		vTaskDelay(3000);
-		return;
+//		exitCritSect();
+//		vTaskDelay(1000);
+//		//ledRedOff();
+//		vTaskDelay(500);
+//		vTaskDelay(10000);
+//		return;
 		initExti();
 		PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
 //	while(flagExti)
@@ -197,10 +200,11 @@ void stopJ()
 		while(RCC_GetSYSCLKSource() != 0x08)
 		{
 		}
-//	EXTI_ClearFlag(EXTI_Line3);
-//	deinitExti();
-		pereferInit();
+	EXTI_ClearFlag(EXTI_Line3);
+
+//		pereferInit();
 		//ledGreenOn();
+	//	ledRedOff();
 		exitCritSect();
 	}
 }

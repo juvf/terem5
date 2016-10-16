@@ -112,6 +112,8 @@ void epa_On()
 	switchOn(100);
 
 	initSpi1();
+	vTaskDelay(1);
+
 	initAdc();
 }
 

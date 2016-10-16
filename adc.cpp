@@ -112,7 +112,7 @@ uint8_t initAdc()
 	if( (regId & 0x0F) != 0x0A )
 	{              //Ошибка, не тот ответ
 		csOff();
-		//while(1)
+		while(1)
 		{
 			ledRedOn();
 			vTaskDelay(300);

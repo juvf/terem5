@@ -42,7 +42,6 @@ void taskUartRfd(void *context)
 	USART_SendData(USART2, 0x0a);
 	vTaskDelay(100);
 
-
 	rfd_isReadReady = false;
 	rfd_count = 0;
 	rfd_sizeOfFrame = 6;
@@ -57,6 +56,8 @@ void taskUartRfd(void *context)
 //	USART_ClearITPendingBit(USART2, USART_IT_TC);
 //	USART_ITConfig(USART2, USART_IT_TC, ENABLE); // По окончанию отправки
 //	USART_SendData(USART2, rfd_buffer[0]);
+
+	vTaskDelay(10000);
 
 	for(;;)
 	{
@@ -75,6 +76,37 @@ void taskUartRfd(void *context)
 					}
 					else
 					{
+						if( rfd_count >= 8 )
+						{ //поищим в строке RFCOMM
+							rfd_buffer[rfd_count - 1] = 0;
+							if( strstr((char*)rfd_buffer, "COMM") != NULL )
+							{
+								ledGreenOn();
+								xEventGroupSetBits(xEventGroup,
+								FLAG_BT_CONNECTED);
+
+							}
+							else
+							{
+								for(int y = 0; y < rfd_count; y++)
+								{
+									ledGreenOn();
+									vTaskDelay(300);
+									ledGreenOff();
+									vTaskDelay(300);
+								}
+
+								endTransmit = 1;
+										rfd_count = 0;
+										USART_ClearITPendingBit(USART2, USART_IT_TC);
+										USART_ITConfig(USART2, USART_IT_TC, ENABLE); // По окончанию отправки
+										USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
+										USART_SendData(USART2, rfd_buffer[0]);
+										while(endTransmit != 0)
+											vTaskDelay(1);
+
+							}
+						}
 						checkMsgForUsb();
 						setRxMode();
 						break;
@@ -115,7 +147,7 @@ bool reciveByte(uint8_t byte)
 		rfd_sizeOfFrame = byte;
 	if( rfd_count == 4 )
 	{
-		if( strncmp((char*)rfd_buffer, "RING", 4) == 0 )
+		if( strncmp((char*)rfd_buffer, "RssING", 4) == 0 )
 		{
 			flagRing = RING;
 			ledGreenOn();
@@ -364,23 +396,6 @@ extern "C" void USART2_IRQHandler(void)
 				&xHigherPriorityTaskWoken) != pdTRUE )
 			xQueueSendFromISR(uartRfd232Queue, &byte,
 					&xHigherPriorityTaskWoken);
-		//xQueueSendFromISR(wt41AQueue, &byte, &xHigherPriorityTaskWoken);
-		//replayWHh41[0] = 'f';
-//		replayWHh41[itWh41] = byte;
-//		if(replayWHh41[itWh41] == '\n')
-//		{
-//			replayWHh41[itWh41 + 1] = 0;
-//			fUart2Usb = 1;
-//			//xEventGroupSetBitsFromISR(xEventGroup, FLAG_UART_USB, &xHigherPriorityTaskWoken);
-//			//itWh41 = 0;
-//		}
-//		else if(++itWh41 == (SIZE_BUFF_WH41 - 1))
-//		{
-//			replayWHh41[itWh41] = 0;
-//			fUart2Usb = 1;
-//			//xEventGroupSetBitsFromISR(xEventGroup, FLAG_UART_USB, &xHigherPriorityTaskWoken);
-//			itWh41 = 0;
-//		}
 	}
 	portEND_SWITCHING_ISR(xHigherPriorityTaskWoken == pdTRUE);
 }

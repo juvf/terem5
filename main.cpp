@@ -26,6 +26,7 @@ int main()
 
 void pereferInit()
 {
+	//DBGMCU->CR |= DBGMCU_CR_DBG_STOP;
 	// Включаем прерывания
 	__enable_irq();
 //инициализация светодиода
@@ -107,7 +108,7 @@ void pereferDeInit()
 	//deinitUartRfd();
 
 	ADC_DeInit();
-	I2C_DeInit(I2C1);
+	deinit_I2C1();
 	SPI_I2S_DeInit(SPI1);
 	//deinitSpi2();
 	deinitGPIO();
