@@ -54,7 +54,6 @@ void timerMeasurement(xTimerHandle xTimer)
 
 void musuring()
 {
-
 	static ResultMes result1;
 	int j = 0;
 	//захватим симафор АЦП
