@@ -24,27 +24,15 @@ extern "C"
 extern uint16_t flashMap[2048][2]; //карта памяти флэшь
 
 void initSpi2();
-void initDmaSpi2();
-void startSpi(uint16_t number);
-void spiWait();
-void setSpiOut(uint16_t adr, uint8_t data);
-void spiWREN();
-uint16_t spiRDSR();
+void deinitSpi2();
 void spiSector4kErase(uint32_t numSector);
 void spiChipErase();
-
-//менеджер памяти
-void getFirstLastProcess(uint32_t *firstHeader, uint32_t *lastFreeHeader);
-void findBeginEndFreeMem(uint32_t *beginSector, uint32_t *endSector);
 
 
 void flashMx25Write(uint8_t *source, uint32_t adrDestination );
 void flashMx25Read(void *destination, uint32_t adrSource, uint16_t size );
 
 uint16_t countFreeSectors();
-
-
-uint16_t readStatusRegister();
 
 #ifdef __cplusplus
 }

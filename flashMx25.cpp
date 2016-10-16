@@ -9,6 +9,8 @@
 #include "stm32f4xx.h"
 #include "tasks/Process.h"
 #include  "osConfig.h"
+#include "tasks/CritSect.h"
+
 #include <string.h>
 
 #define csOn()	GPIO_ResetBits(GPIOC, GPIO_Pin_5)
@@ -30,13 +32,29 @@ uint16_t flashMap[2048][2]; //карта памяти флэшь
 uint8_t flashBuffIn[SIZE_BUF_FLASH];
 uint8_t flashBuffOut[SIZE_BUF_FLASH];
 
+static bool isInitial = false; // Когда SPI инициализирован, то true.
+
+static void initDmaSpi2();
+static void startSpi(uint16_t number);
+static void spiWait();
+static void setSpiOut(uint16_t adr, uint8_t data);
+static void spiWREN();
+static uint16_t spiRDSR();
+static uint16_t readStatusRegister();
+//менеджер памяти
+static void getFirstLastProcess(uint32_t *firstHeader,
+		uint32_t *lastFreeHeader);
+static void findBeginEndFreeMem(uint32_t *beginSector, uint32_t *endSector);
+
 uint8_t spi2Work = 0;
 
 uint32_t currentAddress = 0; //текущий адрес, куда можно записать новый процесс
 
-void flashMx25Write(uint8_t *source, uint32_t adrDestination)//пишет во флешку 256 байт
+void flashMx25Write(uint8_t *source, uint32_t adrDestination) //пишет во флешку 256 байт
 {
 	xSemaphoreTake(mutexFlash, portMAX_DELAY);
+	if( !isInitial )
+		initSpi2();
 	uint16_t status;
 	do
 	{
@@ -58,6 +76,8 @@ void flashMx25Write(uint8_t *source, uint32_t adrDestination)//пишет во флешку 2
 void flashMx25Read(void *destination, uint32_t adrSource, uint16_t size)
 {
 	xSemaphoreTake(mutexFlash, portMAX_DELAY);
+	if( !isInitial )
+		initSpi2();
 	uint16_t status;
 	do
 	{
@@ -80,8 +100,8 @@ void flashMx25Read(void *destination, uint32_t adrSource, uint16_t size)
 }
 
 //эта функция читает сразу из фрамки по SPI через DMA в destination
-void flashMx25ReadData(uint8_t *destination, uint32_t adrSource,
-		uint16_t size, bool fromISR)
+void flashMx25ReadData(uint8_t *destination, uint32_t adrSource, uint16_t size,
+		bool fromISR)
 {
 	xSemaphoreTake(mutexFlash, portMAX_DELAY);
 	uint16_t status;
@@ -122,6 +142,8 @@ uint16_t spiRDSR()
 void spiSector4kErase(uint32_t numSector)
 {
 	xSemaphoreTake(mutexFlash, portMAX_DELAY);
+	if( !isInitial )
+		initSpi2();
 	uint16_t status;
 	do
 	{
@@ -147,6 +169,7 @@ void spiWREN()
 
 void initSpi2()
 {
+	enterCritSect();
 	GPIO_InitTypeDef gpio;
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 
@@ -187,6 +210,24 @@ void initSpi2()
 	SPI_Init(SPI2, &spiInit);
 	SPI_Cmd(SPI2, ENABLE);
 
+	initDmaSpi2();
+	isInitial = true;
+	exitCritSect();
+}
+
+void deinitSpi2()
+{
+	enterCritSect();
+	if( isInitial )
+	{
+		SPI_I2S_DeInit(SPI2);
+		DMA_DeInit(DMA1_Stream3);
+		DMA_DeInit(DMA1_Stream4);
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, DISABLE);
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, DISABLE);
+		isInitial = false;
+	}
+	exitCritSect();
 }
 
 void initDmaSpi2()
@@ -314,6 +355,8 @@ void getFirstLastProcess(uint32_t *firstHeader, uint32_t *lastFreeHeader)
 void spiChipErase()
 {
 	xSemaphoreTake(mutexFlash, portMAX_DELAY);
+	if( !isInitial )
+		initSpi2();
 	uint16_t status;
 	do
 	{

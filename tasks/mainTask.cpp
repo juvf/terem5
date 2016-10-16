@@ -38,6 +38,9 @@ void mainTask(void *context)
 		{
 			if( (uxBits & FLAG_SLEEP_UART) == FLAG_SLEEP_UART )
 			{
+				ledRedOn();
+				vTaskDelay(100);
+				ledRedOff();
 				sleepBt();
 				stopJ();
 			}
@@ -148,16 +151,15 @@ void stopJ()
 	if( (uxBits & FLAG_STOP) == 0 )
 	{
 		enterCritSect();
-		ledRedOn();
+//		ledRedOn();
 		pereferDeInit();
 		epa_Off();
 		ep1_Off();
 		exitCritSect();
-		vTaskDelay(500);
+		vTaskDelay(1000);
 		//ledRedOff();
 		vTaskDelay(500);
 		vTaskDelay(10000);
-		ledRedOff();
 		return;
 
 		pereferDeInit();

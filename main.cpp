@@ -15,10 +15,6 @@
 int main()
 {
 	pereferInit();
-	initRtc();
-
-	//usbTask(0);
-
 	initOs();
 
 	NVIC_SetVectorTable( NVIC_VectTab_FLASH, 0x0);
@@ -97,18 +93,13 @@ void pereferInit()
 	port.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOE, &port);
 
-	ep1_On();
-	epa_On();
-
 	initUartRfd();
 
 	init_I2C1();
 
-	initSpi2();
-	initDmaSpi2();
-
-	initSpi1();
-	initIntAdc();
+	//initSpi1();
+	//initIntAdc();
+	initRtc();
 }
 
 void pereferDeInit()
@@ -118,9 +109,7 @@ void pereferDeInit()
 	ADC_DeInit();
 	I2C_DeInit(I2C1);
 	SPI_I2S_DeInit(SPI1);
-	SPI_I2S_DeInit(SPI2);
-	DMA_DeInit(DMA1_Stream3);
-	DMA_DeInit(DMA1_Stream4);
+	//deinitSpi2();
 	deinitGPIO();
 }
 
