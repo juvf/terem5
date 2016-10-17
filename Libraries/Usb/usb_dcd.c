@@ -147,7 +147,9 @@ void DCD_Init(USB_OTG_CORE_HANDLE *pdev ,
   USB_OTG_SetCurrentMode(pdev, DEVICE_MODE);
 
 #endif
-  
+
+
+
   /* Init Device */
   USB_OTG_CoreInitDev(pdev);
   

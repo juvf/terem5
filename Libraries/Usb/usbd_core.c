@@ -140,8 +140,6 @@ void USBD_Init(USB_OTG_CORE_HANDLE *pdev,
   /* Hardware Init */
   USB_OTG_BSP_Init(pdev);  
   
-  USBD_DeInit(pdev);
-  
   /*Register class and user callbacks */
   pdev->dev.class_cb = class_cb;
   pdev->dev.usr_cb = usr_cb;  
@@ -149,7 +147,7 @@ void USBD_Init(USB_OTG_CORE_HANDLE *pdev,
   
   /* set USB OTG core params */
   DCD_Init(pdev , coreID);
-  
+
   /* Upon Init call usr callback */
   pdev->dev.usr_cb->Init();
   

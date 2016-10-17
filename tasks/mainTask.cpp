@@ -64,7 +64,6 @@ extern "C" void EXTI3_IRQHandler()
 	EXTI_ClearFlag(EXTI_Line3);
 	//flagExti = 0;
 	deinitExti();
-	ledRedOff();
 }
 
 void initExti()
@@ -152,7 +151,6 @@ void sleepBt()
 		vTaskDelay(500);
 	}
 }
-
 void stopJ()
 {
 	//проверим чтобы не было соединений по УСБ,БТ и не было измерения.
@@ -160,7 +158,7 @@ void stopJ()
 	if( (uxBits & FLAG_STOP) == 0 )
 	{
 		enterCritSect();
-		ledRedOn();
+	//	ledRedOn();
 		pereferDeInit();
 		epa_Off();
 		ep1_Off();

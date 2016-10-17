@@ -17,6 +17,8 @@ extern "C"
 extern uint8_t usbBuffer[280];
 
 void usbTask(void *context);
+void initialUsb();
+void deinitialUsb();
 
 #ifdef __cplusplus
 }

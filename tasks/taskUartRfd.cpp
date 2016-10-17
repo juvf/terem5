@@ -30,6 +30,8 @@ uint8_t fUart2Usb;
 bool rfd_isReadReady;
 int endTransmit = 0;
 
+bool a23 = false;
+
 //char replayWHh41[SIZE_BUFF_WH41];
 int itWh41 = 0;
 
@@ -79,31 +81,11 @@ void taskUartRfd(void *context)
 						if( rfd_count >= 8 )
 						{ //поищим в строке RFCOMM
 							rfd_buffer[rfd_count - 1] = 0;
-							if( strstr((char*)rfd_buffer, "COMM") != NULL )
+							if( strstr((char*)rfd_buffer+10, "RFCOMM") != NULL )
 							{
 								ledGreenOn();
 								xEventGroupSetBits(xEventGroup,
 								FLAG_BT_CONNECTED);
-
-							}
-							else
-							{
-								for(int y = 0; y < rfd_count; y++)
-								{
-									ledGreenOn();
-									vTaskDelay(300);
-									ledGreenOff();
-									vTaskDelay(300);
-								}
-
-								endTransmit = 1;
-										rfd_count = 0;
-										USART_ClearITPendingBit(USART2, USART_IT_TC);
-										USART_ITConfig(USART2, USART_IT_TC, ENABLE); // По окончанию отправки
-										USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
-										USART_SendData(USART2, rfd_buffer[0]);
-										while(endTransmit != 0)
-											vTaskDelay(1);
 
 							}
 						}

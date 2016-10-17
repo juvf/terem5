@@ -112,6 +112,7 @@ void pereferDeInit()
 	SPI_I2S_DeInit(SPI1);
 	//deinitSpi2();
 	deinitGPIO();
+	deinitialUsb();
 }
 
 void deinitGPIO()
@@ -124,11 +125,13 @@ void deinitGPIO()
 	//деинитим порты на управление комутаторами DA12-DA17
 
 	GPIO_DeInit(GPIOD);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIODEN, DISABLE);
 
 	GPIO_InitTypeDef gpio;
 
 	gpio.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | //SPI ADC
-			GPIO_Pin_1; // внутренний датчик DS1820 или датчик влажности SHT21D
+			GPIO_Pin_1 | // внутренний датчик DS1820 или датчик влажности SHT21D
+			GPIO_Pin_10; //светодиод
 	gpio.GPIO_Mode = GPIO_Mode_IN;
 	gpio.GPIO_Speed = GPIO_Speed_2MHz;
 	gpio.GPIO_PuPd = GPIO_PuPd_NOPULL;

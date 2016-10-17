@@ -97,11 +97,8 @@ int commandGetCurAdc(uint8_t *buffer)
 		xSemaphoreTake(semaphAdc, portMAX_DELAY);
 		if( configTerem.sensorType[numChanel] != GT_SHT21 )
 			tempOfDs1820 = readtemp();
-		ledRedOn();
 		ep1_On();
 		epa_On();
-		ledRedOff();
-
 		uint16_t curN;
 		ResultMes result;
 		if( numChanel < 8 )

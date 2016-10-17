@@ -17,7 +17,6 @@
 
 #include <string.h>
 
-
 extern uint8_t rfd_buffer[];
 extern int endTransmit;
 extern uint16_t rfd_count;	//счетчик принятых/отправленных байт
@@ -36,23 +35,17 @@ uint8_t usbBuffer[280];
 void usbTask(void *context)
 {
 
-	USBD_Init(&USB_OTG_dev,
-#ifdef USE_USB_OTG_HS
-			USB_OTG_HS_CORE_ID,
-#else
-			USB_OTG_FS_CORE_ID,
-#endif
-			&USR_desc, &USBD_CDC_cb, &USR_cb);
+	initialUsb();
 
-	NVIC_SetPriority(OTG_FS_IRQn, 13);
-	static uint32_t aaa = NVIC_GetPriority(OTG_FS_IRQn);
+	for(;;)
+		vTaskDelay(10);
 
 	char *message;
 	MemCom com;
 	while(1)
 	{
 
-		if(xQueueReceive(cansolQueue, &message, (TickType_t ) 10))
+		if( xQueueReceive(cansolQueue, &message, (TickType_t ) 10) )
 		{
 			//выдадим сообщение
 			strcpy((char*)rfd_buffer, message);
@@ -68,7 +61,7 @@ void usbTask(void *context)
 				vTaskDelay(1);
 
 		}
-		if(xQueueReceive(memComUsbQueue, &com, 5))
+		if( xQueueReceive(memComUsbQueue, &com, 5) )
 		{
 			flashMx25Read(usbBuffer, com.address, com.count);
 			DCD_EP_Tx(&USB_OTG_dev, 02, usbBuffer, com.count);
@@ -77,24 +70,56 @@ void usbTask(void *context)
 
 		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup, FLAG_COM_USB,
 		pdTRUE, pdFALSE, 10);
-		if((uxBits & FLAG_COM_USB) == FLAG_COM_USB)
+		if( (uxBits & FLAG_COM_USB) == FLAG_COM_USB )
 		{ //пришла команда радиоканальная по УСБ. проверим ЦРЦ
 			uint8_t *pBuf = usbBuffer + 4;
 			uint8_t length = pBuf[1];
-			if(Checksum::crc16(pBuf, length) == 0)
+			if( Checksum::crc16(pBuf, length) == 0 )
 			{
 				parser(pBuf, false);
-				if(pBuf[1] > 0)
+				if( pBuf[1] > 0 )
 				{
 					bool isNeedNuulFrame = (pBuf[1] % 64) == 0;
-					if(isNeedNuulFrame)
+					if( isNeedNuulFrame )
 						pBuf[1]++;
 					DCD_EP_Tx(&USB_OTG_dev, 02, pBuf, pBuf[1]);
 				}
-					vTaskDelay(100);
-					vTaskDelay(1);
+				vTaskDelay(100);
 			}
 		}
 	}
 }
 
+void initialUsb()
+{
+	USBD_Init(&USB_OTG_dev,
+#ifdef USE_USB_OTG_HS
+			USB_OTG_HS_CORE_ID,
+#else
+			USB_OTG_FS_CORE_ID,
+#endif
+			&USR_desc, &USBD_CDC_cb, &USR_cb);
+
+	NVIC_SetPriority(OTG_FS_IRQn, 13);
+}
+
+void deinitialUsb()
+{
+	//отключим клоки от УСБ.
+	GPIO_InitTypeDef GPIO_InitStructure;
+#ifdef USE_USB_OTG_FS
+
+//	/* Configure SOF ID DM DP Pins */
+//	GPIO_StructInit(&GPIO_InitStructure);
+//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11 |
+//	GPIO_Pin_12;
+//	GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	USB_OTG_CORE_HANDLE *pdev = &USB_OTG_dev;
+	USB_OTG_WRITE_REG32(&pdev->regs.GREGS->GCCFG, 0x0ffff);
+
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, DISABLE);
+	RCC_AHB2PeriphClockCmd(RCC_AHB2Periph_OTG_FS, DISABLE);
+
+#endif /* USB_OTG_FS */
+}
