@@ -152,3 +152,7 @@ void deinitGPIO()
 	GPIO_Init(GPIOE, &gpio);
 }
 
+void initAfterStop()
+{
+
+}

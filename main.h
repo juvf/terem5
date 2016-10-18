@@ -18,6 +18,7 @@ void pereferInit();
 void pereferDeInit();
 void deinitGPIO();
 int main();
+void initAfterStop();
 
 #define flErrorCode   1e38
 

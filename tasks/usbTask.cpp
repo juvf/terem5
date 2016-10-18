@@ -37,9 +37,6 @@ void usbTask(void *context)
 
 	initialUsb();
 
-	for(;;)
-		vTaskDelay(10);
-
 	char *message;
 	MemCom com;
 	while(1)
@@ -110,10 +107,9 @@ void deinitialUsb()
 #ifdef USE_USB_OTG_FS
 
 //	/* Configure SOF ID DM DP Pins */
-//	GPIO_StructInit(&GPIO_InitStructure);
-//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11 |
-//	GPIO_Pin_12;
-//	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_StructInit(&GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_9;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
 	USB_OTG_CORE_HANDLE *pdev = &USB_OTG_dev;
 	USB_OTG_WRITE_REG32(&pdev->regs.GREGS->GCCFG, 0x0ffff);

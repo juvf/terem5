@@ -40,7 +40,6 @@ void mainTask(void *context)
 			{
 				sleepBt();
 				stopJ();
-				//vTaskDelay(1000);
 			}
 //			uxBits = xEventGroupGetBits(xEventGroup);
 //			if( (uxBits & FLAG_WRITE_PARAM) == FLAG_WRITE_PARAM )
@@ -93,7 +92,6 @@ void initExti()
 	nvic.NVIC_IRQChannelSubPriority = 0;
 	nvic.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&nvic);
-
 }
 
 void deinitExti()
@@ -158,19 +156,11 @@ void stopJ()
 	if( (uxBits & FLAG_STOP) == 0 )
 	{
 		enterCritSect();
-	//	ledRedOn();
 		pereferDeInit();
 		epa_Off();
 		ep1_Off();
-//		exitCritSect();
-//		vTaskDelay(1000);
-//		//ledRedOff();
-//		vTaskDelay(500);
-//		vTaskDelay(10000);
-//		return;
 		initExti();
 		PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
-//	while(flagExti)
 
 		/* Disable Wakeup Counter */
 		//	RTC_WakeUpCmd(DISABLE);
@@ -198,13 +188,10 @@ void stopJ()
 		while(RCC_GetSYSCLKSource() != 0x08)
 		{
 		}
-	EXTI_ClearFlag(EXTI_Line3);
-
-//		pereferInit();
-		//ledGreenOn();
-	//	ledRedOff();
+		EXTI_ClearFlag(EXTI_Line3);
 		exitCritSect();
 	}
+	initAfterStop();
 }
 
 //костин код
