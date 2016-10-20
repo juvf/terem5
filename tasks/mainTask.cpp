@@ -61,9 +61,15 @@ void mainTask(void *context)
 extern "C" void EXTI3_IRQHandler()
 {
 	EXTI_ClearFlag(EXTI_Line3);
-	//flagExti = 0;
 	deinitExti();
 }
+
+extern "C" void EXTI9_5_IRQHandler()
+{
+	EXTI_ClearFlag(EXTI_Line9);
+	deinitExti();
+}
+
 
 void initExti()
 {
@@ -71,15 +77,18 @@ void initExti()
 	EXTI_InitTypeDef exti;
 	NVIC_InitTypeDef nvic;
 
-	EXTI_ClearFlag(EXTI_Line3);
+//	EXTI_ClearFlag(EXTI_Line26);
+	EXTI_ClearFlag(EXTI_Line3 | EXTI_Line9);
 
-	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOAEN, ENABLE);
+	//RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOAEN, ENABLE);
+	GPIO_StructInit(&gpio);
 	gpio.GPIO_Mode = GPIO_Mode_IN;
-	gpio.GPIO_Pin = GPIO_Pin_3;
-	gpio.GPIO_Speed = GPIO_Speed_50MHz;
+	gpio.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_9;
+	gpio.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOA, &gpio);
 
-	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOE, EXTI_PinSource1);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource3);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource9);
 
 	exti.EXTI_Line = EXTI_Line3;
 	exti.EXTI_Mode = EXTI_Mode_Interrupt;
@@ -87,19 +96,26 @@ void initExti()
 	exti.EXTI_LineCmd = ENABLE;
 	EXTI_Init(&exti);
 
+//	exti.EXTI_Line = EXTI_Line9;
+//	exti.EXTI_Trigger = EXTI_Trigger_Rising;
+//	exti.EXTI_LineCmd = ENABLE;
+//	EXTI_Init(&exti);
+
 	nvic.NVIC_IRQChannel = EXTI3_IRQn;
 	nvic.NVIC_IRQChannelPreemptionPriority = 0;
 	nvic.NVIC_IRQChannelSubPriority = 0;
 	nvic.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&nvic);
+
+//	nvic.NVIC_IRQChannel = EXTI9_5_IRQn;
+//	nvic.NVIC_IRQChannelSubPriority = 1;
+//	NVIC_Init(&nvic);
+
+	//настроим выход по УСБ подключению.
 }
 
 void deinitExti()
 {
-	EXTI_ClearFlag(EXTI_Line3);
-	EXTI_InitTypeDef exti;
-	NVIC_InitTypeDef nvic;
-
 	GPIO_InitTypeDef gpio;
 	gpio.GPIO_Mode = GPIO_Mode_AF;
 	gpio.GPIO_Pin = GPIO_Pin_3;
@@ -107,16 +123,16 @@ void deinitExti()
 	gpio.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOA, &gpio);
 
-	exti.EXTI_Line = EXTI_Line3;
-	exti.EXTI_Mode = EXTI_Mode_Interrupt;
-	exti.EXTI_Trigger = EXTI_Trigger_Falling;
-	exti.EXTI_LineCmd = DISABLE;
-	EXTI_Init(&exti);
+	EXTI_DeInit();
 
+	NVIC_InitTypeDef nvic;
 	nvic.NVIC_IRQChannel = EXTI3_IRQn;
 	nvic.NVIC_IRQChannelPreemptionPriority = 0;
 	nvic.NVIC_IRQChannelSubPriority = 0;
 	nvic.NVIC_IRQChannelCmd = DISABLE;
+	NVIC_Init(&nvic);
+
+	nvic.NVIC_IRQChannel = EXTI9_5_IRQn;
 	NVIC_Init(&nvic);
 }
 
@@ -160,8 +176,9 @@ void stopJ()
 		epa_Off();
 		ep1_Off();
 		initExti();
+		ledRedOn();
 		PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
-
+ledRedOff();
 		/* Disable Wakeup Counter */
 		//	RTC_WakeUpCmd(DISABLE);
 		/* After wake-up from STOP reconfigure the system clock */
@@ -177,18 +194,14 @@ void stopJ()
 		RCC_PLLCmd(ENABLE);
 
 		/* Wait till PLL is ready */
-		while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET)
-		{
-		}
+		while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET);
 
 		/* Select PLL as system clock source */
 		RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
 
 		/* Wait till PLL is used as system clock source */
-		while(RCC_GetSYSCLKSource() != 0x08)
-		{
-		}
-		EXTI_ClearFlag(EXTI_Line3);
+		while(RCC_GetSYSCLKSource() != 0x08);
+		EXTI_ClearFlag(EXTI_Line3 | EXTI_Line9);
 		exitCritSect();
 	}
 	initAfterStop();
