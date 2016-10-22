@@ -290,7 +290,6 @@ float getU_Ad7792(unsigned char numChanel, uint16_t *code)
 		case GT_MM100:
 		case GT_MM200:
 		{
-			gnd500mVOff();
 			csOn();  //Подача Chip Select
 			IO_Off();     //Источники тока отключить
 			GPIO_SetBits(GPIOD, GPIO_Pin_5 | GPIO_Pin_2); //подать на Vref внешние 1.67 В
