@@ -15,7 +15,7 @@
 //float MM20_Length(float curU, float a0);
 //float MM50_Length(float curU, float a0);
 float Relocate_Length(float curU, float *a0);
-float MMxx_Length(float curU, float a0, float length);
+float MMxx_Length(uint16_t code, float a0, float length);
 
 
 

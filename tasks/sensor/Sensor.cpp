@@ -31,10 +31,10 @@ float readAnalogSensor(uint8_t numChanel, uint16_t *codeN)
 	if( numChanel > 7 )
 		return -1;
 	//подать +500 мВ на 1 ногу
-	gnd500mVOn(); //подать +500 мВ на 1 ногу
-//	gnd500mVOff();
-	//подать 1,67 В на 4 ногу
-	powerDa17_16(P_1_67);
+//	gnd500mVOn(); //подать +500 мВ на 1 ногу
+	gnd500mVOff();
+	//подать 1,67 В на 4 ногу и на АЦП на Vref
+	powerDa17_16(P_1_67_V_REF);
 	powerDa12_15(numChanel);
 //	//скомутировать ключ и включить ключ
 	switchOn(numChanel);
@@ -200,25 +200,25 @@ ResultMes readSenser(uint8_t numChanel, uint16_t *codeN)
 		//Датчики перемещения
 		case GT_MM10:
 			result.u = readAnalogSensor(numChanel, codeN);
-			result.p = MMxx_Length(result.u, configTerem.a[numChanel][0], 11);
+			result.p = MMxx_Length(*codeN, configTerem.a[numChanel][0], 10);
 			//				valP = valU * 2.0 / 1.17;
 			//				valP = (valP - configTerem.a[buffer[6]][0]) * 5.5; //Результат в мм
 			break;
 		case GT_MM20:
 			result.u = readAnalogSensor(numChanel, codeN);
-			result.p = MMxx_Length(result.u, configTerem.a[numChanel][0], 20);
+			result.p = MMxx_Length(*codeN, configTerem.a[numChanel][0], 20);
 			break;
 		case GT_MM50:
 			result.u = readAnalogSensor(numChanel, codeN);
-			result.p = MMxx_Length(result.u, configTerem.a[numChanel][0], 50);
+			result.p = MMxx_Length(*codeN, configTerem.a[numChanel][0], 50);
 			break;
 		case GT_MM100:
 			result.u = readAnalogSensor(numChanel, codeN);
-			result.p = MMxx_Length(result.u, configTerem.a[numChanel][0], 100);
+			result.p = MMxx_Length(*codeN, configTerem.a[numChanel][0], 100);
 			break;
 		case GT_MM200:
 			result.u = readAnalogSensor(numChanel, codeN);
-			result.p = MMxx_Length(result.u, configTerem.a[numChanel][0], 200);
+			result.p = MMxx_Length(*codeN, configTerem.a[numChanel][0], 200);
 			break;
 		case GT_HEL700:			//Платиновый ТСП -> в градусах
 		case GT_HEL_85:

@@ -19,7 +19,7 @@ float HEL700_Termo(float curU, unsigned char  Channel)
 {
 	float T;
 	float R = curU;
-	if(R < 0.2)
+	if(R < 0.199)
 		return flErrorCode;                        //Íèæå -200 °C
 	else if(R < 1.0)
 		T = Polinom4(R, HEL700_Minus_a4);            //T<0
