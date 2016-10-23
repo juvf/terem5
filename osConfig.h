@@ -22,6 +22,7 @@ extern "C"
 #define FLAG_FLASH_CLEARING	( 1 << 6 )
 #define FLAG_BT_CONNECTED	( 1 << 7 ) //флаг устанавливается при установлении соединения с компьютером через БТ
 #define FLAG_USB_POWER		( 1 << 8 ) //флаг установлен, если есть питание пор USB
+#define FLAG_USB_INIT		(1 << 9)//установлен, когда USB проинициализирован
 
 #define TASK_PRIORITY_MAIN		0
 #define TASK_PRIORITY_MESUR		1

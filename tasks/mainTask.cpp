@@ -13,7 +13,7 @@
 
 #include <string.h>
 
-#define FLAG_STOP	(FLAG_BT_CONNECTED | FLAG_MESUR | FLAG_WRITE_PARAM | FLAG_USB_POWER)
+#define FLAG_STOP	(FLAG_BT_CONNECTED | FLAG_MESUR | FLAG_WRITE_PARAM | FLAG_USB_INIT)
 void mainTask(void *context)
 {
 	ledRedOn();
@@ -61,7 +61,9 @@ extern "C" void EXTI9_5_IRQHandler()
 		deinitExti();
 	}
 	else
+	{
 		xEventGroupClearBitsFromISR(xEventGroup, FLAG_USB_POWER);
+	}
 
 }
 

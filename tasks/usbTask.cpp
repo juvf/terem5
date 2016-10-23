@@ -42,6 +42,25 @@ void usbTask(void *context)
 	while(1)
 	{
 
+		if( (xEventGroupGetBits(xEventGroup) & FLAG_USB_POWER) == FLAG_USB_POWER )
+		{ //есть питание USB. Проверим - нужен ли инит?
+			if( (xEventGroupGetBits(xEventGroup) & FLAG_USB_INIT) == 0 )
+			{
+				initialUsb();
+				xEventGroupSetBits(xEventGroup, FLAG_USB_INIT);
+			}
+		}
+		else
+		{ //питание пропало.
+			if( (xEventGroupGetBits(xEventGroup) & FLAG_USB_INIT) == FLAG_USB_INIT )
+			{ //Деинициализируем УСБ
+				deinitialUsb();
+				xEventGroupClearBits(xEventGroup, FLAG_USB_INIT);
+			}
+			vTaskDelay(100);
+			continue;
+		}
+
 		if( xQueueReceive(cansolQueue, &message, (TickType_t ) 10) )
 		{
 			//выдадим сообщение
@@ -116,6 +135,8 @@ void deinitialUsb()
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, DISABLE);
 	RCC_AHB2PeriphClockCmd(RCC_AHB2Periph_OTG_FS, DISABLE);
+
+	NVIC_DisableIRQ(OTG_FS_IRQn);
 
 #endif /* USB_OTG_FS */
 }

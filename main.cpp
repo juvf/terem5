@@ -115,7 +115,7 @@ void pereferDeInit()
 	SPI_I2S_DeInit(SPI1);
 	//deinitSpi2();
 	deinitGPIO();
-	deinitialUsb();
+	//deinitialUsb();
 }
 
 void deinitGPIO()
