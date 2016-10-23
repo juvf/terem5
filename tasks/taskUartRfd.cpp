@@ -307,6 +307,8 @@ void replayWait(int msec)
 void deinitUartRfd()
 {
 	USART_DeInit(USART2);
+	RCC_APB1PeriphClockCmd(RCC_APB1ENR_USART2EN, DISABLE);
+
 }
 
 //задействован USART2

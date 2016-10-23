@@ -32,13 +32,13 @@ void taskMeasurement(void *context)
 		pdFALSE, pdTRUE, 3000);
 		if( (uxBits & FLAG_MESUR) == FLAG_MESUR )
 		{
-			ledRedOn();
+			ledGreenOn();
 			setNewAlarmRTC(getProcessPeriod()); 		//перезапустим таймер
 			musuring();
 			vTaskDelay(300);
-			ledRedOff();
+			ledGreenOff();
+			//xEventGroupSetBits(xEventGroup, FLAG_SLEEP_MESUR);
 			xEventGroupClearBits(xEventGroup, FLAG_MESUR);
-			xEventGroupSetBits(xEventGroup, FLAG_SLEEP_MESUR);
 		}
 	}
 

@@ -113,9 +113,8 @@ void pereferDeInit()
 	ADC_DeInit();
 	deinit_I2C1();
 	SPI_I2S_DeInit(SPI1);
-	//deinitSpi2();
+//	deinitSpi2();
 	deinitGPIO();
-	//deinitialUsb();
 }
 
 void deinitGPIO()
@@ -157,7 +156,7 @@ void deinitGPIO()
 
 void initAfterStop()
 {
-
+	//initUartRfd();
 }
 
 void initPa9()

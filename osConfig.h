@@ -14,7 +14,7 @@ extern "C"
 #include "event_groups.h"
 
 #define FLAG_MESUR			( 1 << 0 )
-#define FLAG_SLEEP_MESUR	( 1 << 1 )
+//#define FLAG_SLEEP_MESUR	( 1 << 1 )
 #define FLAG_SLEEP_UART		( 1 << 2 )
 #define FLAG_IS_READY_MES	( 1 << 3 )
 #define FLAG_WRITE_PARAM	( 1 << 4 )

@@ -51,12 +51,6 @@ void initRtc()
 	NVIC_EnableIRQ(RTC_Alarm_IRQn);
 	NVIC_SetPriority(RTC_Alarm_IRQn, 13);
 
-//	NVIC_InitTypeDef NVIC_InitStructure;
-//	NVIC_InitStructure.NVIC_IRQChannel = RTC_Alarm_IRQn;
-//	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-//	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-//	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-//	NVIC_Init(&NVIC_InitStructure);
 }
 
 //заводит будильник Alarm_A на время через seconds секунд
