@@ -26,7 +26,7 @@ int main()
 
 void pereferInit()
 {
-	DBGMCU->CR |= DBGMCU_CR_DBG_STOP;
+	//DBGMCU->CR |= DBGMCU_CR_DBG_STOP;
 	// Включаем прерывания
 	__enable_irq();
 //инициализация светодиода
@@ -37,6 +37,13 @@ void pereferInit()
 	port.GPIO_Mode = GPIO_Mode_OUT;
 	port.GPIO_OType = GPIO_OType_PP;
 	port.GPIO_PuPd = GPIO_PuPd_UP;
+	port.GPIO_Speed = GPIO_Speed_2MHz;
+	GPIO_Init(GPIOA, &port);
+
+	//инит ноги РА9 для отслеживания подключения УСБ
+	GPIO_StructInit (&port);
+	port.GPIO_Mode = GPIO_Mode_IN;
+	port.GPIO_Pin = GPIO_Pin_9;
 	port.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOA, &port);
 
@@ -130,15 +137,15 @@ void deinitGPIO()
 	GPIO_InitTypeDef gpio;
 
 	gpio.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | //SPI ADC
-			GPIO_Pin_1 | // внутренний датчик DS1820 или датчик влажности SHT21D
-			GPIO_Pin_10; //светодиод
+			GPIO_Pin_1; // | // внутренний датчик DS1820 или датчик влажности SHT21D
+	//GPIO_Pin_10; //светодиод
 	gpio.GPIO_Mode = GPIO_Mode_IN;
 	gpio.GPIO_Speed = GPIO_Speed_2MHz;
 	gpio.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIO_Init(GPIOA, &gpio);
 
-	gpio.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_5 | GPIO_Pin_6
-			| GPIO_Pin_8 | GPIO_Pin_9 //i2c
+	gpio.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_8
+			| GPIO_Pin_9 //i2c
 			| GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15 //spi mx25l64
 			| GPIO_Pin_10; //внутренний датчик DS1820 или датчик влажности SHT21D
 	GPIO_Init(GPIOB, &gpio);
@@ -147,8 +154,8 @@ void deinitGPIO()
 			| GPIO_Pin_5; //spi mx25l64
 	GPIO_Init(GPIOC, &gpio);
 
-	gpio.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1
-			| GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14; //RFM23B-433
+	gpio.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_9 | GPIO_Pin_10
+			| GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14; //RFM23B-433
 	GPIO_Init(GPIOE, &gpio);
 }
 
