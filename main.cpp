@@ -41,11 +41,7 @@ void pereferInit()
 	GPIO_Init(GPIOA, &port);
 
 	//инит ноги РА9 для отслеживания подключения УСБ
-	GPIO_StructInit (&port);
-	port.GPIO_Mode = GPIO_Mode_IN;
-	port.GPIO_Pin = GPIO_Pin_9;
-	port.GPIO_Speed = GPIO_Speed_2MHz;
-	GPIO_Init(GPIOA, &port);
+	initPa9();
 
 	//инициализация GPIOB
 	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOBEN, ENABLE);
@@ -161,5 +157,29 @@ void deinitGPIO()
 
 void initAfterStop()
 {
+
+}
+
+void initPa9()
+{
+
+	GPIO_InitTypeDef gpio;
+	GPIO_StructInit(&gpio);
+	gpio.GPIO_Mode = GPIO_Mode_IN;
+	gpio.GPIO_Pin = GPIO_Pin_9;
+	gpio.GPIO_Speed = GPIO_Speed_2MHz;
+	GPIO_Init(GPIOA, &gpio);
+
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource9);
+
+	EXTI_InitTypeDef exti;
+	exti.EXTI_Line = EXTI_Line9;
+	exti.EXTI_Mode = EXTI_Mode_Interrupt;
+	exti.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+	exti.EXTI_LineCmd = ENABLE;
+	EXTI_Init(&exti);
+
+	NVIC_EnableIRQ(EXTI9_5_IRQn);
+	NVIC_SetPriority(EXTI9_5_IRQn, 12);
 
 }

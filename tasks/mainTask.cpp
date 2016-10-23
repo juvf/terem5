@@ -13,13 +13,16 @@
 
 #include <string.h>
 
-#define FLAG_STOP	(FLAG_BT_CONNECTED | FLAG_MESUR | FLAG_WRITE_PARAM)
+#define FLAG_STOP	(FLAG_BT_CONNECTED | FLAG_MESUR | FLAG_WRITE_PARAM | FLAG_USB_POWER)
 void mainTask(void *context)
 {
 	ledRedOn();
 	initConfigTerem();
 	initListProc();
 	ledRedOff();
+
+	if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_9) == Bit_SET)
+		xEventGroupSetBits(xEventGroup, FLAG_USB_POWER);
 
 	if( (xEventGroupGetBits(xEventGroup) & FLAG_BT_CONNECTED) == 0 )
 		sleepBt();
@@ -29,32 +32,15 @@ void mainTask(void *context)
 		//ledGreenOn();
 		//ждем флагов чтобы уйти в режим микропотребления, в Stop Mode
 		xEventGroupWaitBits(xEventGroup, FLAG_SLEEP_UART | FLAG_WRITE_PARAM,
-		pdFALSE, pdFALSE, 1000);
+		pdFALSE, pdFALSE, 100);
 		//ledGreenOff();
 		EventBits_t uxBits = xEventGroupGetBits(xEventGroup);
-		if( (uxBits&FLAG_SLEEP_UART) == 0 )
-			;		//вышли по таймеру
-		else
+		if( (uxBits & FLAG_SLEEP_UART) == FLAG_SLEEP_UART )
 		{
-			if( (uxBits & FLAG_SLEEP_UART) == FLAG_SLEEP_UART )
-			{
-				sleepBt();
-				stopJ();
-			}
-//			uxBits = xEventGroupGetBits(xEventGroup);
-//			if( (uxBits & FLAG_WRITE_PARAM) == FLAG_WRITE_PARAM )
-//			{
-//				saveParam();
-//				xEventGroupClearBits(xEventGroup, FLAG_WRITE_PARAM);
-//				stopJ();
-//			}
-//			uxBits = xEventGroupClearBits(xEventGroup, FLAG_SLEEP_MESUR);
-//			if( (uxBits & FLAG_SLEEP_MESUR) == FLAG_SLEEP_MESUR )
-//			{
-//				stopJ();
-//			}
-
+			sleepBt();
 		}
+		stopJ();
+
 	}
 }
 
@@ -67,9 +53,17 @@ extern "C" void EXTI3_IRQHandler()
 extern "C" void EXTI9_5_IRQHandler()
 {
 	EXTI_ClearFlag(EXTI_Line9);
-	deinitExti();
-}
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+	if( GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_9) == Bit_SET )
+	{
+		xEventGroupSetBitsFromISR(xEventGroup, FLAG_USB_POWER,
+				&xHigherPriorityTaskWoken);
+		deinitExti();
+	}
+	else
+		xEventGroupClearBitsFromISR(xEventGroup, FLAG_USB_POWER);
 
+}
 
 void initExti()
 {
@@ -78,7 +72,7 @@ void initExti()
 	NVIC_InitTypeDef nvic;
 
 //	EXTI_ClearFlag(EXTI_Line3);
-	EXTI_ClearFlag(EXTI_Line3 | EXTI_Line9);
+//	EXTI_ClearFlag(EXTI_Line3 | EXTI_Line9);
 
 	//RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOAEN, ENABLE);
 	GPIO_StructInit(&gpio);
@@ -88,7 +82,7 @@ void initExti()
 	GPIO_Init(GPIOA, &gpio);
 
 	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource3);
-	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource9);
+//	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource9);
 
 	exti.EXTI_Line = EXTI_Line3;
 	exti.EXTI_Mode = EXTI_Mode_Interrupt;
@@ -96,10 +90,10 @@ void initExti()
 	exti.EXTI_LineCmd = ENABLE;
 	EXTI_Init(&exti);
 
-	exti.EXTI_Line = EXTI_Line9;
-	exti.EXTI_Trigger = EXTI_Trigger_Rising;
-	exti.EXTI_LineCmd = ENABLE;
-	EXTI_Init(&exti);
+//	exti.EXTI_Line = EXTI_Line9;
+//	exti.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+//	exti.EXTI_LineCmd = ENABLE;
+//	EXTI_Init(&exti);
 
 	nvic.NVIC_IRQChannel = EXTI3_IRQn;
 	nvic.NVIC_IRQChannelPreemptionPriority = 0;
@@ -107,9 +101,9 @@ void initExti()
 	nvic.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&nvic);
 
-	nvic.NVIC_IRQChannel = EXTI9_5_IRQn;
-	nvic.NVIC_IRQChannelSubPriority = 1;
-	NVIC_Init(&nvic);
+//	nvic.NVIC_IRQChannel = EXTI9_5_IRQn;
+//	nvic.NVIC_IRQChannelSubPriority = 1;
+//	NVIC_Init(&nvic);
 
 	//настроим выход по УСБ подключению.
 }
@@ -123,16 +117,11 @@ void deinitExti()
 	gpio.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOA, &gpio);
 
-	EXTI_DeInit();
-
 	NVIC_InitTypeDef nvic;
 	nvic.NVIC_IRQChannel = EXTI3_IRQn;
 	nvic.NVIC_IRQChannelPreemptionPriority = 0;
 	nvic.NVIC_IRQChannelSubPriority = 0;
 	nvic.NVIC_IRQChannelCmd = DISABLE;
-	NVIC_Init(&nvic);
-
-	nvic.NVIC_IRQChannel = EXTI9_5_IRQn;
 	NVIC_Init(&nvic);
 }
 
@@ -178,9 +167,9 @@ void stopJ()
 		initExti();
 		ledRedOn();
 		PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
-ledRedOff();
+		ledRedOff();
 		/* Disable Wakeup Counter */
-			RTC_WakeUpCmd(DISABLE);
+		RTC_WakeUpCmd(DISABLE);
 		/* After wake-up from STOP reconfigure the system clock */
 		/* Enable HSE */
 		RCC_HSEConfig(RCC_HSE_ON);
@@ -194,17 +183,19 @@ ledRedOff();
 		RCC_PLLCmd(ENABLE);
 
 		/* Wait till PLL is ready */
-		while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET);
+		while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET)
+			;
 
 		/* Select PLL as system clock source */
 		RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
 
 		/* Wait till PLL is used as system clock source */
-		while(RCC_GetSYSCLKSource() != 0x08);
+		while(RCC_GetSYSCLKSource() != 0x08)
+			;
 		EXTI_ClearFlag(EXTI_Line3 | EXTI_Line9);
 		exitCritSect();
+		initAfterStop();
 	}
-	initAfterStop();
 }
 
 //костин код
