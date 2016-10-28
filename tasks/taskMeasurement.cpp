@@ -15,6 +15,7 @@
 #include "../../adc.h"
 #include "sensor/ds1820.h"
 #include "main.h"
+#include "sensor/Dpg2.h"
 #include <math.h>
 
 float valueSens[16];
@@ -75,6 +76,11 @@ void musuring()
 				valueSens[j++] = result1.uClear;
 			else
 				valueSens[j++] = result1.p;
+		}
+		if((configTerem.Flags & 8) > 0)
+		{//датчик ДТГ 2.0
+			dpg2_readValue(8, &result1);
+			valueSens[j++] = result1.uClear;
 		}
 	}
 	epa_Off();
