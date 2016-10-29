@@ -67,7 +67,7 @@ void musuring()
 
 	ep1_On();
 	epa_On();
-	for(int i = 0; i < 8; i++)
+	for(int i = 0; i < 9; i++)
 	{	//опрос всех каналов
 		result1 = readSenser(i);
 		if( isnan(result1.u) == 0 )
@@ -77,11 +77,11 @@ void musuring()
 			else
 				valueSens[j++] = result1.p;
 		}
-		if((configTerem.Flags & 8) > 0)
-		{//датчик ДТГ 2.0
-			dpg2_readValue(8, &result1);
-			valueSens[j++] = result1.uClear;
-		}
+//		if((configTerem.Flags & 8) > 0)
+//		{//датчик ДТГ 2.0
+//			dpg2_readValue(8, &result1);
+//			valueSens[j++] = result1.uClear;
+//		}
 	}
 	epa_Off();
 	ep1_Off();

@@ -102,14 +102,10 @@ int commandGetCurAdc(uint8_t *buffer)
 
 		uint16_t curN;
 		ResultMes result;
-		if( numChanel < 8 )
+		if( numChanel < 9 )
 		{
 			tempOfDs1820 += configTerem.deltaT;
 			result = readSenser(numChanel, &curN);
-		}
-		else if(numChanel == 8)
-		{
-			dpg2_readValue(numChanel, &result);
 		}
 		else
 			result.p = tempOfDs1820;
@@ -137,9 +133,6 @@ int commandGetCurAdc(uint8_t *buffer)
 		{
 			case 57:
 				buffer[17] = GT_TermoHK;
-				break;
-			case 8:
-				buffer[17] = GT_SHT21;
 				break;
 			default:
 				buffer[17] = configTerem.sensorType[numChanel];
