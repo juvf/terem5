@@ -84,8 +84,7 @@ void taskUartRfd(void *context)
 							if( strstr((char*)rfd_buffer+10, "RFCOMM") != NULL )
 							{
 								ledGreenOn();
-								xEventGroupSetBits(xEventGroup,
-								FLAG_BT_CONNECTED);
+								xEventGroupSetBits(xEventGroup,	FLAG_BT_CONNECTED);
 
 							}
 						}
@@ -129,14 +128,15 @@ bool reciveByte(uint8_t byte)
 		rfd_sizeOfFrame = byte;
 	if( rfd_count == 4 )
 	{
-		if( strncmp((char*)rfd_buffer, "RssING", 4) == 0 )
-		{
-			flagRing = RING;
-			ledGreenOn();
-			xEventGroupSetBits(xEventGroup, FLAG_BT_CONNECTED);
-
-		}
-		else if( strncmp((char*)rfd_buffer, "NO C", 4) == 0 )
+//		if( strncmp((char*)rfd_buffer, "RssING", 4) == 0 )
+//		{
+//			flagRing = RING;
+//			ledGreenOn();
+//			xEventGroupSetBits(xEventGroup, FLAG_BT_CONNECTED);
+//
+//		}
+//		else
+		if( strncmp((char*)rfd_buffer, "NO C", 4) == 0 )
 		{
 			flagRing = NO_CARRIER;
 			ledGreenOff();
@@ -306,6 +306,10 @@ void replayWait(int msec)
 
 void deinitUartRfd()
 {
+
+	NVIC_DisableIRQ(USART2_IRQn);
+	USART_Cmd(USART2, DISABLE);
+
 	USART_DeInit(USART2);
 	RCC_APB1PeriphClockCmd(RCC_APB1ENR_USART2EN, DISABLE);
 

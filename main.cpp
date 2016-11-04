@@ -26,7 +26,7 @@ int main()
 
 void pereferInit()
 {
-	//DBGMCU->CR |= DBGMCU_CR_DBG_STOP;
+	DBGMCU->CR |= DBGMCU_CR_DBG_STOP;
 	// Включаем прерывания
 	__enable_irq();
 //инициализация светодиода
@@ -103,13 +103,13 @@ void pereferInit()
 
 	//initSpi1();
 	//initIntAdc();
-	initRtc();
+
+	//initRtc();
 }
 
 void pereferDeInit()
 {
-	//deinitUartRfd();
-
+	deinitUartRfd();
 	ADC_DeInit();
 	deinit_I2C1();
 	SPI_I2S_DeInit(SPI1);
@@ -132,13 +132,8 @@ void deinitGPIO()
 	GPIO_InitTypeDef gpio;
 
 	gpio.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | //SPI ADC
-<<<<<<< .mine
-			GPIO_Pin_1; // | // внутренний датчик DS1820 или датчик влажности SHT21D
-	//GPIO_Pin_10; //светодиод
-=======
 			GPIO_Pin_1; // датчик влажности SHT21D
 
->>>>>>> .theirs
 	gpio.GPIO_Mode = GPIO_Mode_IN;
 	gpio.GPIO_Speed = GPIO_Speed_2MHz;
 	gpio.GPIO_PuPd = GPIO_PuPd_NOPULL;
@@ -174,16 +169,16 @@ void initPa9()
 	gpio.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOA, &gpio);
 
-	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource9);
+	//SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource9);
 
-	EXTI_InitTypeDef exti;
-	exti.EXTI_Line = EXTI_Line9;
-	exti.EXTI_Mode = EXTI_Mode_Interrupt;
-	exti.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-	exti.EXTI_LineCmd = ENABLE;
-	EXTI_Init(&exti);
-
-	NVIC_EnableIRQ(EXTI9_5_IRQn);
-	NVIC_SetPriority(EXTI9_5_IRQn, 12);
+//	EXTI_InitTypeDef exti;
+//	exti.EXTI_Line = EXTI_Line9;
+//	exti.EXTI_Mode = EXTI_Mode_Interrupt;
+//	exti.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+//	exti.EXTI_LineCmd = ENABLE;
+//	EXTI_Init(&exti);
+//
+//	NVIC_EnableIRQ(EXTI9_5_IRQn);
+//	NVIC_SetPriority(EXTI9_5_IRQn, 12);
 
 }

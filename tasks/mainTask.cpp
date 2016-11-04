@@ -19,7 +19,7 @@ void mainTask(void *context)
 {
 	ledRedOn();
 	initConfigTerem();
-	initListProc();
+	//initListProc();
 	ledRedOff();
 
 	if( GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_9) == Bit_SET )
@@ -30,30 +30,27 @@ void mainTask(void *context)
 
 	while(1)
 	{
-		//ledGreenOn();
+		//vTaskDelay(3000);
 		//ждем флагов чтобы уйти в режим микропотребления, в Stop Mode
 		xEventGroupWaitBits(xEventGroup, FLAG_SLEEP_UART | FLAG_WRITE_PARAM,
-		pdFALSE, pdFALSE, 100);
-		//ledGreenOff();
+		pdFALSE, pdFALSE, 30000);
 		EventBits_t uxBits = xEventGroupGetBits(xEventGroup);
 		if( (uxBits & FLAG_SLEEP_UART) == FLAG_SLEEP_UART )
 		{
 			sleepBt();
+			stopJ();
+			initUartRfd();
+			USART_ITConfig(USART2, USART_IT_RXNE, ENABLE); // При получении
 		}
-		stopJ();
 
 	}
 }
-
-int t = 0;
 
 extern "C" void EXTI3_IRQHandler()
 {
 	EXTI_ClearFlag(EXTI_Line3);
 	deinitExti();
-	initUartRfd();
 	ledRedOff();
-	t=1;
 }
 
 extern "C" void EXTI9_5_IRQHandler()
@@ -77,7 +74,6 @@ void initExti()
 {
 	GPIO_InitTypeDef gpio;
 	EXTI_InitTypeDef exti;
-	NVIC_InitTypeDef nvic;
 
 	GPIO_StructInit(&gpio);
 	gpio.GPIO_Mode = GPIO_Mode_IN;
@@ -95,10 +91,14 @@ void initExti()
 
 	NVIC_EnableIRQ(EXTI3_IRQn);
 	NVIC_SetPriority(EXTI3_IRQn, 1);
+	EXTI_ClearFlag(EXTI_Line3);
+
 }
 
 void deinitExti()
 {
+	NVIC_DisableIRQ(EXTI3_IRQn);
+
 	GPIO_InitTypeDef gpio;
 	gpio.GPIO_Mode = GPIO_Mode_AF;
 	gpio.GPIO_Pin = GPIO_Pin_3;
@@ -106,7 +106,6 @@ void deinitExti()
 	gpio.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOA, &gpio);
 
-	NVIC_DisableIRQ(EXTI3_IRQn);
 }
 
 extern int endTransmit;
@@ -138,50 +137,48 @@ void sleepBt()
 		vTaskDelay(500);
 	}
 }
+
 void stopJ()
 {
 	//проверим чтобы не было соединений по УСБ,БТ и не было измерения.
+	xEventGroupClearBits(xEventGroup, FLAG_SLEEP_UART);
 	EventBits_t uxBits = xEventGroupGetBits(xEventGroup);
 	if( (uxBits & FLAG_STOP) == 0 )
 	{
-
 		enterCritSect();
 		pereferDeInit();
+		ledRedOn();
 		epa_Off();
 		ep1_Off();
 		initExti();
-		ledRedOn();
-		t = 0;
-		while(EXTI_GetFlagStatus(EXTI_Line3) == RESET)
-			vTaskDelay(10);
 
-//		//PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
-//
-//		//ledRedOff();
-//		/* Disable Wakeup Counter */
-//		RTC_WakeUpCmd(DISABLE);
-//		/* After wake-up from STOP reconfigure the system clock */
-//		/* Enable HSE */
-//		RCC_HSEConfig(RCC_HSE_ON);
-//
-//		/* Wait till HSE is ready */
-//		while(RCC_GetFlagStatus(RCC_FLAG_HSERDY) == RESET)
-//		{
-//		}
-//
-//		/* Enable PLL */
-//		RCC_PLLCmd(ENABLE);
-//
-//		/* Wait till PLL is ready */
-//		while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET)
-//			;
-//
-//		/* Select PLL as system clock source */
-//		RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
-//
-//		/* Wait till PLL is used as system clock source */
-//		while(RCC_GetSYSCLKSource() != 0x08)
-//			;
+		PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+
+		//ledRedOff();
+		/* Disable Wakeup Counter */
+		RTC_WakeUpCmd(DISABLE);
+		/* After wake-up from STOP reconfigure the system clock */
+		/* Enable HSE */
+		RCC_HSEConfig(RCC_HSE_ON);
+
+		/* Wait till HSE is ready */
+		while(RCC_GetFlagStatus(RCC_FLAG_HSERDY) == RESET)
+		{
+		}
+
+		/* Enable PLL */
+		RCC_PLLCmd(ENABLE);
+
+		/* Wait till PLL is ready */
+		while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET)
+			;
+
+		/* Select PLL as system clock source */
+		RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
+
+		/* Wait till PLL is used as system clock source */
+		while(RCC_GetSYSCLKSource() != 0x08)
+			;
 		exitCritSect();
 		initAfterStop();
 	}
