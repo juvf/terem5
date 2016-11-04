@@ -556,7 +556,7 @@ uint32_t getAdrCurPoint()
 uint8_t countSensor(const HeaderProcess& header)
 {
 	uint8_t countSens = 0;
-	for(int i = 0; i < 8; i++)
+	for(int i = 0; i < 16; i++)
 	{
 		if(header.config.sensorType[i] < GT_Absent)
 			countSens++;

@@ -14,7 +14,7 @@
 #include "sensor/Sensor.h"
 #include "sensor/ds1820.h"
 #include "adc.h"
-#include "main.h"
+#include "sensor/Dpg2.h"
 
 #include <string.h>
 
@@ -86,7 +86,7 @@ int commandReadyCheck(uint8_t *buffer)
 int commandGetCurAdc(uint8_t *buffer)
 {
 	int numChanel = buffer[6];
-	if( (numChanel > 7) && (numChanel != 57) )
+	if( (numChanel > 8) && (numChanel != 57) )
 	{ //недопустимый адресс
 		buffer[5] = 0x0e;
 		return 6;
@@ -101,7 +101,7 @@ int commandGetCurAdc(uint8_t *buffer)
 		epa_On();
 		uint16_t curN;
 		ResultMes result;
-		if( numChanel < 8 )
+		if( numChanel < 9 )
 		{
 			tempOfDs1820 += configTerem.deltaT;
 			result = readSenser(numChanel, &curN);
@@ -112,7 +112,6 @@ int commandGetCurAdc(uint8_t *buffer)
 		ep1_Off();
 		//освободим симафор АЦП
 		xSemaphoreGive(semaphAdc);
-
 
 		if( configTerem.sensorType[numChanel] == GT_SHT21 )
 		{
@@ -129,10 +128,14 @@ int commandGetCurAdc(uint8_t *buffer)
 			memcpy((void*)&buffer[18], (void*)&result.uClear, 4);
 		}
 
-		if( numChanel == 57 )
-			buffer[17] = GT_TermoHK;
-		else
-			buffer[17] = configTerem.sensorType[numChanel];
+		switch(numChanel)
+		{
+			case 57:
+				buffer[17] = GT_TermoHK;
+				break;
+			default:
+				buffer[17] = configTerem.sensorType[numChanel];
+		}
 		return 22;
 	}
 }

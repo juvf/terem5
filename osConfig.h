@@ -47,8 +47,6 @@ extern xQueueHandle memComUsbQueue;
 //extern xQueueHandle wt41AQueue;
 extern EventGroupHandle_t xEventGroup;
 
-
-
 void initOs(void);
 void createTasks(void);
 void callbackClearFlash(xTimerHandle timer);
