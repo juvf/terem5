@@ -7,7 +7,6 @@ extern "C"
   
 void mainTask(void *context);
 void stopJ();
-void sleepBt();
 void initExti();
 void deinitExti();
 

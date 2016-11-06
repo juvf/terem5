@@ -14,7 +14,6 @@
 
 #include <string.h>
 
-#define FLAG_STOP	(FLAG_BT_CONNECTED | FLAG_MESUR | FLAG_WRITE_PARAM | FLAG_USB_NO_POWER)
 void mainTask(void *context)
 {
 	ledRedOn();
@@ -22,26 +21,18 @@ void mainTask(void *context)
 	//initListProc();
 	ledRedOff();
 
-	if( GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_9) == Bit_SET )
-		xEventGroupClearBits(xEventGroup, FLAG_USB_NO_POWER);
-
-	if( (xEventGroupGetBits(xEventGroup) & FLAG_BT_CONNECTED) == 0 )
-		sleepBt();
+//	if( GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_9) == Bit_SET )
+//		xEventGroupClearBits(xEventGroup, FLAG_USB_NO_POWER);
+//
+//	if( (xEventGroupGetBits(xEventGroup) & FLAG_BT_CONNECTED) == 0 )
+//		sleepBt();
 
 	while(1)
 	{
-		//vTaskDelay(3000);
-		//ждем флагов чтобы уйти в режим микропотребления, в Stop Mode
 		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup,
-		FLAG_SLEEP_UART | FLAG_USB_SLEEP,
-		pdFALSE, pdTRUE, 100);
-		if( (uxBits & (FLAG_SLEEP_UART | FLAG_SLEEP_USB)) != 0 )
-		{
+				FLAG_NO_WORK, pdFALSE, pdTRUE, 10000);
+		if( (uxBits & (FLAG_NO_WORK)) == FLAG_NO_WORK )
 			stopJ();
-			//initUartRfd();
-			//USART_ITConfig(USART2, USART_IT_RXNE, ENABLE); // При получении
-		}
-
 	}
 }
 
@@ -49,6 +40,7 @@ extern "C" void EXTI3_IRQHandler()
 {
 	EXTI_ClearFlag(EXTI_Line3);
 	deinitExti();
+	xEventGroupClearBitsFromISR(xEventGroup, FLAG_NO_WORKS_BT);
 	initUartRfd();
 	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE); // При получении
 	ledRedOff();
@@ -78,8 +70,6 @@ void initExti()
 	gpio.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOA, &gpio);
 
-	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource3);
-
 	exti.EXTI_Line = EXTI_Line3;
 	exti.EXTI_Mode = EXTI_Mode_Interrupt;
 	exti.EXTI_Trigger = EXTI_Trigger_Falling;
@@ -87,16 +77,10 @@ void initExti()
 	EXTI_Init(&exti);
 
 	EXTI_ClearFlag(EXTI_Line3);
-	NVIC_EnableIRQ(EXTI3_IRQn);
-	NVIC_SetPriority(EXTI3_IRQn, 1);
-
-	initPa9();
 }
 
 void deinitExti()
 {
-	NVIC_DisableIRQ(EXTI3_IRQn);
-
 	EXTI_InitTypeDef exti;
 	exti.EXTI_Line = EXTI_Line3;
 	exti.EXTI_Mode = EXTI_Mode_Interrupt;
@@ -113,44 +97,8 @@ void deinitExti()
 
 }
 
-extern int endTransmit;
-extern uint8_t rfd_buffer[];
-extern uint16_t *rfd_count;
-extern uint8_t rfd_sizeOfFrame; //длинна пакета
-
-void sleepBt()
-{
-	//проверим, чтоб не было стирание флешки
-	EventBits_t flags = xEventGroupGetBits(xEventGroup);
-	if( flags & FLAG_FLASH_CLEARING )
-		return;
-	else
-	{
-		xEventGroupClearBits(xEventGroup, FLAG_SLEEP_UART);
-		vTaskDelay(100);
-		char *mes = "SLEEP\r\n";
-		rfd_sizeOfFrame = strlen(mes);
-		strcpy((char*)rfd_buffer, mes);
-		endTransmit = 1;
-		rfd_count = 0;
-		USART_ClearITPendingBit(USART2, USART_IT_TC);
-		USART_ITConfig(USART2, USART_IT_TC, ENABLE); // По окончанию отправки
-		USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
-		USART_SendData(USART2, rfd_buffer[0]);
-		while(endTransmit != 0)
-			vTaskDelay(1);
-		vTaskDelay(500);
-	}
-}
-
 void stopJ()
 {
-	//проверим чтобы не было соединений по УСБ,БТ и не было измерения.
-	xEventGroupClearBits(xEventGroup, FLAG_SLEEP_UART);
-	EventBits_t uxBits = xEventGroupGetBits(xEventGroup);
-	if( (uxBits & FLAG_STOP) == 0 )
-	{
-		NVIC_ClearPendingIRQ(EXTI3_IRQn);
 		enterCritSect();
 		pereferDeInit();
 		ledRedOn();
@@ -187,7 +135,6 @@ void stopJ()
 			;
 		exitCritSect();
 		initAfterStop();
-	}
 }
 
 //костин код

@@ -42,6 +42,7 @@ void parser(uint8_t *buf, uint8_t isRf);
 void setRxMode();
 void checkMsgForUsb();
 void replayWait(int sec);
+void sleepBt();
 
 extern "C"
 {

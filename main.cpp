@@ -97,6 +97,12 @@ void pereferInit()
 	port.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOE, &port);
 
+	//инициализация ноги РА3 для пробуждения по получению байтов с модуля БТ
+
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource3);
+	NVIC_EnableIRQ(EXTI3_IRQn);
+	NVIC_SetPriority(EXTI3_IRQn, 1);
+
 	initUartRfd();
 
 	init_I2C1();

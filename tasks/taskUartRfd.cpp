@@ -16,6 +16,8 @@
 
 #include <string.h>
 
+char *messSleep = "SLEEP\r\n";
+
 #define BUFFER_SIZE	1024
 #define ADRRESS		0x01
 uint8_t rfd_buffer[4120];
@@ -63,35 +65,39 @@ void taskUartRfd(void *context)
 
 	for(;;)
 	{
+		rfd_count = 0;
 		if( xQueueReceive(uartRfd232Queue, &byte, 10000) == pdTRUE )
 		{
-			if( 1 ) //byte == 0x80 )
+			reciveByte(byte);
+			while(1)
 			{
-				reciveByte(byte);
-				while(1)
+				if( xQueueReceive(uartRfd232Queue, &byte,
+						100) == pdPASS )
 				{
-					if( xQueueReceive(uartRfd232Queue, &byte,
-							100) == pdPASS )
-					{
-						if( reciveByte(byte) == false )
-							break;
-					}
-					else
-					{
-						if( rfd_count >= 8 )
-						{ //поищим в строке RFCOMM
-							rfd_buffer[rfd_count - 1] = 0;
-							if( strstr((char*)rfd_buffer+10, "RFCOMM") != NULL )
-							{
-								ledGreenOn();
-								xEventGroupSetBits(xEventGroup,	FLAG_BT_CONNECTED);
-
-							}
-						}
-						checkMsgForUsb();
-						setRxMode();
+					if( reciveByte(byte) == false )
 						break;
+				}
+				else
+				{
+					if( rfd_count >= 7 )
+					{ //поищим в строке RFCOMM
+						rfd_buffer[rfd_count - 1] = 0;
+						if( strstr((char*)rfd_buffer + 10, "RFCOMM") != NULL )
+						{
+							ledGreenOn();
+							xEventGroupClearBits(xEventGroup, FLAG_NO_WORKS_BT);
+						}
+						else if( strncmp((char*)rfd_buffer, "NO CAR", 6) == 0 )
+							sleepBt();
+						else if( strncmp((char*)rfd_buffer, messSleep, 5) == 0 )
+						{
+							ledGreenOff();
+							xEventGroupSetBits(xEventGroup, FLAG_NO_WORKS_BT);
+						}
 					}
+					checkMsgForUsb();
+					//setRxMode();
+					break;
 				}
 			}
 			vTaskDelay(100);
@@ -117,7 +123,6 @@ void checkMsgForUsb()
 
 bool reciveByte(uint8_t byte)
 {
-	static int flagRing;
 	rfd_buffer[rfd_count++] = byte;
 	if( ++itWh41 >= BUFFER_SIZE )
 		itWh41--;
@@ -126,29 +131,8 @@ bool reciveByte(uint8_t byte)
 		--rfd_count;
 	if( rfd_count == 2 )
 		rfd_sizeOfFrame = byte;
-	if( rfd_count == 4 )
-	{
-//		if( strncmp((char*)rfd_buffer, "RssING", 4) == 0 )
-//		{
-//			flagRing = RING;
-//			ledGreenOn();
-//			xEventGroupSetBits(xEventGroup, FLAG_BT_CONNECTED);
-//
-//		}
-//		else
-		if( strncmp((char*)rfd_buffer, "NO C", 4) == 0 )
-		{
-			flagRing = NO_CARRIER;
-			ledGreenOff();
-			sleepBt();
-			xEventGroupClearBits(xEventGroup, FLAG_BT_CONNECTED);
-			xEventGroupSetBits(xEventGroup, FLAG_SLEEP_UART);
-		}
-		else if( rfd_buffer[0] == 0x80 )
-			flagRing = COMMAND;
-	}
 
-	if( flagRing == COMMAND )
+	if( rfd_buffer[0] == 0x80 )
 	{
 		if( rfd_count >= rfd_sizeOfFrame )
 		{ //прин€ли весь пакет
@@ -165,6 +149,20 @@ bool reciveByte(uint8_t byte)
 		}
 	}
 	return true;
+}
+
+void sleepBt()
+{
+	rfd_sizeOfFrame = strlen(messSleep);
+	strcpy((char*)rfd_buffer, messSleep);
+
+	rfd_count = 0;
+	USART_ClearITPendingBit(USART2, USART_IT_TC);
+	USART_ClearITPendingBit(USART2, USART_IT_RXNE);
+	USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
+	USART_ITConfig(USART2, USART_IT_TC, ENABLE); // ѕо окончанию отправки
+	USART_SendData(USART2, rfd_buffer[0]);
+
 }
 
 void setRxMode()
