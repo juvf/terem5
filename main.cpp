@@ -26,7 +26,7 @@ int main()
 
 void pereferInit()
 {
-	//DBGMCU->CR |= DBGMCU_CR_DBG_STOP;
+	DBGMCU->CR |= DBGMCU_CR_DBG_STOP;
 	// Включаем прерывания
 	__enable_irq();
 //инициализация светодиода
@@ -175,16 +175,16 @@ void initPa9()
 	gpio.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOA, &gpio);
 
-	//SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource9);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource9);
 
-//	EXTI_InitTypeDef exti;
-//	exti.EXTI_Line = EXTI_Line9;
-//	exti.EXTI_Mode = EXTI_Mode_Interrupt;
-//	exti.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-//	exti.EXTI_LineCmd = ENABLE;
-//	EXTI_Init(&exti);
-//
-//	NVIC_EnableIRQ(EXTI9_5_IRQn);
-//	NVIC_SetPriority(EXTI9_5_IRQn, 12);
+	EXTI_InitTypeDef exti;
+	exti.EXTI_Line = EXTI_Line9;
+	exti.EXTI_Mode = EXTI_Mode_Interrupt;
+	exti.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+	exti.EXTI_LineCmd = ENABLE;
+	EXTI_Init(&exti);
+
+	NVIC_EnableIRQ(EXTI9_5_IRQn);
+	NVIC_SetPriority(EXTI9_5_IRQn, 12);
 
 }

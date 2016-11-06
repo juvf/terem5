@@ -42,7 +42,7 @@ void usbTask(void *context)
 	while(1)
 	{
 
-		if( (xEventGroupGetBits(xEventGroup) & FLAG_USB_POWER) == FLAG_USB_POWER )
+		if( !((xEventGroupGetBits(xEventGroup) & FLAG_USB_NO_POWER) == FLAG_USB_NO_POWER) )
 		{ //есть питание USB. Проверим - нужен ли инит?
 			if( (xEventGroupGetBits(xEventGroup) & FLAG_USB_INIT) == 0 )
 			{
@@ -56,8 +56,9 @@ void usbTask(void *context)
 			{ //Деинициализируем УСБ
 				deinitialUsb();
 				xEventGroupClearBits(xEventGroup, FLAG_USB_INIT);
+				xEventGroupSetBits(xEventGroup, FLAG_SLEEP_USB);
 			}
-			vTaskDelay(100);
+			vTaskDelay(10);
 			continue;
 		}
 

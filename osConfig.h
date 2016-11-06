@@ -21,8 +21,16 @@ extern "C"
 #define FLAG_COM_USB		( 1 << 5 )
 #define FLAG_FLASH_CLEARING	( 1 << 6 )
 #define FLAG_BT_CONNECTED	( 1 << 7 ) //флаг устанавливается при установлении соединения с компьютером через БТ
-#define FLAG_USB_POWER		( 1 << 8 ) //флаг установлен, если есть питание пор USB
+#define FLAG_USB_NO_POWER		( 1 << 8 ) //флаг установлен, если НЕТ питания по USB
 #define FLAG_USB_INIT		(1 << 9)//установлен, когда USB проинициализирован
+#define FLAG_SLEEP_USB		(1 << 10)//установлен, когда нет соединения по усб и усб деинициализирован
+
+#define FLAG_WORK_USB
+#define FLAG_WORK_MESURING
+#define FLAG_WORK_WRITE_PARAM FLAG_WRITE_PARAM
+#define FLAG_BT_WORK
+
+
 
 #define TASK_PRIORITY_MAIN		0
 #define TASK_PRIORITY_MESUR		1

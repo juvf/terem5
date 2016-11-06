@@ -140,6 +140,7 @@ bool reciveByte(uint8_t byte)
 		{
 			flagRing = NO_CARRIER;
 			ledGreenOff();
+			sleepBt();
 			xEventGroupClearBits(xEventGroup, FLAG_BT_CONNECTED);
 			xEventGroupSetBits(xEventGroup, FLAG_SLEEP_UART);
 		}

@@ -14,7 +14,7 @@
 
 #include <string.h>
 
-#define FLAG_STOP	(FLAG_BT_CONNECTED | FLAG_MESUR | FLAG_WRITE_PARAM | FLAG_USB_INIT)
+#define FLAG_STOP	(FLAG_BT_CONNECTED | FLAG_MESUR | FLAG_WRITE_PARAM | FLAG_USB_NO_POWER)
 void mainTask(void *context)
 {
 	ledRedOn();
@@ -23,7 +23,7 @@ void mainTask(void *context)
 	ledRedOff();
 
 	if( GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_9) == Bit_SET )
-		xEventGroupSetBits(xEventGroup, FLAG_USB_POWER);
+		xEventGroupClearBits(xEventGroup, FLAG_USB_NO_POWER);
 
 	if( (xEventGroupGetBits(xEventGroup) & FLAG_BT_CONNECTED) == 0 )
 		sleepBt();
@@ -32,25 +32,25 @@ void mainTask(void *context)
 	{
 		//vTaskDelay(3000);
 		//ждем флагов чтобы уйти в режим микропотребления, в Stop Mode
-		xEventGroupWaitBits(xEventGroup, FLAG_SLEEP_UART | FLAG_WRITE_PARAM,
-		pdFALSE, pdFALSE, 10000);
-		EventBits_t uxBits = xEventGroupGetBits(xEventGroup);
-		if( (uxBits & FLAG_SLEEP_UART) == FLAG_SLEEP_UART )
+		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup,
+		FLAG_SLEEP_UART | FLAG_USB_SLEEP,
+		pdFALSE, pdTRUE, 100);
+		if( (uxBits & (FLAG_SLEEP_UART | FLAG_SLEEP_USB)) != 0 )
 		{
-			sleepBt();
 			stopJ();
-			initUartRfd();
-			USART_ITConfig(USART2, USART_IT_RXNE, ENABLE); // При получении
+			//initUartRfd();
+			//USART_ITConfig(USART2, USART_IT_RXNE, ENABLE); // При получении
 		}
 
 	}
 }
 
-
 extern "C" void EXTI3_IRQHandler()
 {
 	EXTI_ClearFlag(EXTI_Line3);
 	deinitExti();
+	initUartRfd();
+	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE); // При получении
 	ledRedOff();
 }
 
@@ -60,15 +60,11 @@ extern "C" void EXTI9_5_IRQHandler()
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 	if( GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_9) == Bit_SET )
 	{
-		xEventGroupSetBitsFromISR(xEventGroup, FLAG_USB_POWER,
-				&xHigherPriorityTaskWoken);
-		//deinitExti();
+		xEventGroupClearBitsFromISR(xEventGroup, FLAG_USB_NO_POWER | FLAG_SLEEP_USB);
 	}
 	else
-	{
-		xEventGroupClearBitsFromISR(xEventGroup, FLAG_USB_POWER);
-	}
-
+		xEventGroupSetBitsFromISR(xEventGroup, FLAG_USB_NO_POWER,
+				&xHigherPriorityTaskWoken);
 }
 
 void initExti()
@@ -83,7 +79,6 @@ void initExti()
 	GPIO_Init(GPIOA, &gpio);
 
 	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource3);
-	NVIC_ClearPendingIRQ(EXTI3_IRQn);
 
 	exti.EXTI_Line = EXTI_Line3;
 	exti.EXTI_Mode = EXTI_Mode_Interrupt;
@@ -95,6 +90,7 @@ void initExti()
 	NVIC_EnableIRQ(EXTI3_IRQn);
 	NVIC_SetPriority(EXTI3_IRQn, 1);
 
+	initPa9();
 }
 
 void deinitExti()
@@ -163,7 +159,6 @@ void stopJ()
 		initExti();
 
 		PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
-
 
 		//ledRedOff();
 		/* Disable Wakeup Counter */
