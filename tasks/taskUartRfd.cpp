@@ -52,17 +52,6 @@ void taskUartRfd(void *context)
 	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE); // При получении
 	uint8_t byte;
 
-//	//запретить прерывания по приему компорта
-//	USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
-//	strcpy((char*)rfd_buffer, "SET BT AUTH * 1234\r\n");
-//	rfd_sizeOfFrame = 20;
-//	rfd_count = 0;
-//	USART_ClearITPendingBit(USART2, USART_IT_TC);
-//	USART_ITConfig(USART2, USART_IT_TC, ENABLE); // По окончанию отправки
-//	USART_SendData(USART2, rfd_buffer[0]);
-
-	vTaskDelay(10000);
-
 	for(;;)
 	{
 		rfd_count = 0;
@@ -132,7 +121,7 @@ bool reciveByte(uint8_t byte)
 	if( rfd_count == 2 )
 		rfd_sizeOfFrame = byte;
 
-	if( rfd_buffer[0] == 0x80 )
+	if( (rfd_buffer[0] == 0x80) && (rfd_count > 4) )
 	{
 		if( rfd_count >= rfd_sizeOfFrame )
 		{ //приняли весь пакет

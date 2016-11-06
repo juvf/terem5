@@ -37,7 +37,7 @@ extern "C"
 
 #define TASK_PRIORITY_MAIN		0
 #define TASK_PRIORITY_MESUR		1
-#define TASK_PRIORITY_RFD		2
+#define TASK_PRIORITY_RFD		1
 #define TASK_PRIORITY_USB		3
 
 #define SIZE_BUFF_WH41	128

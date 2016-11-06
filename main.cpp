@@ -101,7 +101,7 @@ void pereferInit()
 
 	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource3);
 	NVIC_EnableIRQ(EXTI3_IRQn);
-	NVIC_SetPriority(EXTI3_IRQn, 1);
+	NVIC_SetPriority(EXTI3_IRQn, 12);
 
 	initUartRfd();
 
