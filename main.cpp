@@ -26,7 +26,7 @@ int main()
 
 void pereferInit()
 {
-	DBGMCU->CR |= DBGMCU_CR_DBG_STOP;
+	//DBGMCU->CR |= DBGMCU_CR_DBG_STOP;
 	// Включаем прерывания
 	__enable_irq();
 //инициализация светодиода
@@ -109,12 +109,12 @@ void pereferInit()
 
 void pereferDeInit()
 {
+	deinitGPIO();
 	deinitUartRfd();
 	ADC_DeInit();
 	deinit_I2C1();
 	SPI_I2S_DeInit(SPI1);
 //	deinitSpi2();
-	deinitGPIO();
 }
 
 void deinitGPIO()
@@ -133,10 +133,16 @@ void deinitGPIO()
 
 	gpio.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | //SPI ADC
 			GPIO_Pin_1; // датчик влажности SHT21D
-
 	gpio.GPIO_Mode = GPIO_Mode_IN;
 	gpio.GPIO_Speed = GPIO_Speed_2MHz;
 	gpio.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_Init(GPIOA, &gpio);
+
+	gpio.GPIO_Mode = GPIO_Mode_IN;
+	gpio.GPIO_Pin = GPIO_Pin_2;//RS_232
+	gpio.GPIO_Speed = GPIO_Speed_2MHz;
+	gpio.GPIO_OType = GPIO_OType_PP;	//TxD
+	gpio.GPIO_PuPd = GPIO_PuPd_UP;
 	GPIO_Init(GPIOA, &gpio);
 
 	gpio.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_8

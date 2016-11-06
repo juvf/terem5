@@ -33,7 +33,7 @@ void mainTask(void *context)
 		//vTaskDelay(3000);
 		//ждем флагов чтобы уйти в режим микропотребления, в Stop Mode
 		xEventGroupWaitBits(xEventGroup, FLAG_SLEEP_UART | FLAG_WRITE_PARAM,
-		pdFALSE, pdFALSE, 30000);
+		pdFALSE, pdFALSE, 10000);
 		EventBits_t uxBits = xEventGroupGetBits(xEventGroup);
 		if( (uxBits & FLAG_SLEEP_UART) == FLAG_SLEEP_UART )
 		{
@@ -45,6 +45,7 @@ void mainTask(void *context)
 
 	}
 }
+
 
 extern "C" void EXTI3_IRQHandler()
 {
@@ -82,6 +83,7 @@ void initExti()
 	GPIO_Init(GPIOA, &gpio);
 
 	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource3);
+	NVIC_ClearPendingIRQ(EXTI3_IRQn);
 
 	exti.EXTI_Line = EXTI_Line3;
 	exti.EXTI_Mode = EXTI_Mode_Interrupt;
@@ -89,15 +91,22 @@ void initExti()
 	exti.EXTI_LineCmd = ENABLE;
 	EXTI_Init(&exti);
 
+	EXTI_ClearFlag(EXTI_Line3);
 	NVIC_EnableIRQ(EXTI3_IRQn);
 	NVIC_SetPriority(EXTI3_IRQn, 1);
-	EXTI_ClearFlag(EXTI_Line3);
 
 }
 
 void deinitExti()
 {
 	NVIC_DisableIRQ(EXTI3_IRQn);
+
+	EXTI_InitTypeDef exti;
+	exti.EXTI_Line = EXTI_Line3;
+	exti.EXTI_Mode = EXTI_Mode_Interrupt;
+	exti.EXTI_Trigger = EXTI_Trigger_Falling;
+	exti.EXTI_LineCmd = DISABLE;
+	EXTI_Init(&exti);
 
 	GPIO_InitTypeDef gpio;
 	gpio.GPIO_Mode = GPIO_Mode_AF;
@@ -145,6 +154,7 @@ void stopJ()
 	EventBits_t uxBits = xEventGroupGetBits(xEventGroup);
 	if( (uxBits & FLAG_STOP) == 0 )
 	{
+		NVIC_ClearPendingIRQ(EXTI3_IRQn);
 		enterCritSect();
 		pereferDeInit();
 		ledRedOn();
@@ -153,6 +163,7 @@ void stopJ()
 		initExti();
 
 		PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+
 
 		//ledRedOff();
 		/* Disable Wakeup Counter */
