@@ -35,7 +35,10 @@ uint8_t usbBuffer[280];
 void usbTask(void *context)
 {
 
-	initialUsb();
+	if( GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_9) == Bit_SET )
+		xEventGroupClearBits(xEventGroup, FLAG_USB_NO_POWER);
+	else
+		xEventGroupSetBits(xEventGroup, FLAG_USB_NO_POWER);
 
 	char *message;
 	MemCom com;
@@ -56,12 +59,12 @@ void usbTask(void *context)
 			{ //Деинициализируем УСБ
 				deinitialUsb();
 				xEventGroupClearBits(xEventGroup, FLAG_USB_INIT);
-				xEventGroupSetBits(xEventGroup, FLAG_SLEEP_USB);
 			}
+			xEventGroupSetBits(xEventGroup, FLAG_NO_WORKS_USB);
 			vTaskDelay(10);
 			continue;
 		}
-
+#ifdef USB_CONSOL
 		if( xQueueReceive(cansolQueue, &message, (TickType_t ) 10) )
 		{
 			//выдадим сообщение
@@ -78,6 +81,7 @@ void usbTask(void *context)
 				vTaskDelay(1);
 
 		}
+#endif
 		if( xQueueReceive(memComUsbQueue, &com, 5) )
 		{
 			flashMx25Read(usbBuffer, com.address, com.count);

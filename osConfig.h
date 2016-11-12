@@ -27,18 +27,18 @@ extern "C"
 
 
 //эти флаги стоят в 1 когда данная задача не работает и не требует активности от процессора
-#define FLAG_NO_WORKS_USB		(1<<11)
-#define FLAG_NO_WORKS_MESURING	(1<<12)
-#define FLAG_NO_WORKS_WRITE_PARAM FLAG_WRITE_PARAM
-#define FLAG_NO_WORKS_BT		(1<<13)
-#define FLAG_NO_WORK	(FLAG_NO_WORKS_BT)
+#define FLAG_NO_WORKS_USB			(1<<11)
+#define FLAG_NO_WORKS_MESURING		(1<<12)
+#define FLAG_NO_WORKS_WRITE_PARAM 	FLAG_WRITE_PARAM
+#define FLAG_NO_WORKS_BT			(1<<13)
+#define FLAG_NO_WORK	(FLAG_NO_WORKS_BT | FLAG_NO_WORKS_USB)
 
 
 
 #define TASK_PRIORITY_MAIN		0
 #define TASK_PRIORITY_MESUR		1
 #define TASK_PRIORITY_RFD		1
-#define TASK_PRIORITY_USB		3
+#define TASK_PRIORITY_USB		2
 
 #define SIZE_BUFF_WH41	128
   

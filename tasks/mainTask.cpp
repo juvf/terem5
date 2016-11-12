@@ -21,18 +21,16 @@ void mainTask(void *context)
 	//initListProc();
 	ledRedOff();
 
-//	if( GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_9) == Bit_SET )
-//		xEventGroupClearBits(xEventGroup, FLAG_USB_NO_POWER);
-//
-//	if( (xEventGroupGetBits(xEventGroup) & FLAG_BT_CONNECTED) == 0 )
-//		sleepBt();
-
 	while(1)
 	{
 		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup,
-				FLAG_NO_WORK, pdFALSE, pdTRUE, 10000);
+		FLAG_NO_WORK, pdFALSE, pdTRUE, 100);
 		if( (uxBits & (FLAG_NO_WORK)) == FLAG_NO_WORK )
 			stopJ();
+		uxBits = xEventGroupWaitBits(xEventGroup, FLAG_WRITE_PARAM, pdTRUE,
+				pdTRUE, 2);
+		if( (uxBits & (FLAG_WRITE_PARAM)) == FLAG_WRITE_PARAM )
+			saveParam();
 	}
 }
 
@@ -43,7 +41,6 @@ extern "C" void EXTI3_IRQHandler()
 	xEventGroupClearBitsFromISR(xEventGroup, FLAG_NO_WORKS_BT);
 	initUartRfd();
 	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE); // ѕри получении
-	ledRedOff();
 }
 
 extern "C" void EXTI9_5_IRQHandler()
@@ -51,8 +48,9 @@ extern "C" void EXTI9_5_IRQHandler()
 	EXTI_ClearFlag(EXTI_Line9);
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 	if( GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_9) == Bit_SET )
-	{
-		xEventGroupClearBitsFromISR(xEventGroup, FLAG_USB_NO_POWER | FLAG_SLEEP_USB);
+	{ //питание по€вилось
+		xEventGroupClearBitsFromISR(xEventGroup, FLAG_USB_NO_POWER);
+		xEventGroupClearBitsFromISR(xEventGroup, FLAG_NO_WORKS_USB);
 	}
 	else
 		xEventGroupSetBitsFromISR(xEventGroup, FLAG_USB_NO_POWER,
@@ -99,42 +97,42 @@ void deinitExti()
 
 void stopJ()
 {
-		enterCritSect();
-		pereferDeInit();
-		ledRedOn();
-		epa_Off();
-		ep1_Off();
-		initExti();
+	enterCritSect();
+	pereferDeInit();
+	//ledRedOn();
+	epa_Off();
+	ep1_Off();
+	initExti();
 
-		PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+	//ledRedOff();
 
-		//ledRedOff();
-		/* Disable Wakeup Counter */
-		RTC_WakeUpCmd(DISABLE);
-		/* After wake-up from STOP reconfigure the system clock */
-		/* Enable HSE */
-		RCC_HSEConfig(RCC_HSE_ON);
+	/* Disable Wakeup Counter */
+	RTC_WakeUpCmd(DISABLE);
+	/* After wake-up from STOP reconfigure the system clock */
+	/* Enable HSE */
+	RCC_HSEConfig(RCC_HSE_ON);
 
-		/* Wait till HSE is ready */
-		while(RCC_GetFlagStatus(RCC_FLAG_HSERDY) == RESET)
-		{
-		}
+	/* Wait till HSE is ready */
+	while(RCC_GetFlagStatus(RCC_FLAG_HSERDY) == RESET)
+	{
+	}
 
-		/* Enable PLL */
-		RCC_PLLCmd(ENABLE);
+	/* Enable PLL */
+	RCC_PLLCmd(ENABLE);
 
-		/* Wait till PLL is ready */
-		while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET)
-			;
+	/* Wait till PLL is ready */
+	while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET)
+		;
 
-		/* Select PLL as system clock source */
-		RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
+	/* Select PLL as system clock source */
+	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
 
-		/* Wait till PLL is used as system clock source */
-		while(RCC_GetSYSCLKSource() != 0x08)
-			;
-		exitCritSect();
-		initAfterStop();
+	/* Wait till PLL is used as system clock source */
+	while(RCC_GetSYSCLKSource() != 0x08)
+		;
+	exitCritSect();
+	initAfterStop();
 }
 
 //костин код
