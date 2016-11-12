@@ -20,7 +20,6 @@ extern "C"
 #define FLAG_WRITE_PARAM	( 1 << 4 )
 #define FLAG_COM_USB		( 1 << 5 )
 #define FLAG_FLASH_CLEARING	( 1 << 6 )
-//#define FLAG_BT_CONNECTED	( 1 << 7 ) //флаг устанавливается при установлении соединения с компьютером через БТ
 #define FLAG_USB_NO_POWER		( 1 << 8 ) //флаг установлен, если НЕТ питания по USB
 #define FLAG_USB_INIT		(1 << 9)//установлен, когда USB проинициализирован
 #define FLAG_SLEEP_USB		(1 << 10)//установлен, когда нет соединения по усб и усб деинициализирован
@@ -29,9 +28,9 @@ extern "C"
 //эти флаги стоят в 1 когда данная задача не работает и не требует активности от процессора
 #define FLAG_NO_WORKS_USB			(1<<11)
 #define FLAG_NO_WORKS_MESURING		(1<<12)
-#define FLAG_NO_WORKS_WRITE_PARAM 	FLAG_WRITE_PARAM
+#define FLAG_NO_WORKS_WRITE_PARAM 	( 1 << 7 )
 #define FLAG_NO_WORKS_BT			(1<<13)
-#define FLAG_NO_WORK	(FLAG_NO_WORKS_BT | FLAG_NO_WORKS_USB)
+#define FLAG_NO_WORK	(FLAG_NO_WORKS_BT | FLAG_NO_WORKS_USB | FLAG_NO_WORKS_WRITE_PARAM)
 
 
 

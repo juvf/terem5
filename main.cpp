@@ -26,7 +26,7 @@ int main()
 
 void pereferInit()
 {
-	DBGMCU->CR |= DBGMCU_CR_DBG_STOP;
+	//DBGMCU->CR |= DBGMCU_CR_DBG_STOP;
 	// Включаем прерывания
 	__enable_irq();
 //инициализация светодиода

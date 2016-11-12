@@ -16,6 +16,7 @@
 
 void mainTask(void *context)
 {
+	xEventGroupSetBits(xEventGroup, FLAG_NO_WORKS_WRITE_PARAM);
 	ledRedOn();
 	initConfigTerem();
 	//initListProc();
@@ -30,7 +31,10 @@ void mainTask(void *context)
 		uxBits = xEventGroupWaitBits(xEventGroup, FLAG_WRITE_PARAM, pdTRUE,
 				pdTRUE, 2);
 		if( (uxBits & (FLAG_WRITE_PARAM)) == FLAG_WRITE_PARAM )
+		{
+			xEventGroupSetBits(xEventGroup, FLAG_NO_WORKS_WRITE_PARAM);
 			saveParam();
+		}
 	}
 }
 

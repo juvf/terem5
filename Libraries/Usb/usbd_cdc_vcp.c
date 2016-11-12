@@ -115,6 +115,7 @@ void usbReadAddress(uint8_t* buffer, void *pdev)
 void usbWriteAddress(uint8_t* buffer, void *pdev)
 {
 	teremParam.address = buffer[4];
+	xEventGroupClearBitsFromISR(xEventGroup, FLAG_NO_WORKS_WRITE_PARAM);
 	xEventGroupSetBitsFromISR(xEventGroup, FLAG_WRITE_PARAM, 0);
 	DCD_EP_Tx(pdev, 02, (uint8_t*)&teremParam.address, 1);
 }
