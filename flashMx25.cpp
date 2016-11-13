@@ -217,7 +217,6 @@ void initSpi2()
 
 void deinitSpi2()
 {
-	enterCritSect();
 	if( isInitial )
 	{
 		SPI_I2S_DeInit(SPI2);
@@ -227,7 +226,6 @@ void deinitSpi2()
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, DISABLE);
 		isInitial = false;
 	}
-	exitCritSect();
 }
 
 void initDmaSpi2()

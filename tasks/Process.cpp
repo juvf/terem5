@@ -13,7 +13,7 @@
 #include "../flashMx25.h"
 #include "configTerem.h"
 #include "osConfig.h"
-//#include "../structCommon.h"
+#include "../main.h"
 
 #include  <string.h>
 
@@ -63,7 +63,12 @@ void initListProc()
 		{
 			headerList[countProc++] = i;
 		}
+		if((i%100) > 50)
+			ledRedOff();
+		else
+			ledRedOn();
 	}
+	ledRedOff();
 }
 
 int commandGetCountProc(uint8_t *buffer)
@@ -579,6 +584,8 @@ extern "C" void RTC_Alarm_IRQHandler()
 					&xHigherPriorityTaskWoken);
 		//setNewAlarmRTC(5); 		//перезапустим таймер
 		//setNewAlarmRTC(currProcessHeader.period);
+		portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 
 	}
+
 }

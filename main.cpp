@@ -110,7 +110,7 @@ void pereferInit()
 	//initSpi1();
 	//initIntAdc();
 
-	//initRtc();
+	initRtc();
 }
 
 void pereferDeInit()
@@ -120,18 +120,11 @@ void pereferDeInit()
 	ADC_DeInit();
 	deinit_I2C1();
 	SPI_I2S_DeInit(SPI1);
-//	deinitSpi2();
+	deinitSpi2();
 }
 
 void deinitGPIO()
 {
-//	GPIO_DeInit(GPIOA);
-//	GPIO_DeInit(GPIOB);
-//	GPIO_DeInit(GPIOC);
-//	GPIO_DeInit(GPIOD);
-//	GPIO_DeInit(GPIOE);
-	//деинитим порты на управление комутаторами DA12-DA17
-
 	GPIO_DeInit(GPIOD);
 	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIODEN, DISABLE);
 
@@ -164,11 +157,6 @@ void deinitGPIO()
 	gpio.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_9 | GPIO_Pin_10
 			| GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14; //RFM23B-433
 	GPIO_Init(GPIOE, &gpio);
-}
-
-void initAfterStop()
-{
-	//initUartRfd();
 }
 
 void initPa9()

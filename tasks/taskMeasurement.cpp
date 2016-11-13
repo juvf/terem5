@@ -25,6 +25,7 @@ void taskMeasurement(void *context)
 //нужно пройти по всем подключенным датчика процесса и опросить их.
 //имеем массив датчиков.... у каждого датчика есть настройка - включен он или блять не включен и его тип
 //проверяем енто
+	xEventGroupSetBits(xEventGroup, FLAG_NO_WORKS_MESURING);
 	vTaskDelay(1000);
 	while(1)
 	{
@@ -34,23 +35,15 @@ void taskMeasurement(void *context)
 		if( (uxBits & FLAG_MESUR) == FLAG_MESUR )
 		{
 			ledGreenOn();
+			xEventGroupClearBits(xEventGroup, FLAG_NO_WORKS_MESURING);
 			setNewAlarmRTC(getProcessPeriod()); 		//перезапустим таймер
 			musuring();
-			vTaskDelay(300);
 			ledGreenOff();
-			//xEventGroupSetBits(xEventGroup, FLAG_SLEEP_MESUR);
 			xEventGroupClearBits(xEventGroup, FLAG_MESUR);
+			xEventGroupSetBits(xEventGroup, FLAG_NO_WORKS_MESURING);
 		}
 	}
 
-}
-
-void timerMeasurement(xTimerHandle xTimer)
-{
-// Код функции таймера
-	//musuring();
-	//xEventGroupSetBits(xEventGroup, FLAG_MESUR);
-	//return;
 }
 
 void musuring()

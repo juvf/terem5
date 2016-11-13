@@ -41,10 +41,13 @@ void taskUartRfd(void *context)
 {
 	USART_ClearITPendingBit(USART2, USART_IT_TC);
 	USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
-	USART_SendData(USART2, 0x0d);
-	vTaskDelay(5);
-	USART_SendData(USART2, 0x0a);
-	vTaskDelay(100);
+//	USART_SendData(USART2, 0x0d);
+//	vTaskDelay(5);
+//	USART_SendData(USART2, 0x0a);
+	vTaskDelay(1000);
+	sleepBt();
+
+	xEventGroupSetBits(xEventGroup, FLAG_NO_WORKS_BT);
 
 	rfd_isReadReady = false;
 	rfd_count = 0;

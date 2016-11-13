@@ -132,7 +132,7 @@ void deinitialUsb()
 
 //	/* Configure SOF ID DM DP Pins */
 	GPIO_StructInit(&GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_9;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11 | GPIO_Pin_12;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
 	USB_OTG_CORE_HANDLE *pdev = &USB_OTG_dev;

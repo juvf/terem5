@@ -17,16 +17,16 @@
 void mainTask(void *context)
 {
 	xEventGroupSetBits(xEventGroup, FLAG_NO_WORKS_WRITE_PARAM);
-	ledRedOn();
 	initConfigTerem();
-	//initListProc();
-	ledRedOff();
+	initListProc();
+
 
 	while(1)
 	{
 		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup,
 		FLAG_NO_WORK, pdFALSE, pdTRUE, 100);
 		if( (uxBits & (FLAG_NO_WORK)) == FLAG_NO_WORK )
+//			vTaskDelay(100);
 			stopJ();
 		uxBits = xEventGroupWaitBits(xEventGroup, FLAG_WRITE_PARAM, pdTRUE,
 				pdTRUE, 2);
@@ -136,7 +136,6 @@ void stopJ()
 	while(RCC_GetSYSCLKSource() != 0x08)
 		;
 	exitCritSect();
-	initAfterStop();
 }
 
 //костин код
