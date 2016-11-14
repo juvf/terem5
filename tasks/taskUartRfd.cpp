@@ -31,7 +31,7 @@ uint16_t crc;
 uint8_t fUart2Usb;
 int endTransmit = 0;
 
-bool a23 = false;
+//bool a23 = false;
 
 //char replayWHh41[SIZE_BUFF_WH41];
 int itWh41 = 0;
@@ -88,7 +88,7 @@ void taskUartRfd(void *context)
 				{
 					if( rfd_count >= 7 )
 					{ //поищим в строке RFCOMM
-						rfd_buffer[rfd_count - 1] = 0;
+						rfd_buffer[rfd_count] = 0;
 						if( strstr((char*)rfd_buffer + 10, "RFCOMM") != NULL )
 						{
 							ledGreenOn();
@@ -99,14 +99,13 @@ void taskUartRfd(void *context)
 							vTaskDelay(2);
 							sleepBt();
 						}
-						else if( strncmp((char*)rfd_buffer, messSleep, 5) == 0 )
+						else if( strstr((char*)rfd_buffer, messSleep) != NULL )
 						{
 							ledGreenOff();
 							xEventGroupSetBits(xEventGroup, FLAG_NO_WORKS_BT);
 						}
 					}
 					checkMsgForUsb();
-					//setRxMode();
 					break;
 				}
 			}
@@ -371,7 +370,8 @@ extern "C" void USART2_IRQHandler(void)
 {
 	static portBASE_TYPE xHigherPriorityTaskWoken;
 	xHigherPriorityTaskWoken = pdFALSE;
-	if( (USART2->SR & (1<<6)) != 0 ) // Если отпавка завершена
+//	if( (USART2->SR & (1<<6)) != 0 ) // Если отпавка завершена
+	if( USART_GetITStatus(USART2, USART_IT_TC)) // Если отпавка завершена
 	{
 		// Очищаем флаг прерывания, если этого не сделать, оно будет вызываться постоянно.
 		USART_ClearITPendingBit(USART2, USART_IT_TC);

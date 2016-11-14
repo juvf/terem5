@@ -14,6 +14,7 @@
 
 #include <string.h>
 
+
 void mainTask(void *context)
 {
 	xEventGroupSetBits(xEventGroup, FLAG_NO_WORKS_WRITE_PARAM);
@@ -138,7 +139,6 @@ void stopJ()
 		;
 	exitCritSect();
 	ledRedOff();
-	vTaskDelay(1000);
 }
 
 //костин код
