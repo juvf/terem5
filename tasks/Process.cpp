@@ -32,11 +32,6 @@ struct Header
 	HeaderProcess header;
 };
 
-//uint32_t getAdrCurPoint()
-//{
-//
-//}
-
 uint32_t u32FromU8(uint8_t *buf)
 {
 	uint32_t r = (uint32_t)buf[0] & 0xff;

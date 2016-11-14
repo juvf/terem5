@@ -48,7 +48,9 @@ extern "C"
 {
 #endif
 
+void ledSeitch(int n);
 void taskUartRfd(void *context);
+void pauseT(int t);
 
 #ifdef __cplusplus
 }

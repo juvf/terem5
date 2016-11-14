@@ -29,7 +29,6 @@ uint8_t rfd_IdFrame; //id пакета
 uint8_t rfd_command; //код команды
 uint16_t crc;
 uint8_t fUart2Usb;
-bool rfd_isReadReady;
 int endTransmit = 0;
 
 bool a23 = false;
@@ -39,17 +38,33 @@ int itWh41 = 0;
 
 void taskUartRfd(void *context)
 {
-	USART_ClearITPendingBit(USART2, USART_IT_TC);
 	USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
-//	USART_SendData(USART2, 0x0d);
-//	vTaskDelay(5);
-//	USART_SendData(USART2, 0x0a);
-	vTaskDelay(1000);
+	USART_ITConfig(USART2, USART_IT_TC, DISABLE);
+	vTaskDelay(1000);//пауза, для того, чтобы модуль БТ проинитился и выплюнул начальную инфу
+	// Включаем прерывания и запускаем USART
+	USART_Cmd(USART2, ENABLE);
+	USART_ClearITPendingBit(USART2, USART_IT_TC);
+	USART_SendData(USART2, '\r');
+	while( (USART2->SR & (1<<6)) == 0);
+
+	USART_ClearITPendingBit(USART2, USART_IT_TC);
+	USART_SendData(USART2, '\n');
+	while( (USART2->SR & (1<<6)) == 0); // Если отпавка завершена
+	USART_ClearITPendingBit(USART2, USART_IT_TC);
+
+
+
+//	USART_ClearITPendingBit(USART2, USART_IT_TC);
+//	USART_ClearITPendingBit(USART2, USART_IT_RXNE);
+
+	NVIC_EnableIRQ(USART2_IRQn);
+	NVIC_SetPriority(USART2_IRQn, 12);
+	//очистим флаги прерывания
+
 	sleepBt();
 
 	xEventGroupSetBits(xEventGroup, FLAG_NO_WORKS_BT);
 
-	rfd_isReadReady = false;
 	rfd_count = 0;
 	rfd_sizeOfFrame = 6;
 	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE); // При получении
@@ -80,7 +95,10 @@ void taskUartRfd(void *context)
 							xEventGroupClearBits(xEventGroup, FLAG_NO_WORKS_BT);
 						}
 						else if( strncmp((char*)rfd_buffer, "NO CAR", 6) == 0 )
+						{
+							vTaskDelay(2);
 							sleepBt();
+						}
 						else if( strncmp((char*)rfd_buffer, messSleep, 5) == 0 )
 						{
 							ledGreenOff();
@@ -130,7 +148,6 @@ bool reciveByte(uint8_t byte)
 		{ //приняли весь пакет
 		  //запретить прерывания по приему компорта
 			USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
-			//rfd_isReadReady = true;
 			if( Checksum::crc16(rfd_buffer, rfd_sizeOfFrame) == 0 )
 			{
 				parser(rfd_buffer, true);
@@ -154,6 +171,7 @@ void sleepBt()
 	USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
 	USART_ITConfig(USART2, USART_IT_TC, ENABLE); // По окончанию отправки
 	USART_SendData(USART2, rfd_buffer[0]);
+	vTaskDelay(500);
 
 }
 
@@ -301,6 +319,9 @@ void deinitUartRfd()
 	NVIC_DisableIRQ(USART2_IRQn);
 	USART_Cmd(USART2, DISABLE);
 
+	rfd_count = 0;
+	rfd_sizeOfFrame = 6;
+
 	USART_DeInit(USART2);
 	RCC_APB1PeriphClockCmd(RCC_APB1ENR_USART2EN, DISABLE);
 
@@ -338,10 +359,9 @@ void initUartRfd()
 	usart.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 	USART_ClearITPendingBit(USART2, USART_IT_TC);
 	USART_Init(USART2, &usart);
-	// Включаем прерывания и запускаем USART
-	NVIC_EnableIRQ(USART2_IRQn);
-	NVIC_SetPriority(USART2_IRQn, 12);
-	USART_Cmd(USART2, ENABLE);
+
+	rfd_count = 0;
+	rfd_sizeOfFrame = 6;
 
 	//USART_ITConfig(USART3, USART_IT_TC, ENABLE); // По окончанию отправки
 	//USART_ITConfig(USART6, USART_IT_RXNE, ENABLE); // При получении
@@ -351,11 +371,11 @@ extern "C" void USART2_IRQHandler(void)
 {
 	static portBASE_TYPE xHigherPriorityTaskWoken;
 	xHigherPriorityTaskWoken = pdFALSE;
-	if( USART_GetITStatus(USART2, USART_IT_TC) != RESET ) // Если отпавка завершена
+	if( (USART2->SR & (1<<6)) != 0 ) // Если отпавка завершена
 	{
 		// Очищаем флаг прерывания, если этого не сделать, оно будет вызываться постоянно.
 		USART_ClearITPendingBit(USART2, USART_IT_TC);
-		if( ++rfd_count == rfd_sizeOfFrame )
+		if( ++rfd_count >= rfd_sizeOfFrame )
 		{ //передали весь пакет
 			endTransmit = 0;
 			setRxMode();
@@ -366,16 +386,140 @@ extern "C" void USART2_IRQHandler(void)
 		}
 	}
 
-	if( USART_GetITStatus(USART2, USART_IT_RXNE) != RESET ) // Если приием завершен (регистр приема не пуст)
+	if( (USART2->SR & (1<<5)) != 0 ) // Если приием завершен (регистр приема не пуст)
 	{
 		// Флаг данного прерывания сбрасыывается прочтением данных
 		static uint8_t byte;
 		byte = USART_ReceiveData(USART2);
-		if( xQueueSendFromISR(uartRfd232Queue, &byte,
-				&xHigherPriorityTaskWoken) != pdTRUE )
-			xQueueSendFromISR(uartRfd232Queue, &byte,
-					&xHigherPriorityTaskWoken);
+		if( xQueueSendFromISR(uartRfd232Queue, &byte, &xHigherPriorityTaskWoken) != pdTRUE )
+			xQueueSendFromISR(uartRfd232Queue, &byte, &xHigherPriorityTaskWoken);
 	}
+#ifdef DEBUG_DF
+	if( ircUart != 0 )
+	{
+		uint32_t cr1 = USART2->CR1;
+		uint32_t cr2 = USART2->CR2;
+		uint32_t cr3 = USART2->CR3;
+		uint32_t sr = USART2->SR;
+
+
+		if( USART_GetITStatus(USART2, USART_IT_PE) == SET )
+		{
+			while(1)
+				ledSeitch(12);
+		}
+		if( USART_GetITStatus(USART2, USART_IT_TXE) == SET )
+		{
+			while(1)
+				ledSeitch(3);
+		}
+		if( USART_GetITStatus(USART2, USART_IT_ORE_RX) == SET )
+		{
+			while(1)
+				ledSeitch(4);
+		}
+		if( USART_GetITStatus(USART2, USART_IT_IDLE) == SET )
+		{
+			while(1)
+				ledSeitch(5);
+		}
+		if( USART_GetITStatus(USART2, USART_IT_LBD) == SET )
+		{
+			while(1)
+				ledSeitch(6);
+		}
+		if( USART_GetITStatus(USART2, USART_IT_CTS) == SET )
+		{
+			while(1)
+				ledSeitch(7);
+		}
+		if( USART_GetITStatus(USART2, USART_IT_ERR) == SET )
+		{
+			while(1)
+				ledSeitch(8);
+		}
+		if( USART_GetITStatus(USART2, USART_IT_ORE_ER) == SET )
+		{
+			while(1)
+				ledSeitch(9);
+		}
+		if( USART_GetITStatus(USART2, USART_IT_NE) == SET )
+		{
+			while(1)
+				ledSeitch(10);
+		}
+		if( USART_GetITStatus(USART2, USART_IT_FE) == SET )
+		{
+			while(1)
+				ledSeitch(11);
+		}
+
+	}
+#endif
+
 	portEND_SWITCHING_ISR(xHigherPriorityTaskWoken == pdTRUE);
 }
+#ifdef DEBUG_DF
+void ledSeitch(int n)
+{
+	int i = 0;
+	for(; i < n; i++)
+	{
+		ledRedOn();
+		pauseT(1000);
+		ledRedOff();
+		pauseT(1000);
+	}
+	pauseT(5000);
+}
+
+void pauseT(int t)
+{
+	uint32_t i, j;
+	for(j = 0; j < t; j++)
+		for(i = 0; i < 700; i++)
+		{
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+			asm("nop");
+		}
+}
+#endif
 

@@ -44,7 +44,9 @@ extern "C" void EXTI3_IRQHandler()
 	deinitExti();
 	xEventGroupClearBitsFromISR(xEventGroup, FLAG_NO_WORKS_BT);
 	initUartRfd();
+	USART_Cmd(USART2, ENABLE);
 	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE); // При получении
+	NVIC_EnableIRQ(USART2_IRQn);
 }
 
 extern "C" void EXTI9_5_IRQHandler()
@@ -103,13 +105,12 @@ void stopJ()
 {
 	enterCritSect();
 	pereferDeInit();
-	//ledRedOn();
+	ledRedOn();
 	epa_Off();
 	ep1_Off();
 	initExti();
 
 	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
-	//ledRedOff();
 
 	/* Disable Wakeup Counter */
 	RTC_WakeUpCmd(DISABLE);
@@ -136,6 +137,8 @@ void stopJ()
 	while(RCC_GetSYSCLKSource() != 0x08)
 		;
 	exitCritSect();
+	ledRedOff();
+	vTaskDelay(1000);
 }
 
 //костин код
