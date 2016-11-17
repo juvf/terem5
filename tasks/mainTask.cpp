@@ -27,8 +27,8 @@ void mainTask(void *context)
 		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup,
 		FLAG_NO_WORK, pdFALSE, pdTRUE, 100);
 		if( (uxBits & (FLAG_NO_WORK)) == FLAG_NO_WORK )
-//			vTaskDelay(100);
-			stopJ();
+			vTaskDelay(10);
+//			stopJ();
 		uxBits = xEventGroupWaitBits(xEventGroup, FLAG_WRITE_PARAM, pdTRUE,
 				pdTRUE, 2);
 		if( (uxBits & (FLAG_WRITE_PARAM)) == FLAG_WRITE_PARAM )

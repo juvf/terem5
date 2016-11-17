@@ -46,6 +46,7 @@ float readAnalogSensor(uint8_t numChanel, uint16_t *codeN)
 	powerDa17_16(P_OFF);
 	//выключить 500 мВ
 	gnd500mVOff();
+
 	return curU;
 }
 
@@ -195,14 +196,15 @@ ResultMes readSenser(uint8_t numChanel, uint16_t *codeN)
 {
 	static ResultMes result;
 	result.uClear = 0;
+	uint16_t tempCode;
+	if(codeN == 0)
+		codeN = &tempCode;
 	switch(configTerem.sensorType[numChanel])
 	{
 		//Датчики перемещения
 		case GT_MM10:
 			result.u = readAnalogSensor(numChanel, codeN);
 			result.p = MMxx_Length(*codeN, configTerem.a[numChanel][0], 10);
-			//				valP = valU * 2.0 / 1.17;
-			//				valP = (valP - configTerem.a[buffer[6]][0]) * 5.5; //Результат в мм
 			break;
 		case GT_MM20:
 			result.u = readAnalogSensor(numChanel, codeN);

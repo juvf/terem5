@@ -107,7 +107,7 @@ void pereferInit()
 
 	init_I2C1();
 
-	//initSpi1();
+	initSpi1();
 	//initIntAdc();
 
 	initRtc();

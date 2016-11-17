@@ -336,8 +336,6 @@ float getU_Ad7792(unsigned char numChanel, uint16_t *code)
 								(CON4_BUF * 1) | //Буферирование входного сигнала включено (1)
 								(CON0_CH_3 * 0)         //Канал AIN1 (0)
 								);
-				//Калибровка канала 1
-				//AD7792Calibr();
 				if( CurRangeADC != *CurRange )
 				{
 					CurRangeADC = *CurRange;
@@ -362,20 +360,7 @@ float getU_Ad7792(unsigned char numChanel, uint16_t *code)
 					{
 						if( --(*CurRange) )
 							(*CurRange)--;
-						//gFlags.RangeChanged = 1;
 					}
-					else if( (configTerem.sensorType[numChanel] >= GT_MM10)
-							&& (configTerem.sensorType[numChanel] <= GT_Rel_Ind) )
-					{
-						//gFlags.BadResult = 0;
-						break;
-					}
-					else
-					{
-						//gFlags.BadResult = 1;
-						break;
-					}
-					//Перегрузка (-), уменьшить коэффициент усиления
 				}
 				else if( !CurCode )
 				{
@@ -393,11 +378,11 @@ float getU_Ad7792(unsigned char numChanel, uint16_t *code)
 					//Недостаточное использование разрядности
 				}
 				else if( (CurCode < 0x8800) && (CurCode > 0x7800)
-						&& (*CurRange < 7) )
+						&& (*CurRange < 1) )
 				{
 					//Увеличить коэффициент усиления PGA для увеличения точности
 					while((CurCode < 0x8800) && (CurCode > 0x7800)
-							&& (*CurRange < 7))
+							&& (*CurRange < 1))
 					{
 						(*CurRange)++;
 						//gFlags.RangeChanged = 1;
