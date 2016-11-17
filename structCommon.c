@@ -8,6 +8,7 @@
 #include "adc.h"
 #include "tasks/sensor/Sensor.h"
 #include "main.h"
+#include "osConfig.h"
 
 extern void spiPortAdcOn();
 extern void spiPortAdcOff();
@@ -94,25 +95,31 @@ void ep1_On()
 void epa_On()
 {
 	GPIO_SetBits(GPIOC, GPIO_Pin_2); //вкл епа
-	GPIO_InitTypeDef port;
-	GPIO_StructInit(&port);
-	port.GPIO_Pin = GPIO_Pin_12;
-	port.GPIO_Mode = GPIO_Mode_OUT;
-	port.GPIO_OType = GPIO_OType_PP;
-	port.GPIO_PuPd = GPIO_PuPd_UP;
-	port.GPIO_Speed = GPIO_Speed_2MHz;
-	GPIO_Init(GPIOC, &port);
 
-	port.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_7;
-	GPIO_Init(GPIOB, &port);
+	{
+		//инициализируем порты управления аналоговыми ключами выбора канала
+		GPIO_InitTypeDef port;
+		GPIO_StructInit(&port);
+		port.GPIO_Pin = GPIO_Pin_12;
+		port.GPIO_Mode = GPIO_Mode_OUT;
+		port.GPIO_OType = GPIO_OType_PP;
+		port.GPIO_PuPd = GPIO_PuPd_UP;
+		port.GPIO_Speed = GPIO_Speed_2MHz;
+		GPIO_Init(GPIOC, &port);
 
-	port.GPIO_Pin = GPIO_Pin_7;
-	GPIO_Init(GPIOD, &port);
+		port.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_7;
+		GPIO_Init(GPIOB, &port);
 
-	switchOn(100);
+		RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIODEN, ENABLE);
+		port.GPIO_Pin = GPIO_Pin_7;
+		GPIO_Init(GPIOD, &port);
+	}
+
+
+	switchOn(100); //выключаем все ключи
 
 	initSpi1();
-	vTaskDelay(1);
+	vTaskDelay(2);
 
 	initAdc();
 }

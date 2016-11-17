@@ -14,23 +14,20 @@
 
 #include <string.h>
 
-
 void mainTask(void *context)
 {
 	xEventGroupSetBits(xEventGroup, FLAG_NO_WORKS_WRITE_PARAM);
 	initConfigTerem();
 	initListProc();
 
-
 	while(1)
 	{
 		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup,
 		FLAG_NO_WORK, pdFALSE, pdTRUE, 100);
 		if( (uxBits & (FLAG_NO_WORK)) == FLAG_NO_WORK )
-			vTaskDelay(10);
-//			stopJ();
+			stopJ();
 		uxBits = xEventGroupWaitBits(xEventGroup, FLAG_WRITE_PARAM, pdTRUE,
-				pdTRUE, 2);
+		pdTRUE, 2);
 		if( (uxBits & (FLAG_WRITE_PARAM)) == FLAG_WRITE_PARAM )
 		{
 			xEventGroupSetBits(xEventGroup, FLAG_NO_WORKS_WRITE_PARAM);

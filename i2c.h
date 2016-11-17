@@ -11,7 +11,7 @@
 #include <stdint.h>
 
 
-void init_I2C1();
+void init_I2C1(int u);
 void i2cWrite(int slaveAdr, int address, uint8_t *buffer, int size);
 void i2cWritePage(int slaveAdr, int address, uint8_t *buffer, int size);
 void i2cRead(int slaveAdr, int address, uint8_t *buffer, int size);

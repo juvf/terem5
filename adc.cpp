@@ -140,6 +140,7 @@ uint8_t initAdc()
 					);
 
 	csOff();
+	CurRangeADC = 0xff;
 	return 0;
 }
 
@@ -397,13 +398,14 @@ float getU_Ad7792(unsigned char numChanel, uint16_t *code)
 				}
 			}
 			curU = GainKoef(*CurRange) * (int16_t)(CurCode - 0x8000);
+//			curU = GainKoef(0) * (int16_t)(CurCode - 0x8000);
 		}
 	}
 
 	//выключить ключ
 	switchOn(100);
 	if( code )
-		*code = CurCode << *CurRange;
+		*code = CurCode;// << *CurRange;
 	return curU;
 }
 

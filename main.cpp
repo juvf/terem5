@@ -26,7 +26,7 @@ int main()
 
 void pereferInit()
 {
-	//DBGMCU->CR |= DBGMCU_CR_DBG_STOP;
+	DBGMCU->CR |= DBGMCU_CR_DBG_STOP;
 	// Включаем прерывания
 	__enable_irq();
 //инициализация светодиода
@@ -105,9 +105,9 @@ void pereferInit()
 
 	initUartRfd();
 
-	init_I2C1();
+	init_I2C1(0);
+	//initSpi1();
 
-	initSpi1();
 	//initIntAdc();
 
 	initRtc();
@@ -118,7 +118,7 @@ void pereferDeInit()
 	deinitGPIO();
 	deinitUartRfd();
 	ADC_DeInit();
-	deinit_I2C1();
+//deinit_I2C1();
 	SPI_I2S_DeInit(SPI1);
 	deinitSpi2();
 }
@@ -144,8 +144,8 @@ void deinitGPIO()
 	gpio.GPIO_PuPd = GPIO_PuPd_UP;
 	GPIO_Init(GPIOA, &gpio);
 
-	gpio.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_8
-			| GPIO_Pin_9 //i2c
+	gpio.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_5 | GPIO_Pin_6
+	//		| GPIO_Pin_8 | GPIO_Pin_9 //i2c
 			| GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15 //spi mx25l64
 			| GPIO_Pin_10; //внутренний датчик DS1820
 	GPIO_Init(GPIOB, &gpio);

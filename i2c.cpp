@@ -7,12 +7,13 @@
 #include "i2c.h"
 #include "stm32f4xx_conf.h"
 #include "osConfig.h"
+#include "tasks/CritSect.h"
 
 static bool isInitI2C = false;
 
-void init_I2C1()
+void init_I2C1(int u)
 {
-	if( !isInitI2C )
+	if( !isInitI2C || (u == 0) )
 	{
 		GPIO_InitTypeDef gpio;
 		I2C_InitTypeDef i2c;
@@ -49,8 +50,8 @@ void init_I2C1()
 
 void i2cWrite(int slaveAdr, int address, uint8_t *buffer, int size)
 {
-	if( !isInitI2C )
-		init_I2C1();
+	if( isInitI2C )
+		init_I2C1(1);
 	while(size > 0)
 	{
 		int adrNextPage = 64 + (address & 0xffc0);
@@ -75,8 +76,8 @@ void i2cWrite(int slaveAdr, int address, uint8_t *buffer, int size)
 //в этой функции запись должна идти до конца страницы, например до 64
 void i2cWritePage(int slaveAdr, int address, uint8_t *buffer, int size)
 {
-	if( !isInitI2C )
-		init_I2C1();
+	if( isInitI2C )
+		init_I2C1(1);
 	// ∆дем пока шина освободитс€
 	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY))
 		;
@@ -116,7 +117,7 @@ void i2cWritePage(int slaveAdr, int address, uint8_t *buffer, int size)
 void i2cRead(int slaveAdr, int address, uint8_t *buffer, int size)
 {
 	if( !isInitI2C )
-		init_I2C1();
+		init_I2C1(1);
 	// ∆дем пока шина освободитс€
 	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY))
 		;
@@ -164,6 +165,8 @@ void i2cRead(int slaveAdr, int address, uint8_t *buffer, int size)
 
 void deinit_I2C1()
 {
+	I2C_GenerateSTOP(I2C1, ENABLE);
+	vTaskDelay(10);
 	I2C_DeInit(I2C1);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, DISABLE);
 
