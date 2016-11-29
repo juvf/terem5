@@ -20,6 +20,7 @@
 #include "GaugeTenso.h"
 #include "Dpg2.h"
 #include "../osConfig.h"
+#include "main.h"
 #include <math.h>
 
 //температура холодного спая
@@ -28,6 +29,8 @@
 //канал от 0 до 7
 float readAnalogSensor(uint8_t numChanel, uint16_t *codeN)
 {
+	ledRedOn();
+
 	if( numChanel > 7 )
 		return -1;
 	//подать +500 мВ на 1 ногу
@@ -46,6 +49,7 @@ float readAnalogSensor(uint8_t numChanel, uint16_t *codeN)
 	powerDa17_16(P_OFF);
 	//выключить 500 мВ
 	gnd500mVOff();
+	ledRedOff();
 
 	return curU;
 }
@@ -197,7 +201,7 @@ ResultMes readSenser(uint8_t numChanel, uint16_t *codeN)
 	static ResultMes result;
 	result.uClear = 0;
 	uint16_t tempCode;
-	if(codeN == 0)
+	if( codeN == 0 )
 		codeN = &tempCode;
 	switch(configTerem.sensorType[numChanel])
 	{
@@ -245,7 +249,9 @@ ResultMes readSenser(uint8_t numChanel, uint16_t *codeN)
 			break;
 		case GT_TermoHA:			//Термопара ХА -> в градусах
 		case GT_TermoHAcom:
-			result.u = getU_Ad7792(numChanel, codeN);
+			result.uClear = getU_Ad7792(numChanel, codeN);
+			result.u = result.uClear * configTerem.a[numChanel][0]
+					+ configTerem.a[numChanel][1];
 			result.p = HA_Termo(result.u, tempOfDs1820);
 			break;
 		case GT_Termo48:			//D Универсальный термопарный вход

@@ -19,6 +19,7 @@ void pereferDeInit();
 void deinitGPIO();
 int main();
 void initPa9();
+void initGpioSwitch();
 
 #define flErrorCode   1e38
 

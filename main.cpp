@@ -26,7 +26,7 @@ int main()
 
 void pereferInit()
 {
-	DBGMCU->CR |= DBGMCU_CR_DBG_STOP;
+	//DBGMCU->CR |= DBGMCU_CR_DBG_STOP;
 	// Включаем прерывания
 	__enable_irq();
 //инициализация светодиода
@@ -123,6 +123,31 @@ void pereferDeInit()
 	deinitSpi2();
 }
 
+void initGpioSwitch()
+{
+	GPIO_InitTypeDef port;
+	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOCEN, ENABLE);
+	GPIO_StructInit(&port);
+	port.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_11 | GPIO_Pin_10 | GPIO_Pin_9;
+	port.GPIO_Mode = GPIO_Mode_OUT;
+	port.GPIO_OType = GPIO_OType_PP;
+	port.GPIO_PuPd = GPIO_PuPd_UP;
+	port.GPIO_Speed = GPIO_Speed_2MHz;
+	GPIO_Init(GPIOC, &port);
+
+	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOBEN, ENABLE);
+	port.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_5 | GPIO_Pin_6;
+	GPIO_Init(GPIOB, &port);
+
+	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIODEN, ENABLE);
+	port.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_1 | GPIO_Pin_0 | GPIO_Pin_6 |GPIO_Pin_5|GPIO_Pin_2|GPIO_Pin_4|GPIO_Pin_3;
+	GPIO_Init(GPIOD, &port);
+
+	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOEEN, ENABLE);
+	port.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_0;
+	GPIO_Init(GPIOE, &port);
+}
+
 void deinitGPIO()
 {
 	GPIO_DeInit(GPIOD);
@@ -138,7 +163,7 @@ void deinitGPIO()
 	GPIO_Init(GPIOA, &gpio);
 
 	gpio.GPIO_Mode = GPIO_Mode_IN;
-	gpio.GPIO_Pin = GPIO_Pin_2;//RS_232
+	gpio.GPIO_Pin = GPIO_Pin_2; //RS_232
 	gpio.GPIO_Speed = GPIO_Speed_2MHz;
 	gpio.GPIO_OType = GPIO_OType_PP;	//TxD
 	gpio.GPIO_PuPd = GPIO_PuPd_UP;

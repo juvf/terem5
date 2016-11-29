@@ -103,7 +103,7 @@ void stopJ()
 {
 	enterCritSect();
 	pereferDeInit();
-	ledRedOn();
+	//ledRedOn();
 	epa_Off();
 	ep1_Off();
 	initExti();
@@ -135,7 +135,8 @@ void stopJ()
 	while(RCC_GetSYSCLKSource() != 0x08)
 		;
 	exitCritSect();
-	ledRedOff();
+	initGpioSwitch();
+	//ledRedOff();
 }
 
 //костин код
