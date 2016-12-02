@@ -55,9 +55,6 @@ void musuring()
 	//выставим флаг готовности новых данных
 	tempOfDs1820 = readtemp() + configTerem.deltaT;
 
-	//инитим порты для подключения ключей.
-//	init
-
 	ep1_On();
 	epa_On();
 	for(int i = 0; i < 9; i++)

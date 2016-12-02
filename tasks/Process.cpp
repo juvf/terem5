@@ -14,6 +14,7 @@
 #include "configTerem.h"
 #include "osConfig.h"
 #include "../main.h"
+#include "CritSect.h"
 
 #include  <string.h>
 
@@ -54,7 +55,7 @@ void initListProc()
 		flashMx25Read((void*)&header, i * 4096, sizeof(Header));
 		flashMap[i][0] = header.preNext[0];
 		flashMap[i][1] = header.preNext[1];
-		if(headerIsValid(header.header) && (header.preNext[0] != 0xffff))
+		if(headerIsValid(header.header) && (header.preNext[0] != 0xffff) && (header.header.countSaved == header.header.count))
 		{
 			headerList[countProc++] = i;
 		}
@@ -180,6 +181,7 @@ int commandDeleteProc(uint8_t *buffer)
 		return 7;
 	}
 
+	xSemaphoreTake(mutexDeleteProc, portMAX_DELAY);
 	uint32_t countSectords = calcCountSectors(header.header);
 	//сотрём цепочку секторов
 	spiSector4kErase(headerList[number] * 4096);
@@ -204,6 +206,8 @@ int commandDeleteProc(uint8_t *buffer)
 	headerList[MAX_SECTORS - 1] = 0xffff;
 	buffer[6] = 0;
 	countProc--;
+	numProc--;
+	xSemaphoreGive(mutexDeleteProc);
 	return 7;
 }
 
@@ -460,9 +464,11 @@ bool allocMemForNewProc(const HeaderProcess &header)
 	return false;
 }
 
+
 //записывает одну точку процесса во флэшку
 void saveResult(float *result, int countSensers)
 {
+	xSemaphoreTake(mutexDeleteProc, portMAX_DELAY);
 	uint8_t *resultVoid = (uint8_t*)result;
 	uint32_t address = getAdrCurPoint();
 	uint8_t tempBuf[256];
@@ -515,12 +521,18 @@ void saveResult(float *result, int countSensers)
 		closeProc();
 		stateProcess = 2;
 	}
+	xSemaphoreGive(mutexDeleteProc);
 }
 
 uint32_t getProcessPeriod()
 {
 	return currProcessHeader.period;
 }
+
+
+uint32_t asdd[40];
+int u =0;
+
 
 uint32_t getAdrCurPoint()
 {
@@ -542,6 +554,8 @@ uint32_t getAdrCurPoint()
 
 //находим номер сектора numSector
 	uint16_t sector = headerList[numProc];
+	asdd[u++] = numProc;
+	asdd[u++] = sector;
 	while(--numSector)
 	{
 		if(sector >= 4096)
@@ -550,6 +564,9 @@ uint32_t getAdrCurPoint()
 	}
 	uint32_t remainder = sizeData % (4096 - 4);
 	uint32_t address = sector * 4096 + remainder + 4; //	свмещение в последнем секторе = остаток + 4
+	asdd[u++] = address;
+	if(u >= 35)
+		u = 0;
 	return address;
 }
 

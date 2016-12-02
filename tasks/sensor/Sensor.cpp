@@ -29,8 +29,6 @@
 //канал от 0 до 7
 float readAnalogSensor(uint8_t numChanel, uint16_t *codeN)
 {
-	ledRedOn();
-
 	if( numChanel > 7 )
 		return -1;
 	//подать +500 м¬ на 1 ногу
@@ -49,8 +47,6 @@ float readAnalogSensor(uint8_t numChanel, uint16_t *codeN)
 	powerDa17_16(P_OFF);
 	//выключить 500 м¬
 	gnd500mVOff();
-	ledRedOff();
-
 	return curU;
 }
 

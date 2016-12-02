@@ -17,6 +17,7 @@ xTimerHandle timerClearFlash;
 EventGroupHandle_t xEventGroup;
 SemaphoreHandle_t semaphAdc;
 SemaphoreHandle_t mutexFlash;
+SemaphoreHandle_t mutexDeleteProc;
 
 xQueueHandle cansolQueue;//очередь для сообщений дебага в кансоль
 xQueueHandle uartRfd232Queue;
@@ -42,6 +43,7 @@ void initOs(void)
 
 	semaphAdc = xSemaphoreCreateMutex();
 	mutexFlash = xSemaphoreCreateMutex();
+	mutexDeleteProc = xSemaphoreCreateMutex();
 
 	createTasks();
 }
