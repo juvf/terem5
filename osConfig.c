@@ -25,7 +25,7 @@ xQueueHandle memComUsbQueue; //очередь для чтения памяти по усб
 //xQueueHandle wt41AQueue;
 
 #define SIZE_STACK_MESUR (configMINIMAL_STACK_SIZE*2)
-#define SIZE_STACK_MAIN (configMINIMAL_STACK_SIZE)
+#define SIZE_STACK_MAIN (configMINIMAL_STACK_SIZE * 2)
 #define SIZE_STACK_USB (configMINIMAL_STACK_SIZE * 2)
 #define SIZE_STACK_RFD (configMINIMAL_STACK_SIZE * 2)
 

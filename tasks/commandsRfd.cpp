@@ -142,17 +142,14 @@ int commandGetCurAdc(uint8_t *buffer)
 
 int commandReadFlash(uint8_t *buffer)
 {
-	uint8_t ttBuf[200];
 	uint32_t adrInFlash = buffer[6] | (buffer[7] << 8) | (buffer[8] << 16);
 	uint16_t size = buffer[9];
-	if( (size > 248) || (adrInFlash > (8 * 1024 * 1024 - size)) )
+	if( (size > 246) || (adrInFlash > (8 * 1024 * 1024 - size)) )
 	{
 		buffer[11] = 0x0E;
 		return 6;
 	}
-//	flashMx25ReadData(&buffer[6], adrInFlash, size);
-	flashMx25ReadData(ttBuf, adrInFlash, size);
-	memcpy((void*)&buffer[6], (void*)ttBuf, 200);
+	flashMx25ReadData(&buffer[6], adrInFlash, size);
 	for(int i = 0; i < size; i++)
 		buffer[6 + i] = buffer[6 + i + 4];
 	return 6 + size;

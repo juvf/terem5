@@ -27,6 +27,8 @@
 #include "usbd_core.h"
 #include "usbd_cdc_core.h"
 
+extern void ledError(int kl);
+
 /** @addtogroup Template_Project
   * @{
   */
@@ -83,7 +85,9 @@ printf ("R3 = 0x%x\n", stacked_r3);
 printf ("R12 = 0x%x\n", stacked_r12);
 printf ("LR = 0x%x\n", stacked_lr);
 printf ("PC = 0x%x\n", stacked_pc);
-printf ("PSR = 0x%x\n", stacked_psr); 
+printf ("PSR = 0x%x\n\n", stacked_psr);
+printf ("Execute code from 0x%x\n\n", stacked_pc);
+printf ("See command befor 0x%x\n\n", stacked_lr);
 for(;;);
 }
 

@@ -11,6 +11,7 @@
 #include "sensor/ds1820.h"
 #include "sensor/Sensor.h"
 #include "taskUartRfd.h"
+#include "tasks/Process.h"
 
 #include <string.h>
 
@@ -32,6 +33,12 @@ void mainTask(void *context)
 		{
 			xEventGroupSetBits(xEventGroup, FLAG_NO_WORKS_WRITE_PARAM);
 			saveParam();
+		}
+		uxBits = xEventGroupGetBits(xEventGroup);
+		if((uxBits & (FLAG_DELETE_PROCESS)) == FLAG_DELETE_PROCESS)
+		{
+			deleteProcess();
+			xEventGroupClearBits(xEventGroup, FLAG_DELETE_PROCESS);
 		}
 	}
 }

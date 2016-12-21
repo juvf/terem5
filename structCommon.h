@@ -241,7 +241,7 @@ extern TeremParam teremParam;
 typedef struct
 {
 	uint32_t countSaved; //если 0xffff ffff процесс не завершон, если процесс завершон, то пишем сюда кол-во сохраненых точек
-	uint32_t count;          //колво точек
+	uint32_t count;          //полный процесс состоит из этого колво точек
 	RTC_TimeTypeDef startTime;          //время старта
 	RTC_DateTypeDef startDate;          //дата старта
 	uint32_t period;          //интервал в сек

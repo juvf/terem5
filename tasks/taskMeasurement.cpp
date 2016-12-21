@@ -18,6 +18,8 @@
 #include "sensor/Dpg2.h"
 #include <math.h>
 
+//#define TEST_MES
+
 float valueSens[16];
 
 void taskMeasurement(void *context)
@@ -45,13 +47,14 @@ void taskMeasurement(void *context)
 	}
 
 }
-
+extern uint32_t currProcessCount; //кол-во записанных точек
 void musuring()
 {
 	static ResultMes result1;
 	int j = 0;
 	//захватим симафор АЦП
 	xSemaphoreTake(semaphAdc, portMAX_DELAY);
+
 	//выставим флаг готовности новых данных
 	tempOfDs1820 = readtemp() + configTerem.deltaT;
 
@@ -62,16 +65,15 @@ void musuring()
 		result1 = readSenser(i);
 		if( isnan(result1.u) == 0 )
 		{
+#ifdef TEST_MES
+			valueSens[j++] = currProcessCount + 1.0*j/10;
+#else
 			if( configTerem.sensorType[i] == GT_SHT21 )
 				valueSens[j++] = result1.uClear;
 			else
 				valueSens[j++] = result1.p;
+#endif
 		}
-//		if((configTerem.Flags & 8) > 0)
-//		{//датчик ДТГ 2.0
-//			dpg2_readValue(8, &result1);
-//			valueSens[j++] = result1.uClear;
-//		}
 	}
 	epa_Off();
 	ep1_Off();

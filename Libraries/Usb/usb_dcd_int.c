@@ -24,6 +24,8 @@ static uint32_t DCD_SessionRequest_ISR(USB_OTG_CORE_HANDLE *pdev);
 static uint32_t DCD_OTG_ISR(USB_OTG_CORE_HANDLE *pdev);
 #endif
 
+//#define USB_DEBUG
+
 #ifdef USB_DEBUG
 const char *usb_txt[] = { "DCD_HandleOutEP_ISR",//0
 						  "DCD_HandleInEP_ISR",//1
@@ -32,7 +34,7 @@ const char *usb_txt[] = { "DCD_HandleOutEP_ISR",//0
 						  "DCD_HandleResume_ISR",//3
                           "DCD_HandleUSBSuspend_ISR",//4
 						  "DCD_HandleSof_ISR",//5
-						  "DCD_HandleRxStatusQueueLevel_ISR", //6
+						  "DCD_Handle  RxFIFO non-empty", //6
 						  "DCD_HandleUsbReset_ISR",	//7
 						  "DCD_HandleEnumDone_ISR",//8
 						  "DCD_IsoINIncomplete_ISR",//9
@@ -43,9 +45,19 @@ const char *usb_txt[] = { "DCD_HandleOutEP_ISR",//0
 };
 #endif
 
-/**
-* @}
-*/ 
+///* Show a message if DEBUG is defined in a file */
+//#define debug(fmt, args...)			\
+//	debug_cond(_DEBUG, fmt, ##args)
+//
+//#define debug_cond(cond, fmt, args...)			\
+//	do {						\
+//		if (cond)				\
+//			printf(pr_fmt(fmt), ##args);	\
+//	} while (0)
+
+//#define debug_cond(cond, mess) (if( cond ) xQueueSendFromISR(cansolQueue, mess, 0))
+//#define debugj(mess) debug_cond(USB_DEBUG, mess)
+
 
 
 /** @defgroup USB_DCD_INT_Private_Functions
@@ -151,11 +163,14 @@ uint32_t USBD_OTG_EP1IN_ISR_Handler (USB_OTG_CORE_HANDLE *pdev)
 * @param  pdev: device instance
 * @retval status
 */
+
+#define debug(mess)	if(USB_DEBUG != 0) (xQueueSendFromISR(cansolQueue, mess, 0))
+
 uint32_t USBD_OTG_ISR_Handler (USB_OTG_CORE_HANDLE *pdev)
 {
   USB_OTG_GINTSTS_TypeDef  gintr_status;
   uint32_t retval = 0;
-  
+
   if (USB_OTG_IsDeviceMode(pdev)) /* ensure that we are in device mode */
   {
     gintr_status.d32 = USB_OTG_ReadCoreItr(pdev);
@@ -164,18 +179,18 @@ uint32_t USBD_OTG_ISR_Handler (USB_OTG_CORE_HANDLE *pdev)
       return 0;
     }
     
-    if (gintr_status.b.outepintr)
+    if (gintr_status.b.outepintr)//ѕрерывани€ конечных точек OUT (прием от хоста)
     {
       retval |= DCD_HandleOutEP_ISR(pdev);
-#ifdef USB_DEBUG      
+#ifdef USB_DEBUG
        xQueueSendFromISR(cansolQueue, &usb_txt[0], 0);
 #endif
     }    
     
-    if (gintr_status.b.inepint)
+    if (gintr_status.b.inepint)//ѕрерывани€ конечных точек IN (передача в хост)
     {
       retval |= DCD_HandleInEP_ISR(pdev);
-      #ifdef USB_DEBUG      
+      #ifdef USB_DEBUG
        xQueueSendFromISR(cansolQueue, &usb_txt[1], 0);
 #endif
     }
@@ -188,7 +203,7 @@ uint32_t USBD_OTG_ISR_Handler (USB_OTG_CORE_HANDLE *pdev)
       gintsts.d32 = 0;
       gintsts.b.modemismatch = 1;
       USB_OTG_WRITE_REG32(&pdev->regs.GREGS->GINTSTS, gintsts.d32);
-#ifdef USB_DEBUG      
+#ifdef USB_DEBUG
        xQueueSendFromISR(cansolQueue, &usb_txt[2], 0);
 #endif
     }
@@ -196,7 +211,7 @@ uint32_t USBD_OTG_ISR_Handler (USB_OTG_CORE_HANDLE *pdev)
     if (gintr_status.b.wkupintr)
     {
       retval |= DCD_HandleResume_ISR(pdev);
-#ifdef USB_DEBUG      
+#ifdef USB_DEBUG
        xQueueSendFromISR(cansolQueue, &usb_txt[3], 0);
 #endif
     }
@@ -204,8 +219,8 @@ uint32_t USBD_OTG_ISR_Handler (USB_OTG_CORE_HANDLE *pdev)
     if (gintr_status.b.usbsuspend)
     {
       retval |= DCD_HandleUSBSuspend_ISR(pdev);
-#ifdef USB_DEBUG      
-       xQueueSendFromISR(cansolQueue, &usb_txt[4], 0);
+#ifdef USB_DEBUG
+      xQueueSendFromISR(cansolQueue, &usb_txt[4], 0);
 #endif      
     }
     if (gintr_status.b.sofintr)
@@ -219,7 +234,7 @@ uint32_t USBD_OTG_ISR_Handler (USB_OTG_CORE_HANDLE *pdev)
     
     if (gintr_status.b.rxstsqlvl)
     {
-#ifdef USB_DEBUG      
+#ifdef USB_DEBUG
        xQueueSendFromISR(cansolQueue, &usb_txt[6], 0);
 #endif
       retval |= DCD_HandleRxStatusQueueLevel_ISR(pdev);
@@ -228,7 +243,7 @@ uint32_t USBD_OTG_ISR_Handler (USB_OTG_CORE_HANDLE *pdev)
     
     if (gintr_status.b.usbreset)
     {
-#ifdef USB_DEBUG      
+#ifdef USB_DEBUG
        xQueueSendFromISR(cansolQueue, &usb_txt[7], 0);
 #endif
       retval |= DCD_HandleUsbReset_ISR(pdev);

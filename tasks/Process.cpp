@@ -26,6 +26,7 @@ uint8_t stateProcess; //текущее состояние процесса 0-нет процесса, 1-идёт процес
 uint16_t headerList[MAX_SECTORS];
 //
 uint16_t countProc = 0; //кол-во процессов в флешке, включая текущий
+uint16_t deleteProc; //удаляемый процесс
 
 struct Header
 {
@@ -55,16 +56,58 @@ void initListProc()
 		flashMx25Read((void*)&header, i * 4096, sizeof(Header));
 		flashMap[i][0] = header.preNext[0];
 		flashMap[i][1] = header.preNext[1];
-		if(headerIsValid(header.header) && (header.preNext[0] != 0xffff) && (header.header.countSaved == header.header.count))
+		if( headerIsValid(header.header) && (header.preNext[0] != 0xffff) )
 		{
+			if( header.header.countSaved == 0xffffffff )
+				restoreProc(header.header, i);
 			headerList[countProc++] = i;
 		}
-		if((i%100) > 50)
+		if( (i % 100) > 50 )
 			ledRedOff();
 		else
 			ledRedOn();
 	}
 	ledRedOff();
+}
+
+/*нужно найти конец процесса и перезаписать заголовок
+ * находим начало, адрес во флеш, от куда записана первая точка
+ * находим размер точки (кол-во датчиков * 4)
+ * читаем одну точку
+ * проверяем, чтобы первый датчик не был равен 0xffffffff
+ * если она фф, то проверяем остальные. если все фф, то считаем что это конец процесса.
+ * Это может быть и обрыв, но я буду считать, что это конец процесса
+ */
+void restoreProc(const HeaderProcess& header, int headerSector)
+{
+	//получить размер цепочки секторов
+	uint32_t countSect = calcCountSectors(header);
+	uint32_t adrInFlash = headerSector * 4096 + sizeof(HeaderProcess)
+			+ countSect * 2;
+	uint8_t sensors = countSensor(header);
+	for(int i = 0; i < header.count; i++)
+	{
+		uint32_t int32;
+		flashMx25Read((void*)&int32, adrInFlash, 4);
+		if( int32 == 0xffffffff )
+		{ //конец достигнут
+		  //запишим кол-во сохраненых точек в заголовок процесса
+			uint8_t tempBuf[256];
+			memset((void*)tempBuf, 0xff, 256);
+			memcpy((void*)&tempBuf[4], (void*)&i, 4);
+			flashMx25Write(tempBuf, headerSector * 4096);
+			return;
+		}
+		else
+		{
+			adrInFlash += sensors * 4;
+		}
+	}
+	//запишим максимальное кол-во сохраненых точек в заголовок процесса
+	uint8_t tempBuf[256];
+	memset((void*)tempBuf, 0xff, 256);
+	memcpy((void*)&tempBuf[4], (void*)&header.count, 4);
+	flashMx25Write(tempBuf, headerSector * 4096);
 }
 
 int commandGetCountProc(uint8_t *buffer)
@@ -79,7 +122,7 @@ int commandGetHeaderProc(uint8_t *buffer)
 	uint16_t number = buffer[6];
 	number += buffer[7] >> 8;
 
-	if(number > MAX_SECTORS)
+	if( number > MAX_SECTORS )
 	{
 		buffer[5] = 0x0e;
 		buffer[6] = 0x01;
@@ -87,7 +130,7 @@ int commandGetHeaderProc(uint8_t *buffer)
 	}
 	uint32_t addrInFlash = headerList[number] * 4096;
 
-	if(headerList[number] == 0xffff)
+	if( headerList[number] == 0xffff )
 	{
 		buffer[5] = 0x0e;
 		buffer[6] = 0x04;
@@ -95,7 +138,7 @@ int commandGetHeaderProc(uint8_t *buffer)
 	}
 	Header header;
 	flashMx25Read((void*)&header, addrInFlash, sizeof(Header));
-	if(!headerIsValid(header.header))
+	if( !headerIsValid(header.header) )
 	{
 		buffer[5] = 0x0e;
 		buffer[6] = 0x02;
@@ -135,7 +178,7 @@ uint32_t calcCountSectors(const HeaderProcess &header)
 	allDataSize += sec * 2;
 	uint16_t newSec = allDataSize / 4092;
 	newSec += allDataSize % 4092 > 0 ? 1 : 0;
-	if(newSec > sec)
+	if( newSec > sec )
 	{
 		allDataSize += 2;
 		sec = allDataSize / 4092;
@@ -151,7 +194,7 @@ int getNumProcFromHeaderAdr(uint32_t address)
 {
 	for(int i = 0; i < MAX_SECTORS; i++)
 	{
-		if(address == (headerList[i] * 4096))
+		if( address == (headerList[i] * 4096) )
 			return i;
 	}
 	return -1;
@@ -160,55 +203,79 @@ int getNumProcFromHeaderAdr(uint32_t address)
 int commandDeleteProc(uint8_t *buffer)
 {
 	uint32_t headerAddress = u32FromU8(&buffer[6]);
-	if(((headerAddress % 4096) != 0)
-			|| (headerAddress > ((MAX_SECTORS - 1) * 4096)))
+	if( ((headerAddress % 4096) != 0)
+			|| (headerAddress > ((MAX_SECTORS - 1) * 4096)) )
 	{
 		buffer[6] = 1; //недопустимый адресс процесса в запросе
 		return 7;
 	}
 
 	int number = getNumProcFromHeaderAdr(headerAddress);
-	if(number < 0)
+	if( number < 0 )
 	{
 		buffer[6] = 4; //нет процесса, с таким адресом
 		return 7;
 	}
 	Header header;
 	flashMx25Read((void*)&header, headerAddress, sizeof(Header));
-	if(!headerIsValid(header.header))
+	if( !headerIsValid(header.header) )
 	{
 		buffer[6] = 0x02; //ошибка заголовка процесса во флеше
 		return 7;
 	}
 
-	xSemaphoreTake(mutexDeleteProc, portMAX_DELAY);
-	uint32_t countSectords = calcCountSectors(header.header);
-	//сотрём цепочку секторов
-	spiSector4kErase(headerList[number] * 4096);
-	if(countSectords > 1)
+	//проверить что этот не текущий процесс, и что он ещё не завершон
+	if((numProc == number) && (stateProcess == 1) )
+	{//это текущий процесс
+		buffer[6] = 0x06; //не могу удалить, т. к. текущий процесс не завершен
+		return 7;
+	}
+
+	EventBits_t uxBits = xEventGroupGetBits(xEventGroup);
+	if( (uxBits & FLAG_DELETE_PROCESS) != FLAG_DELETE_PROCESS )
 	{
-		for(int i = 1; i < countSectords; i++)
+		deleteProc = number;
+		xEventGroupSetBits(xEventGroup, FLAG_DELETE_PROCESS);
+	}
+	buffer[6] = 0x5;
+	return 7;
+}
+
+void deleteProcess()
+{
+	xSemaphoreTake(mutexDeleteProc, portMAX_DELAY);
+	uint32_t headerAddress = headerList[deleteProc] * 4096;
+	Header header;
+	flashMx25Read((void*)&header, headerAddress, sizeof(Header));
+	if( headerIsValid(header.header) )
+	{
+
+		uint32_t countSectords = calcCountSectors(header.header);
+		//сотрём цепочку секторов
+		spiSector4kErase(headerAddress);
+		if( countSectords > 1 )
 		{
-			uint32_t adrInFlash = header.preNext[1] * 4096;
-			flashMx25Read((void*)&header, adrInFlash, 4);
-			spiSector4kErase(adrInFlash);
-			if(header.preNext[1] == 0xffff)
+			for(int i = 1; i < countSectords; i++)
+			{
+				uint32_t adrInFlash = header.preNext[1] * 4096;
+				flashMx25Read((void*)&header, adrInFlash, 4);
+				spiSector4kErase(adrInFlash);
+				if( header.preNext[1] == 0xffff )
+					break;
+			}
+		}
+		//сдвиним весь массив headerList
+		for(int i = deleteProc + 1; i < MAX_SECTORS; i++)
+		{
+			headerList[i - 1] = headerList[i];
+			if( headerList[i] == 0xffff )
 				break;
 		}
+		headerList[MAX_SECTORS - 1] = 0xffff;
+		countProc--;
+		numProc--;
 	}
-	//сдвиним весь массив headerList
-	for(int i = number + 1; i < MAX_SECTORS; i++)
-	{
-		headerList[i - 1] = headerList[i];
-		if(headerList[i] == 0xffff)
-			break;
-	}
-	headerList[MAX_SECTORS - 1] = 0xffff;
-	buffer[6] = 0;
-	countProc--;
-	numProc--;
 	xSemaphoreGive(mutexDeleteProc);
-	return 7;
 }
 
 int getProcessStatus()
@@ -219,7 +286,7 @@ int getProcessStatus()
 int commandStartProc(uint8_t *buffer)
 {
 	EventBits_t flags = xEventGroupGetBits(xEventGroup);
-	if(flags & FLAG_FLASH_CLEARING)
+	if( flags & FLAG_FLASH_CLEARING )
 	{
 		buffer--;
 		*buffer++ = 0x0d; //устройство занято
@@ -227,17 +294,17 @@ int commandStartProc(uint8_t *buffer)
 		return 7;
 	}
 
-	if((stateProcess == 0) || (stateProcess == 2))
+	if( (stateProcess == 0) || (stateProcess == 2) )
 	{
 		uint32_t per = (buffer[9] << 24) | (buffer[8] << 16) | (buffer[7] << 8)
 				| buffer[6];
-		if((per > 0) && (per < 4294960))
+		if( (per > 0) && (per < 4294960) )
 		{
 			currProcessHeader.period = per;
 			currProcessHeader.countSaved = 0xffffffff;
 			currProcessHeader.count = buffer[10] | (buffer[11] << 8)
 					| (buffer[12] << 16) | (buffer[13] << 24);
-			if(buffer[0] == 0xff)
+			if( buffer[0] == 0xff )
 			{ //старотовать сейчас процесс
 
 				RTC_TimeTypeDef time;
@@ -253,7 +320,7 @@ int commandStartProc(uint8_t *buffer)
 				currProcessHeader.startDate.RTC_Year = date.RTC_Year;
 				currProcessHeader.config = configTerem;
 				//заполнить заголовок процесса
-				if(allocMemForNewProc(currProcessHeader))
+				if( allocMemForNewProc(currProcessHeader) )
 				{
 					currProcessCount = 0; //кол-во записанных точек в процессе
 					//musuring();
@@ -313,7 +380,7 @@ int commandGetProcConf(uint8_t *buffer)
 
 int commandStopProc()
 {
-	if((stateProcess == 1) || (stateProcess == 3))
+	if( (stateProcess == 1) || (stateProcess == 3) )
 	{
 		taskENTER_CRITICAL();
 		RTC_ITConfig(RTC_IT_ALRA, DISABLE);
@@ -348,12 +415,12 @@ bool allocMemForNewProc(const HeaderProcess &header)
 	//рассчитаем кол-во необходимых секторов
 	uint32_t countSectors = calcCountSectors(header);
 	//посчитаем кол-во свободных секторов
-	if(countSectors > countFreeSectors())
+	if( countSectors > countFreeSectors() )
 		return false;
 
 	for(int i = 0; i < MAX_SECTORS; i++)
 	{
-		if(headerList[i] == 0xffff)
+		if( headerList[i] == 0xffff )
 		{
 			numProc = i;
 			break;
@@ -363,11 +430,11 @@ bool allocMemForNewProc(const HeaderProcess &header)
 //находим цепочку секторов и записываем в начало каждого сектора предывцщий и следующий сектор
 //	uint8_t sensors = countSensor(header);
 
-	if(countSectors == 1)
+	if( countSectors == 1 )
 	{
 		for(int i = 0; i < MAX_SECTORS; i++)
 		{
-			if((flashMap[i][0] == 0xffff) && (flashMap[i][1] == 0xffff))
+			if( (flashMap[i][0] == 0xffff) && (flashMap[i][1] == 0xffff) )
 			{
 				headerList[countProc++] = i;
 				tempBuf[0] = 0xfe; //признак того, что страница первая
@@ -391,25 +458,25 @@ bool allocMemForNewProc(const HeaderProcess &header)
 	}
 	else
 	{
-		if((4 + sizeof(HeaderProcess) + countSectors * 2) > 4096)
+		if( (4 + sizeof(HeaderProcess) + countSectors * 2) > 4096 )
 			return false; //если страниц много и они не влезут в один sector, то вертаемся
 		uint16_t j = countSectors;
 		uint16_t *coilSectors = new uint16_t[countSectors];
 		uint16_t numSec = 0;
 		for(int i = 0; i < MAX_SECTORS; i++)
 		{
-			if((flashMap[i][0] == 0xffff) && (flashMap[i][1] == 0xffff))
+			if( (flashMap[i][0] == 0xffff) && (flashMap[i][1] == 0xffff) )
 			{
 				coilSectors[numSec++] = i;
-				if(--j == 0)
+				if( --j == 0 )
 					break;
 			}
 		}
-		if(j == 0)
+		if( j == 0 )
 		{
 			for(int n = 0; n < countSectors; n++)
 			{
-				if(n == 0)
+				if( n == 0 )
 				{
 					headerList[countProc++] = coilSectors[n];
 					tempBuf[0] = 0xfe; //признак того, что страница первая
@@ -422,13 +489,15 @@ bool allocMemForNewProc(const HeaderProcess &header)
 					void *p = (void*)&tempBuf[allSize];
 					uint32_t addInFlash = coilSectors[n] * 4096;
 					allSize = countSectors * sizeof(uint16_t);
+					uint8_t *pCoilSectors = (uint8_t*)coilSectors;
 					do
 					{ //вычислим оставшияся размер блока
 						uint16_t tempSize = 256 - ((uint8_t*)p - tempBuf);
-						if(allSize < tempSize)
+						if( allSize < tempSize )
 							tempSize = allSize;
 						allSize -= tempSize;
-						memcpy(p, (void*)coilSectors, tempSize);
+						memcpy(p, (void*)pCoilSectors, tempSize);
+						pCoilSectors = pCoilSectors + tempSize;
 						flashMx25Write((uint8_t*)tempBuf, addInFlash);
 						addInFlash += 256;
 						memset((void*)tempBuf, 0xff, 256);
@@ -442,7 +511,7 @@ bool allocMemForNewProc(const HeaderProcess &header)
 					flashMap[coilSectors[n]][0] = coilSectors[n - 1];
 
 				}
-				if(n == (countSectors - 1))
+				if( n == (countSectors - 1) )
 				{
 					tempBuf[2] = 0xfd; //признак того, что страница последняя
 					tempBuf[3] = 0xff;
@@ -464,7 +533,6 @@ bool allocMemForNewProc(const HeaderProcess &header)
 	return false;
 }
 
-
 //записывает одну точку процесса во флэшку
 void saveResult(float *result, int countSensers)
 {
@@ -473,7 +541,7 @@ void saveResult(float *result, int countSensers)
 	uint32_t address = getAdrCurPoint();
 	uint8_t tempBuf[256];
 	memset((void*)tempBuf, 0xff, 256);
-	if((address % 4096) == 4)
+	if( (address % 4096) == 4 )
 	{ //записать адрес предыдущего сектора и адрес следующего сектора в начало сектора
 		uint16_t cursector = address / 4096;
 		tempBuf[0] = flashMap[cursector][0];
@@ -484,7 +552,7 @@ void saveResult(float *result, int countSensers)
 	uint32_t remainder = address % 256;
 	uint16_t pointSize = countSensers * sizeof(float);
 
-	if((remainder + pointSize) > 256)
+	if( (remainder + pointSize) > 256 )
 	{ //первую половину
 		uint16_t firstSize = 256 - remainder;
 		memcpy((void*)&tempBuf[remainder], (void*)resultVoid, firstSize);
@@ -493,7 +561,7 @@ void saveResult(float *result, int countSensers)
 		memset((void*)tempBuf, 0xff, 256);
 		address += firstSize;
 		remainder = address % 256;
-		if((address % 4096) == 0)
+		if( (address % 4096) == 0 )
 		{ //записать адрес предыдущего сектора и адрес следующего сектора в начало сектора
 			uint16_t cursector = address / 4096;
 			tempBuf[0] = flashMap[cursector][0];
@@ -514,7 +582,7 @@ void saveResult(float *result, int countSensers)
 		flashMx25Write(tempBuf, 256 * (address / 256));
 	}
 	currProcessCount++;
-	if(currProcessCount >= currProcessHeader.count)
+	if( currProcessCount >= currProcessHeader.count )
 	{ //кончим процесс
 		RTC_ITConfig(RTC_IT_ALRA, DISABLE);
 		RTC_AlarmCmd(RTC_Alarm_A, DISABLE);
@@ -529,10 +597,8 @@ uint32_t getProcessPeriod()
 	return currProcessHeader.period;
 }
 
-
 uint32_t asdd[40];
-int u =0;
-
+int u = 0;
 
 uint32_t getAdrCurPoint()
 {
@@ -558,14 +624,14 @@ uint32_t getAdrCurPoint()
 	asdd[u++] = sector;
 	while(--numSector)
 	{
-		if(sector >= 4096)
+		if( sector >= 4096 )
 			asm("nop");
 		sector = flashMap[sector][1];
 	}
 	uint32_t remainder = sizeData % (4096 - 4);
 	uint32_t address = sector * 4096 + remainder + 4; //	свмещение в последнем секторе = остаток + 4
 	asdd[u++] = address;
-	if(u >= 35)
+	if( u >= 35 )
 		u = 0;
 	return address;
 }
@@ -575,7 +641,7 @@ uint8_t countSensor(const HeaderProcess& header)
 	uint8_t countSens = 0;
 	for(int i = 0; i < 16; i++)
 	{
-		if(header.config.sensorType[i] < GT_Absent)
+		if( header.config.sensorType[i] < GT_Absent )
 			countSens++;
 	}
 	return countSens;
@@ -583,7 +649,7 @@ uint8_t countSensor(const HeaderProcess& header)
 
 extern "C" void RTC_Alarm_IRQHandler()
 {
-	if(RTC_GetITStatus(RTC_IT_ALRA) != RESET)
+	if( RTC_GetITStatus(RTC_IT_ALRA) != RESET )
 	{
 		RTC_ClearITPendingBit(RTC_IT_ALRA);
 
@@ -591,7 +657,7 @@ extern "C" void RTC_Alarm_IRQHandler()
 		EXTI_ClearITPendingBit(EXTI_Line17);
 		/* xHigherPriorityTaskWoken must be initialised to pdFALSE. */
 		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-		if(stateProcess == 1)
+		if( stateProcess == 1 )
 			xEventGroupSetBitsFromISR(xEventGroup, FLAG_MESUR,
 					&xHigherPriorityTaskWoken);
 		//setNewAlarmRTC(5); 		//перезапустим таймер

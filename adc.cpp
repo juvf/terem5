@@ -51,8 +51,6 @@ void spiPortAdcOn()
 	gpio.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIO_Init(GPIOA, &gpio);
 
-
-
 	csOff();
 }
 
@@ -112,23 +110,7 @@ uint8_t initAdc()
 	if( (regId & 0x0F) != 0x0A )
 	{              //Ошибка, не тот ответ
 		csOff();
-		while(1)
-		{
-			ledRedOn();
-			vTaskDelay(300);
-			ledRedOff();
-			vTaskDelay(300);
-			ledRedOn();
-			vTaskDelay(300);
-			ledRedOff();
-			vTaskDelay(300);
-			ledRedOn();
-			vTaskDelay(300);
-			ledRedOff();
-			vTaskDelay(300);
-			vTaskDelay(1500);
-
-		}
+		ledError(3);
 		return regId;
 	}
 
@@ -142,6 +124,21 @@ uint8_t initAdc()
 	csOff();
 	CurRangeADC = 0xff;
 	return 0;
+}
+
+void ledError(int kl)
+{
+	while(1)
+	{
+		for(int i = 0; i < kl; i++)
+		{
+			ledRedOn();
+			vTaskDelay(300);
+			ledRedOff();
+			vTaskDelay(300);
+		}
+		vTaskDelay(1500);
+	}
 }
 
 void AD7792WrW(uint8_t reg, uint16_t data)
@@ -405,7 +402,7 @@ float getU_Ad7792(unsigned char numChanel, uint16_t *code)
 	//выключить ключ
 	switchOn(100);
 	if( code )
-		*code = CurCode;// << *CurRange;
+		*code = CurCode;         // << *CurRange;
 	return curU;
 }
 

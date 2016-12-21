@@ -99,6 +99,7 @@ void flashMx25Read(void *destination, uint32_t adrSource, uint16_t size)
 	xSemaphoreGive(mutexFlash);
 }
 
+
 //эта функция читает сразу из фрамки по SPI через DMA в destination
 void flashMx25ReadData(uint8_t *destination, uint32_t adrSource, uint16_t size,
 		bool fromISR)

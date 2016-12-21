@@ -23,9 +23,12 @@ int commandDeleteProc(uint8_t *buffer);
 int commandGetCountProc(uint8_t *buffer);
 int commandGetHeaderProc(uint8_t *buffer);
 int commandDeleteProc(uint8_t *buffer);
+
+
 uint32_t getAdrCurPoint();
 uint32_t getProcessPeriod();
 void closeProc();
+void restoreProc(const HeaderProcess& header,  int headerSector);
 
 bool headerIsValid( const HeaderProcess &header);
 bool allocMemForNewProc(const HeaderProcess &header);
@@ -34,8 +37,8 @@ void initListProc();
 uint32_t calcCountSectors(const HeaderProcess &header);
 void saveResult(float *result, int countSensers);
 uint8_t countSensor(const HeaderProcess& header);
-uint32_t getAdrCurPoint();
 int getNumProcFromHeaderAdr(uint32_t address);
+void deleteProcess();
 
 
 #endif /* TASKS_PROCESS_H_ */

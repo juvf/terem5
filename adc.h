@@ -167,6 +167,7 @@ void initSpi1();
 uint8_t initAdc();
 void spiPortAdcOn();
 void spiPortAdcOff();
+void ledError(int kl);
 
 #ifdef __cplusplus
 }

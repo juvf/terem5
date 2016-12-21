@@ -19,8 +19,8 @@ void initRtc()
 
 	PWR_BackupAccessCmd(ENABLE);
 
-	RCC_BackupResetCmd(ENABLE);
-	RCC_BackupResetCmd(DISABLE);
+	//RCC_BackupResetCmd(ENABLE);
+	//RCC_BackupResetCmd(DISABLE);
 
 	RCC_LSEConfig(RCC_LSE_ON);
 	while(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET)
@@ -50,7 +50,6 @@ void initRtc()
 
 	NVIC_EnableIRQ(RTC_Alarm_IRQn);
 	NVIC_SetPriority(RTC_Alarm_IRQn, 13);
-
 }
 
 //заводит будильник Alarm_A на время через seconds секунд

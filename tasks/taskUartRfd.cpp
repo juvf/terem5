@@ -15,6 +15,7 @@
 #include "main.h"
 
 #include <string.h>
+#include <stdio.h>
 
 char *messSleep = "SLEEP\r\n";
 
@@ -40,19 +41,19 @@ void taskUartRfd(void *context)
 {
 	USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
 	USART_ITConfig(USART2, USART_IT_TC, DISABLE);
-	vTaskDelay(1000);//пауза, для того, чтобы модуль БТ проинитился и выплюнул начальную инфу
+	vTaskDelay(1000); //пауза, для того, чтобы модуль БТ проинитился и выплюнул начальную инфу
 	// Включаем прерывания и запускаем USART
 	USART_Cmd(USART2, ENABLE);
 	USART_ClearITPendingBit(USART2, USART_IT_TC);
 	USART_SendData(USART2, '\r');
-	while( (USART2->SR & (1<<6)) == 0);
+	while((USART2->SR & (1 << 6)) == 0)
+		;
 
 	USART_ClearITPendingBit(USART2, USART_IT_TC);
 	USART_SendData(USART2, '\n');
-	while( (USART2->SR & (1<<6)) == 0); // Если отпавка завершена
+	while((USART2->SR & (1 << 6)) == 0)
+		; // Если отпавка завершена
 	USART_ClearITPendingBit(USART2, USART_IT_TC);
-
-
 
 //	USART_ClearITPendingBit(USART2, USART_IT_TC);
 //	USART_ClearITPendingBit(USART2, USART_IT_RXNE);
@@ -184,6 +185,7 @@ void setRxMode()
 
 void parser(uint8_t *buf, uint8_t isRf)
 {
+	uint32_t asd = (uint32_t)buf;
 	uint8_t sizeOfFrame = buf[1];
 	uint8_t addresSlave = buf[2];
 	uint8_t addresMaster = buf[3];
@@ -203,6 +205,7 @@ void parser(uint8_t *buf, uint8_t isRf)
 		buf[1] = 0;
 		return;
 	}
+
 	switch(command)
 	{
 		case UART_TestConnect:
@@ -371,7 +374,7 @@ extern "C" void USART2_IRQHandler(void)
 	static portBASE_TYPE xHigherPriorityTaskWoken;
 	xHigherPriorityTaskWoken = pdFALSE;
 //	if( (USART2->SR & (1<<6)) != 0 ) // Если отпавка завершена
-	if( USART_GetITStatus(USART2, USART_IT_TC)) // Если отпавка завершена
+	if( USART_GetITStatus(USART2, USART_IT_TC) ) // Если отпавка завершена
 	{
 		// Очищаем флаг прерывания, если этого не сделать, оно будет вызываться постоянно.
 		USART_ClearITPendingBit(USART2, USART_IT_TC);
@@ -386,13 +389,15 @@ extern "C" void USART2_IRQHandler(void)
 		}
 	}
 
-	if( (USART2->SR & (1<<5)) != 0 ) // Если приием завершен (регистр приема не пуст)
+	if( (USART2->SR & (1 << 5)) != 0 ) // Если приием завершен (регистр приема не пуст)
 	{
 		// Флаг данного прерывания сбрасыывается прочтением данных
 		static uint8_t byte;
 		byte = USART_ReceiveData(USART2);
-		if( xQueueSendFromISR(uartRfd232Queue, &byte, &xHigherPriorityTaskWoken) != pdTRUE )
-			xQueueSendFromISR(uartRfd232Queue, &byte, &xHigherPriorityTaskWoken);
+		if( xQueueSendFromISR(uartRfd232Queue, &byte,
+				&xHigherPriorityTaskWoken) != pdTRUE )
+			xQueueSendFromISR(uartRfd232Queue, &byte,
+					&xHigherPriorityTaskWoken);
 	}
 #ifdef DEBUG_DF
 	if( ircUart != 0 )
@@ -402,56 +407,55 @@ extern "C" void USART2_IRQHandler(void)
 		uint32_t cr3 = USART2->CR3;
 		uint32_t sr = USART2->SR;
 
-
 		if( USART_GetITStatus(USART2, USART_IT_PE) == SET )
 		{
 			while(1)
-				ledSeitch(12);
+			ledSeitch(12);
 		}
 		if( USART_GetITStatus(USART2, USART_IT_TXE) == SET )
 		{
 			while(1)
-				ledSeitch(3);
+			ledSeitch(3);
 		}
 		if( USART_GetITStatus(USART2, USART_IT_ORE_RX) == SET )
 		{
 			while(1)
-				ledSeitch(4);
+			ledSeitch(4);
 		}
 		if( USART_GetITStatus(USART2, USART_IT_IDLE) == SET )
 		{
 			while(1)
-				ledSeitch(5);
+			ledSeitch(5);
 		}
 		if( USART_GetITStatus(USART2, USART_IT_LBD) == SET )
 		{
 			while(1)
-				ledSeitch(6);
+			ledSeitch(6);
 		}
 		if( USART_GetITStatus(USART2, USART_IT_CTS) == SET )
 		{
 			while(1)
-				ledSeitch(7);
+			ledSeitch(7);
 		}
 		if( USART_GetITStatus(USART2, USART_IT_ERR) == SET )
 		{
 			while(1)
-				ledSeitch(8);
+			ledSeitch(8);
 		}
 		if( USART_GetITStatus(USART2, USART_IT_ORE_ER) == SET )
 		{
 			while(1)
-				ledSeitch(9);
+			ledSeitch(9);
 		}
 		if( USART_GetITStatus(USART2, USART_IT_NE) == SET )
 		{
 			while(1)
-				ledSeitch(10);
+			ledSeitch(10);
 		}
 		if( USART_GetITStatus(USART2, USART_IT_FE) == SET )
 		{
 			while(1)
-				ledSeitch(11);
+			ledSeitch(11);
 		}
 
 	}
@@ -477,49 +481,49 @@ void pauseT(int t)
 {
 	uint32_t i, j;
 	for(j = 0; j < t; j++)
-		for(i = 0; i < 700; i++)
-		{
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-			asm("nop");
-		}
+	for(i = 0; i < 700; i++)
+	{
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+		asm("nop");
+	}
 }
 #endif
 

@@ -33,7 +33,7 @@ static uint16_t VCP_DataRx(uint8_t* Buf, uint32_t Len, void *pdev);
 CDC_IF_Prop_TypeDef VCP_fops = { VCP_DataTx, VCP_DataRx };
 static uint16_t VCP_DataTx(void)
 {
-	if(fUart2Usb == 1)
+	if( fUart2Usb == 1 )
 		fUart2Usb = 0;
 	return USBD_OK;
 }
@@ -42,61 +42,70 @@ uint32_t sizeNextPaket = 0;
 
 static uint16_t VCP_DataRx(uint8_t* buffer, uint32_t Len, void *pdev)
 {
-	static int itUsbBuf = 0;
-	memcpy((void*)&usbBuffer[itUsbBuf], buffer, Len);
-	if(Len == 64 )
+	EventBits_t even = xEventGroupGetBitsFromISR(xEventGroup);
+	if( (even & FLAG_COM_USB) == 0 )
 	{
-		itUsbBuf += 64;
-		return USBD_OK;
+		static int itUsbBuf = 0;
+		memcpy((void*)&usbBuffer[itUsbBuf], buffer, Len);
+		if( Len == 64 )
+		{
+			itUsbBuf += 64;
+			return USBD_OK;
+		}
+		else
+			itUsbBuf += Len;
+
+		uint32_t command = *(uint32_t*)usbBuffer;
+		command &= 0xff;
+		char *mess;
+		switch(command)
+		{
+			case 02:
+				mess = "Get command ReadName";
+				xQueueSendFromISR(cansolQueue, &mess, 0);
+
+				DCD_EP_Tx(pdev, 02, "Hello", 6);
+				break;
+			case COM_USB_SEND_MESSAGE:
+				usbSenMessToWT41(&usbBuffer[4], itUsbBuf - 4);
+				break;
+			case COM_USB_GET_MESSAGE:
+				usbReplayGetMessage(pdev);
+				break;
+			case COM_USB_READ_MEM:
+				usbReadMemory(usbBuffer, pdev);
+				break;
+			case COM_USB_READ_ADDRESS:
+				usbReadAddress(buffer, pdev);
+				break;
+			case COM_USB_WRITE_ADDRESS:
+				usbWriteAddress(usbBuffer, pdev);
+				break;
+			case COM_USB_RF_COM:
+				usbRfComand(usbBuffer, pdev, itUsbBuf);
+				break;
+		}
+		itUsbBuf = 0;
 	}
 	else
-		itUsbBuf += Len;
-
-	uint32_t command = *(uint32_t*)usbBuffer;
-	command &= 0xff;
-	char *mess;
-	switch(command)
 	{
-		case 02:
-			mess = "Get command ReadName";
-			xQueueSendFromISR(cansolQueue, &mess, 0);
 
-			DCD_EP_Tx(pdev, 02, "Hello", 6);
-			break;
-		case COM_USB_SEND_MESSAGE:
-			usbSenMessToWT41(&usbBuffer[4], itUsbBuf - 4);
-			break;
-		case COM_USB_GET_MESSAGE:
-			usbReplayGetMessage(pdev);
-			break;
-		case COM_USB_READ_MEM:
-			usbReadMemory(usbBuffer, pdev);
-			break;
-		case COM_USB_READ_ADDRESS:
-			usbReadAddress(buffer, pdev);
-			break;
-		case COM_USB_WRITE_ADDRESS:
-			usbWriteAddress(usbBuffer, pdev);
-			break;
-		case COM_USB_RF_COM:
-			usbRfComand(usbBuffer, pdev, itUsbBuf);
-			break;
 	}
-	itUsbBuf = 0;
 
 	return USBD_OK;
 }
 
 void usbRfComand(uint8_t* buffer, void *pdev, uint32_t Len)
 {
-	uint32_t command = *(uint32_t*)buffer;
-	uint8_t numFrame = (command >> 16) &0xff;//номер кадра
-	uint8_t countFrame = (command >> 24) &0xff;//всегpо кол-во кадров
+//	uint32_t command = *(uint32_t*)buffer;
+//	uint8_t numFrame = (command >> 16) & 0xff; //номер кадра
+//	uint8_t countFrame = (command >> 24) & 0xff; //всегpо кол-во кадров
 
 	//memcpy((void*)&usbBuffer[numFrame * 60], buffer+4, Len - 4);
 
-	if(numFrame == countFrame)
-	{//весь пакет приняли
+	//if( numFrame == countFrame )
+	if(Len < 64)
+	{ //весь пакет приняли
 		xEventGroupSetBitsFromISR(xEventGroup, FLAG_COM_USB, 0);
 	}
 }
@@ -120,7 +129,6 @@ void usbWriteAddress(uint8_t* buffer, void *pdev)
 	DCD_EP_Tx(pdev, 02, (uint8_t*)&teremParam.address, 1);
 }
 
-
 /* Функция usbReadMemory читает память.
  * первые 4 байта в буфере - это команда (5)
  * buffer[4] - тип памятию 0 - ОЗУ
@@ -137,7 +145,7 @@ void usbReadMemory(uint8_t* buffer, void *pdev)
 	//static uint8_t data[16];
 	uint32_t address = u32FromU8(&buffer[8]);
 	uint16_t size = buffer[5];
-	if(size > 64)
+	if( size > 64 )
 		size = 64;
 	switch(buffer[4])
 	{
@@ -147,8 +155,8 @@ void usbReadMemory(uint8_t* buffer, void *pdev)
 		case 1: //Flash
 			break;
 		case 2: //MX25L64 (SPI)
-		{//проверим, чтоб адрес был допустимый
-			if(address < 8388608)
+		{ //проверим, чтоб адрес был допустимый
+			if( address < 8388608 )
 			{
 				MemCom com;
 				com.address = address;
@@ -172,7 +180,7 @@ void usbReadMemory(uint8_t* buffer, void *pdev)
 static char mess[100];
 void usbSenMessToWT41(uint8_t *buf, uint32_t Len)
 {
-	if(Len > 99)
+	if( Len > 99 )
 		Len = 99;
 	memcpy((void*)mess, (void*)buf, Len);
 	mess[Len] = 0;
