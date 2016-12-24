@@ -104,7 +104,7 @@ void usbRfComand(uint8_t* buffer, void *pdev, uint32_t Len)
 	//memcpy((void*)&usbBuffer[numFrame * 60], buffer+4, Len - 4);
 
 	//if( numFrame == countFrame )
-	if(Len < 64)
+	//if(Len < 64)
 	{ //весь пакет приняли
 		xEventGroupSetBitsFromISR(xEventGroup, FLAG_COM_USB, 0);
 	}
