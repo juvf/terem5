@@ -18,6 +18,7 @@
 //Определение функции ожидания готовности (нуля на MISO)
 #define IsMISOSet() (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_6) != 0)
 #define ReadyWait()  while(IsMISOSet())
+#define MAX_RANGE	7
 
 //Частота обновления фильтра 11: 12.5 Гц, 160 мс (подавление 50-60 Гц 66 дБ)
 //                            9: 16,7 Гц, 120 мс (подавление 50 Гц 80 дБ)
@@ -376,11 +377,11 @@ float getU_Ad7792(unsigned char numChanel, uint16_t *code)
 					//Недостаточное использование разрядности
 				}
 				else if( (CurCode < 0x8800) && (CurCode > 0x7800)
-						&& (*CurRange < 1) )
+						&& (*CurRange < MAX_RANGE) )
 				{
 					//Увеличить коэффициент усиления PGA для увеличения точности
 					while((CurCode < 0x8800) && (CurCode > 0x7800)
-							&& (*CurRange < 1))
+							&& (*CurRange < MAX_RANGE))
 					{
 						(*CurRange)++;
 						//gFlags.RangeChanged = 1;
@@ -403,6 +404,8 @@ float getU_Ad7792(unsigned char numChanel, uint16_t *code)
 	switchOn(100);
 	if( code )
 		*code = CurCode;         // << *CurRange;
+	if(CurCode != 32768)
+		asm("nop");
 	return curU;
 }
 

@@ -245,10 +245,16 @@ ResultMes readSenser(uint8_t numChanel, uint16_t *codeN)
 			break;
 		case GT_TermoHA:			//Термопара ХА -> в градусах
 		case GT_TermoHAcom:
+		{
+			static float y;
+			static uint16_t asd;
 			result.uClear = getU_Ad7792(numChanel, codeN);
+			asd = *codeN;
 			result.u = result.uClear * configTerem.a[numChanel][0]
 					+ configTerem.a[numChanel][1];
 			result.p = HA_Termo(result.u, tempOfDs1820);
+			y = result.uClear;
+		}
 			break;
 		case GT_Termo48:			//D Универсальный термопарный вход
 			result.u = getU_Ad7792(numChanel, codeN);
