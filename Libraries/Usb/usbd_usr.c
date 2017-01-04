@@ -71,8 +71,8 @@ void USBD_USR_DeviceReset(uint8_t speed )
 
   case USB_OTG_SPEED_FULL: 
      ///LCD_LOG_SetFooter ((uint8_t*)"     USB Device Library v1.2.0 [FS]" );
-    mess = "     USB Device Library v1.2.0 [FS]";
-    xQueueSendFromISR(cansolQueue, &mess, 0);
+    //mess = "     USB Device Library v1.2.0 [FS]";
+    //xQueueSendFromISR(cansolQueue, &mess, 0);
      break;
  default:
      ///LCD_LOG_SetFooter ((uint8_t*)"     USB Device Library v1.2.0 [??]" );

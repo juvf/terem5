@@ -11,6 +11,7 @@
 #include "tasks/sensor/Sensor.h"
 #include "stm32f4xx_adc.h"
 #include "main.h"
+#include "../osConfig.h"
 
 #define csOn()	GPIO_ResetBits(GPIOA, GPIO_Pin_4)
 #define csOff()	GPIO_SetBits(GPIOA, GPIO_Pin_4)
@@ -404,7 +405,7 @@ float getU_Ad7792(unsigned char numChanel, uint16_t *code)
 	switchOn(100);
 	if( code )
 		*code = CurCode;         // << *CurRange;
-	if(CurCode != 32768)
+	if( CurCode != 32768 )
 		asm("nop");
 	return curU;
 }
@@ -513,49 +514,73 @@ float GainKoef(unsigned char Range)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
+//bool isInAdcInit = false;
+
 void initIntAdc()
 {
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOBEN, ENABLE);
-	GPIO_InitTypeDef port;
-	GPIO_StructInit(&port);
-	port.GPIO_Pin = GPIO_Pin_0;
-	port.GPIO_Mode = GPIO_Mode_AN;
-	port.GPIO_PuPd = GPIO_PuPd_NOPULL;
-	GPIO_Init(GPIOB, &port);
+//	xSemaphoreTake(semaphInAdc, portMAX_DELAY);
+//	if( !isInAdcInit )
+	{
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+		RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOBEN, ENABLE);
+		GPIO_InitTypeDef port;
+		GPIO_StructInit(&port);
+		port.GPIO_Pin = GPIO_Pin_0;
+		port.GPIO_Mode = GPIO_Mode_AN;
+		port.GPIO_PuPd = GPIO_PuPd_NOPULL;
+		GPIO_Init(GPIOB, &port);
 
-	/* ADC Common Init **********************************************************/
-	ADC_CommonInitTypeDef comomnInit;
-	comomnInit.ADC_Mode = ADC_Mode_Independent; // независимый режим работы АЦП
-	comomnInit.ADC_Prescaler = ADC_Prescaler_Div2; // выбор частоты тактового к АЦП
-	comomnInit.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled;
-	comomnInit.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles;
-	ADC_CommonInit(&comomnInit); // инициализация
+		/* ADC Common Init **********************************************************/
+		ADC_CommonInitTypeDef comomnInit;
+		comomnInit.ADC_Mode = ADC_Mode_Independent; // независимый режим работы АЦП
+		comomnInit.ADC_Prescaler = ADC_Prescaler_Div2; // выбор частоты тактового к АЦП
+		comomnInit.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled;
+		comomnInit.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles;
+		ADC_CommonInit(&comomnInit); // инициализация
 
-	/* ADC1 Init ****************************************************************/
-	ADC_InitTypeDef adcStruct;
-	ADC_StructInit(&adcStruct);
-	adcStruct.ADC_Resolution = ADC_Resolution_8b;
-	adcStruct.ADC_DataAlign = ADC_DataAlign_Right;
-	adcStruct.ADC_ScanConvMode = DISABLE;
-	adcStruct.ADC_ContinuousConvMode = DISABLE;
-	adcStruct.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None; // начинать преобразование програмно, а не по срабатываню триггера
-	//adcStruct.ADC_ExternalTrigConv = ADC_ExternalTrigConvEdge_None; // начинать преобразование програмно, а не по срабатываню триггера
-	adcStruct.ADC_NbrOfConversion = 1;
-	ADC_Init(ADC1, &adcStruct); // инициализация
+		/* ADC1 Init ****************************************************************/
+		ADC_InitTypeDef adcStruct;
+		ADC_StructInit(&adcStruct);
+		adcStruct.ADC_Resolution = ADC_Resolution_8b;
+		adcStruct.ADC_DataAlign = ADC_DataAlign_Right;
+		adcStruct.ADC_ScanConvMode = DISABLE;
+		adcStruct.ADC_ContinuousConvMode = DISABLE;
+		adcStruct.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None; // начинать преобразование програмно, а не по срабатываню триггера
+		//adcStruct.ADC_ExternalTrigConv = ADC_ExternalTrigConvEdge_None; // начинать преобразование програмно, а не по срабатываню триггера
+		adcStruct.ADC_NbrOfConversion = 1;
+		ADC_Init(ADC1, &adcStruct); // инициализация
 
-	ADC_Cmd(ADC1, ENABLE); // включение АЦП1
+		ADC_Cmd(ADC1, ENABLE); // включение АЦП1
+//		isInAdcInit = true;
+	}
+//	xSemaphoreGive(semaphInAdc);
+}
+
+void deinitInAdc()
+{
+//	xSemaphoreTake(semaphInAdc, portMAX_DELAY);
+	ADC_Cmd(ADC1, DISABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, DISABLE);
+//	isInAdcInit = false;
+//	xSemaphoreGive(semaphInAdc);
 }
 
 uint16_t getBatValue()
 {
+//	if( !isInAdcInit )
+	initIntAdc();
+//	xSemaphoreTake(semaphInAdc, portMAX_DELAY);
 	GPIO_SetBits(GPIOE, GPIO_Pin_15);	//включим батарею на делитель
 	vTaskDelay(7);
+
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_8, 1, ADC_SampleTime_28Cycles);
 	ADC_SoftwareStartConv(ADC1);
 	while(ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET)
 		;
 	GPIO_ResetBits(GPIOE, GPIO_Pin_15);	//выключим батарею на делитель
-	return ADC_GetConversionValue(ADC1);
+	uint16_t res = ADC_GetConversionValue(ADC1);
+//	xSemaphoreGive(semaphInAdc);
+	deinitInAdc();
+	return res;
 }
 

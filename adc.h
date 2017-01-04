@@ -158,6 +158,7 @@ float GainKoef(unsigned char Range);
 
 //--- функции по работе с внутренним АЦП
 void initIntAdc();
+void deinitInAdc();
 uint16_t getBatValue();
 
 extern "C"

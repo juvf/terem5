@@ -14,6 +14,7 @@
 #include "../flashMx25.h"
 #include "Checksum.h"
 #include "taskUartRfd.h"
+#include "mainTask.h"
 
 #include <string.h>
 
@@ -34,7 +35,6 @@ __ALIGN_BEGIN USB_OTG_CORE_HANDLE USB_OTG_dev __ALIGN_END;
 
 uint8_t usbBuffer[280];
 
-
 uint8_t asd[60];
 int y = 0;
 
@@ -50,34 +50,35 @@ void usbTask(void *context)
 	MemCom com;
 	while(1)
 	{
-          if(y > 40)
-            y = 0;
-asd[y++] = 1;
-		if( !((xEventGroupGetBits(xEventGroup) & FLAG_USB_NO_POWER) == FLAG_USB_NO_POWER) )
+		if( y > 40 )
+			y = 0;
+		asd[y++] = 1;
+		if( !((xEventGroupGetBits(xEventGroup) & FLAG_USB_NO_POWER)
+				== FLAG_USB_NO_POWER) )
 		{ //есть питание USB. Проверим - нужен ли инит?
 			if( (xEventGroupGetBits(xEventGroup) & FLAG_USB_INIT) == 0 )
 			{
-                          asd[y++] = 2;
+				asd[y++] = 2;
 				initialUsb();
-                                asd[y++] = 3;
+				asd[y++] = 3;
 				xEventGroupSetBits(xEventGroup, FLAG_USB_INIT);
 			}
 		}
 		else
 		{ //питание пропало.
-                  asd[y++] = 4;
-			if( (xEventGroupGetBits(xEventGroup) & FLAG_USB_INIT) == FLAG_USB_INIT )
+			asd[y++] = 4;
+			if( (xEventGroupGetBits(xEventGroup) & FLAG_USB_INIT)
+					== FLAG_USB_INIT )
 			{ //Деинициализируем УСБ
-                          asd[y++] = 5;
-				deinitialUsb();
-                             asd[y++] = 6;
+				asd[y++] = 5;
+				asd[y++] = 6;
 				xEventGroupClearBits(xEventGroup, FLAG_USB_INIT);
 			}
-                        asd[y++] = 7;
+			asd[y++] = 7;
 			xEventGroupSetBits(xEventGroup, FLAG_NO_WORKS_USB);
-                        asd[y++] = 8;
+			asd[y++] = 8;
 			vTaskDelay(10);
-                        asd[y++] = 9;
+			asd[y++] = 9;
 			continue;
 		}
 #ifdef USB_CONSOL
@@ -89,29 +90,36 @@ asd[y++] = 1;
 			endTransmit = 1;
 			rfd_sizeOfFrame = strlen((char*)rfd_buffer);
 			rfd_count = 0;
+			EventBits_t uxBits = xEventGroupWaitBits(xEventGroup, FLAG_NO_WORKS_BT, pdTRUE,
+					pdTRUE, 2);
+			if( (uxBits & FLAG_NO_WORKS_BT) == FLAG_NO_WORKS_BT )
+			{
+				xEventGroupClearBits(xEventGroup, FLAG_NO_WORKS_BT);
+				initUartDeinitExti3();
+			}
 			USART_ClearITPendingBit(USART2, USART_IT_TC);
 			USART_ITConfig(USART2, USART_IT_TC, ENABLE); // По окончанию отправки
 			USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
 			USART_SendData(USART2, rfd_buffer[0]);
-                        asd[y++] = 10;
+			asd[y++] = 10;
 			while(endTransmit != 0)
 				vTaskDelay(1);
-                        asd[y++] = 11;
+			asd[y++] = 11;
 
 		}
 #endif
-                asd[y++] = 13;
+		asd[y++] = 13;
 		if( xQueueReceive(memComUsbQueue, &com, 5) )
 		{
 			flashMx25Read(usbBuffer, com.address, com.count);
 			DCD_EP_Tx(&USB_OTG_dev, 02, usbBuffer, com.count);
-                        asd[y++] = 14;
+			asd[y++] = 14;
 			vTaskDelay(1);
-                        asd[y++] = 15;
+			asd[y++] = 15;
 		}
 
 		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup, FLAG_COM_USB,
-				pdFALSE, pdFALSE, 10);
+		pdFALSE, pdFALSE, 10);
 		if( (uxBits & FLAG_COM_USB) == FLAG_COM_USB )
 		{ //пришла команда радиоканальная по УСБ. проверим ЦРЦ
 			uint8_t *pBuf = usbBuffer + 4;

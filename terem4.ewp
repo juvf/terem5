@@ -128,7 +128,7 @@
         <option>
           <name>GBECoreSlave</name>
           <version>24</version>
-          <state>40</state>
+          <state>39</state>
         </option>
         <option>
           <name>OGUseCmsis</name>
@@ -188,7 +188,6 @@
           <state>USE_STDPERIPH_DRIVER</state>
           <state>STM32F401xx</state>
           <state>USE_USB_OTG_FS</state>
-          <state>USB_DEBUG</state>
         </option>
         <option>
           <name>CCPreprocFile</name>

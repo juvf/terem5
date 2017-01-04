@@ -233,7 +233,7 @@ void parser(uint8_t *buf, uint8_t isRf)
 		case 0x17: //Start_Proc
 			sizeOfFrame = commandStartProc(buf + 6);
 			break;
-		case 0x18: //Get_ProcConf
+		case 0x18: //Get_ProcConf Чтение параметров
 			sizeOfFrame = commandGetProcConf(buf + 6);
 			break;
 		case 0x19: //Get_CurrentVal

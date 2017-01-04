@@ -23,6 +23,7 @@ void mainTask(void *context)
 
 	while(1)
 	{
+                ledRedOn();
 		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup,
 		FLAG_NO_WORK, pdFALSE, pdTRUE, 100);
 		if( (uxBits & (FLAG_NO_WORK)) == FLAG_NO_WORK )
@@ -46,8 +47,19 @@ void mainTask(void *context)
 extern "C" void EXTI3_IRQHandler()
 {
 	EXTI_ClearFlag(EXTI_Line3);
-	deinitExti();
 	xEventGroupClearBitsFromISR(xEventGroup, FLAG_NO_WORKS_BT);
+	initUartDeinitExti3();
+//	deinitExti();
+//	initUartRfd();
+//	USART_Cmd(USART2, ENABLE);
+//	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE); // При получении
+//	NVIC_EnableIRQ(USART2_IRQn);
+}
+
+
+void initUartDeinitExti3()
+{
+	deinitExti();
 	initUartRfd();
 	USART_Cmd(USART2, ENABLE);
 	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE); // При получении

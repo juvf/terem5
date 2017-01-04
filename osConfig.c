@@ -16,6 +16,7 @@ xTimerHandle timerClearFlash;
 
 EventGroupHandle_t xEventGroup;
 SemaphoreHandle_t semaphAdc;
+//SemaphoreHandle_t semaphInAdc; //симафор для доступа к внутреннему АЦП
 SemaphoreHandle_t mutexFlash;
 SemaphoreHandle_t mutexDeleteProc;
 
@@ -42,6 +43,7 @@ void initOs(void)
 	timerClearFlash = xTimerCreate("clearFlash", 22000, pdFALSE, 0, callbackClearFlash);
 
 	semaphAdc = xSemaphoreCreateMutex();
+//	semaphInAdc = xSemaphoreCreateMutex();
 	mutexFlash = xSemaphoreCreateMutex();
 	mutexDeleteProc = xSemaphoreCreateMutex();
 

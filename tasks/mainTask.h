@@ -9,6 +9,7 @@ void mainTask(void *context);
 void stopJ();
 void initExti();
 void deinitExti();
+void initUartDeinitExti3();
 
 #ifdef __cplusplus
 }
