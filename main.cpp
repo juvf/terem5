@@ -46,7 +46,7 @@ void pereferInit()
 	//инициализация GPIOB
 	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOBEN, ENABLE);
 	GPIO_StructInit(&port);
-	port.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_5 | GPIO_Pin_7 | GPIO_Pin_10;
+	port.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_5 | GPIO_Pin_7 | GPIO_Pin_10 | GPIO_Pin_12;
 	port.GPIO_Mode = GPIO_Mode_OUT;
 	port.GPIO_OType = GPIO_OType_PP;
 	port.GPIO_PuPd = GPIO_PuPd_UP;
@@ -98,7 +98,6 @@ void pereferInit()
 	GPIO_Init(GPIOE, &port);
 
 	//инициализация ноги РА3 для пробуждения по получению байтов с модуля БТ
-
 	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource3);
 	NVIC_EnableIRQ(EXTI3_IRQn);
 	NVIC_SetPriority(EXTI3_IRQn, 12);

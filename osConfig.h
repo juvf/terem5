@@ -14,7 +14,7 @@ extern "C"
 #include "event_groups.h"
 
 #define FLAG_MESUR			( 1 << 0 )
-//#define FLAG_ 				( 1 << 1 )
+#define FLAG_SW_POWER		( 1 << 1 )
 #define FLAG_SLEEP_UART		( 1 << 2 )
 #define FLAG_IS_READY_MES	( 1 << 3 )
 #define FLAG_WRITE_PARAM	( 1 << 4 )
@@ -38,6 +38,7 @@ extern "C"
 #define TASK_PRIORITY_MESUR		1
 #define TASK_PRIORITY_RFD		2
 #define TASK_PRIORITY_USB		3
+#define TASK_PRIORITY_PWR		4
 
 #define SIZE_BUFF_WH41	128
   

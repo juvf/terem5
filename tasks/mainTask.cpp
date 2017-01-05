@@ -23,7 +23,7 @@ void mainTask(void *context)
 
 	while(1)
 	{
-                ledRedOn();
+//ledRedOn();
 		EventBits_t uxBits = xEventGroupWaitBits(xEventGroup,
 		FLAG_NO_WORK, pdFALSE, pdTRUE, 100);
 		if( (uxBits & (FLAG_NO_WORK)) == FLAG_NO_WORK )

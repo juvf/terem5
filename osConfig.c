@@ -1,16 +1,19 @@
 #include "osConfig.h"
 #include "structCommon.h"
+#include "stm32f4xx.h"
+
 #include "tasks/mainTask.h"
 #include "tasks/usbTask.h"
 #include "tasks/taskUartRfd.h"
-#include "stm32f4xx.h"
 #include "tasks/taskMeasurement.h"
+#include "tasks/taskPowerSwitch.h"
 
 //дескрипторы задач
 xTaskHandle handleMain;
 xTaskHandle handleMesur;
 xTaskHandle handleUsb;
 xTaskHandle handleRF;
+xTaskHandle handlePwr;
 
 xTimerHandle timerClearFlash;
 
@@ -29,6 +32,7 @@ xQueueHandle memComUsbQueue; //очередь для чтения памяти по усб
 #define SIZE_STACK_MAIN (configMINIMAL_STACK_SIZE * 2)
 #define SIZE_STACK_USB (configMINIMAL_STACK_SIZE * 2)
 #define SIZE_STACK_RFD (configMINIMAL_STACK_SIZE * 2)
+#define SIZE_STACK_PWR (configMINIMAL_STACK_SIZE)
 
 void initOs(void)
 {
@@ -61,6 +65,9 @@ void createTasks()
 			TASK_PRIORITY_USB, &handleUsb);
 	pTask &= xTaskCreate(taskUartRfd, "taskUartRfd", SIZE_STACK_RFD, 0,
 			TASK_PRIORITY_RFD, &handleRF);
+
+	pTask &= xTaskCreate(taskPowerSwitch, "taskPwr", SIZE_STACK_PWR, 0,
+			TASK_PRIORITY_PWR, &handleRF);
 
 	if(pTask != pdPASS)
 		while(1)

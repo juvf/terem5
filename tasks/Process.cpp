@@ -63,11 +63,11 @@ void initListProc()
 			headerList[countProc++] = i;
 		}
 		if( (i % 100) > 50 )
-			ledRedOff();
+			ledGreenOff();
 		else
-			ledRedOn();
+			ledGreenOn();
 	}
-	ledRedOff();
+	ledGreenOff();
 }
 
 /*нужно найти конец процесса и перезаписать заголовок
