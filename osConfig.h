@@ -50,7 +50,7 @@ extern xTaskHandle handleRfd;
 extern xTimerHandle timerClearFlash;
 
 extern SemaphoreHandle_t semaphAdc; //симафор для измерений
-//extern SemaphoreHandle_t semaphInAdc; //симафор для доступа к внутреннему АЦП
+extern SemaphoreHandle_t semaphInAdc; //симафор для доступа к внутреннему АЦП
 extern SemaphoreHandle_t mutexFlash; //мьютикс для доступа к флешпамяти
 extern SemaphoreHandle_t mutexDeleteProc; //мьютикс для стирания и записи процесса
 

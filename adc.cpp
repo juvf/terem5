@@ -567,9 +567,8 @@ void deinitInAdc()
 
 uint16_t getBatValue()
 {
-//	if( !isInAdcInit )
+	xSemaphoreTake(semaphInAdc, portMAX_DELAY);
 	initIntAdc();
-//	xSemaphoreTake(semaphInAdc, portMAX_DELAY);
 	GPIO_SetBits(GPIOE, GPIO_Pin_15);	//включим батарею на делитель
 	vTaskDelay(7);
 
@@ -579,8 +578,8 @@ uint16_t getBatValue()
 		;
 	GPIO_ResetBits(GPIOE, GPIO_Pin_15);	//выключим батарею на делитель
 	uint16_t res = ADC_GetConversionValue(ADC1);
-//	xSemaphoreGive(semaphInAdc);
 	deinitInAdc();
+	xSemaphoreGive(semaphInAdc);
 	return res;
 }
 

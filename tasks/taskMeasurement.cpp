@@ -39,7 +39,11 @@ void taskMeasurement(void *context)
 			ledGreenOn();
 			xEventGroupClearBits(xEventGroup, FLAG_NO_WORKS_MESURING);
 			setNewAlarmRTC(getProcessPeriod()); 		//перезапустим таймер
-			musuring();
+			//проверим батарею, если меньше 3.2 В, то завершаем процесс.
+			if( getBatValue() < 136 )
+				commandStopProc();//float u = 3.0 * vBat * 2 / 255;
+			else
+				musuring();
 			ledGreenOff();
 			xEventGroupClearBits(xEventGroup, FLAG_MESUR);
 			xEventGroupSetBits(xEventGroup, FLAG_NO_WORKS_MESURING);
