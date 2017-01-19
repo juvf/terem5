@@ -33,6 +33,8 @@ int commandGetState(uint8_t *buffer)
 {
 	buffer[6] = getBatValue();
 	buffer[7] = (stateProcess == 1) || (stateProcess == 3) ? 1 : 0;
+	if( GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_1) == Bit_SET)
+		buffer[7] |= 0x02;
 	return 8;
 }
 

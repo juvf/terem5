@@ -55,6 +55,13 @@ void pereferInit()
 
 	GPIO_SetBits(GPIOB, GPIO_Pin_10); //1-Wire подтянем к "1"
 
+	port.GPIO_Pin = GPIO_Pin_1;
+	port.GPIO_Mode = GPIO_Mode_IN;
+	port.GPIO_OType = GPIO_OType_PP;
+	port.GPIO_PuPd = GPIO_PuPd_UP;
+	port.GPIO_Speed = GPIO_Speed_2MHz;
+	GPIO_Init(GPIOB, &port);
+
 	//инициализация GPIOC
 	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOCEN, ENABLE);
 	GPIO_StructInit(&port);
