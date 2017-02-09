@@ -38,6 +38,8 @@ void initRtc()
 	RTC_WaitForSynchro();
 	RTC_Init(&rtc);
 
+	RTC_BypassShadowCmd(ENABLE);
+
 	RTC_ClearFlag(RTC_FLAG_ALRAF);
 
 	EXTI_InitTypeDef exti;

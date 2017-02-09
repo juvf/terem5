@@ -306,7 +306,6 @@ int commandStartProc(uint8_t *buffer)
 					| (buffer[12] << 16) | (buffer[13] << 24);
 			if( buffer[0] == 0xff )
 			{ //старотовать сейчас процесс
-
 				RTC_TimeTypeDef time;
 				RTC_GetTime(RTC_Format_BIN, &time);
 				RTC_DateTypeDef date;
